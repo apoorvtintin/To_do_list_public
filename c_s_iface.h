@@ -2,6 +2,10 @@
  * This file contains common data structures required 
  * for the client and server
  */
+#ifndef _C_S_IFACE_H
+#define _C_S_IFACE_H
+
+#include <stdint.h>
 
 /* Flags for mod_flags */
 #define MOD_FLAGS_TASK_STRING_MODIFIED		0x1
@@ -13,13 +17,26 @@ enum t_status {
 	TASK_DONE = 1,
 };
 
+typedef enum _msg_type
+{
+    INVALID,
+    MSG_ADD,
+    MSG_MODIFY,
+    MSG_GET_ALL,
+    MSG_REMOVE
+} msg_type_t;
+
 struct message_add {
+    uint64_t msg_len;
+    msg_type_t msg_type;
 	char task[1024];
 	char task_date[32];
 	enum t_status task_status;
 };
 
 struct message_modify {
+    uint64_t msg_len;
+    msg_type_t msg_type;
 	char task[1024];
 	char new_task[1024];
 	char new_date[32];
@@ -28,9 +45,14 @@ struct message_modify {
 };
 
 struct message_get_all {
+    uint64_t msg_len;
+    msg_type_t msg_type;
 	char dummy_for_now;
 };
 
 struct message_remove {
+    uint64_t msg_len;
+    msg_type_t msg_type;
 	char task[1024];
 };
+#endif
