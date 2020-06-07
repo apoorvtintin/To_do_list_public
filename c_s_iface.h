@@ -55,4 +55,13 @@ struct message_remove {
     msg_type_t msg_type;
 	char task[1024];
 };
+
+struct message_storage
+{
+    uint64_t msg_len;
+    msg_type_t msg_type;
+    char task[sizeof(struct message_modify)];
+    // make sure that this corresponds to the longest message.
+
+};
 #endif
