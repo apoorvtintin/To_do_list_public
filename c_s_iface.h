@@ -17,14 +17,18 @@ enum t_status {
 	TASK_DONE = 1,
 };
 
-typedef enum _msg_type
-{
+typedef enum _msg_type {
     INVALID,
     MSG_ADD,
     MSG_MODIFY,
     MSG_GET_ALL,
     MSG_REMOVE
 } msg_type_t;
+
+struct message_hdr {
+	int client_id;
+	msg_type_t msg_type;
+};
 
 struct message_add {
     uint64_t msg_len;
@@ -56,12 +60,9 @@ struct message_remove {
 	char task[1024];
 };
 
-struct message_storage
-{
-    uint64_t msg_len;
-    msg_type_t msg_type;
-    char task[sizeof(struct message_modify)];
+struct message_storage {
+    struct message_hdr header;
+	char task[sizeof(struct message_modify)];
     // make sure that this corresponds to the longest message.
-
 };
 #endif
