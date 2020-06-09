@@ -7,8 +7,11 @@ app: server client
 
 client: client.c
 	$(CC) $(CFLAGS) $^ -o $@
-
-server: server.c
+util.o:	util.c
+	gcc -O -c util.c
+libutil.a:	util.o
+	ar rcs libutil.a util.o
+server: server.c libutil.a
 	$(CC) $(CFLAGS) $^ -o server
 
 clean:

@@ -60,9 +60,11 @@ struct message_remove {
 	char task[1024];
 };
 
+#define MAXMSGSIZE sizeof(struct message_modify)
+
 struct message_storage {
     struct message_hdr header;
-	char task[sizeof(struct message_modify)];
+	char task[MAXMSGSIZE];
     // make sure that this corresponds to the longest message.
 };
 #endif
