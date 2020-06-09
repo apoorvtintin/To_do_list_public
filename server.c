@@ -10,6 +10,7 @@
 
 #include "c_s_iface.h"
 #include "util.h"
+#include "msg_util.h"
 
 // Global variables
 int verbose = 0;
@@ -30,10 +31,10 @@ typedef struct _client_ctx
 void handle_connection(client_ctx_t *client_ctx)
 {
     int msg_len = 0;
-    int msg_buf[MAXMSGSIZE];
+    char msg_buf[MAXMSGSIZE];
     msg_len = sock_readn(client_ctx->fd, msg_buf, MAXMSGSIZE);
-    printf("%d\n", msg_len);
-    //handle_message();
+    // copy the buffer to message_storage.
+    print_msg(msg_buf);
     if(client_ctx->fd >= 0)
     {
         close(client_ctx->fd);
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_port = htons(atoi(argv[1])); 
+    server_addr.sin_port = htons(atoi(argv[2])); 
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if(listen_fd < 0)
     {
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
     while(1)
     {
         accept_ret_val = accept(listen_fd, &client_addr,&client_addr_len );
-        if(verbose <= 3)
+        if(verbose >= 3)
         {
             printf("Connection accepted !!!\n");
         }
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
         init_client_ctx(&conn_client_ctx);
         conn_client_ctx.fd = accept_ret_val;
         memcpy(&conn_client_ctx.addr, &client_addr, sizeof(struct sockaddr_in));    
-            handle_connection(&conn_client_ctx);
+        handle_connection(&conn_client_ctx);
     }
     return 0;
 }

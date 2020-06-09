@@ -22,7 +22,8 @@ typedef enum _msg_type {
     MSG_ADD,
     MSG_MODIFY,
     MSG_GET_ALL,
-    MSG_REMOVE
+    MSG_REMOVE,
+    MSG_HEARTBEAT
 } msg_type_t;
 
 struct message_hdr {
@@ -59,6 +60,7 @@ struct message_remove {
     msg_type_t msg_type;
 	char task[1024];
 };
+
 
 #define MAXMSGSIZE sizeof(struct message_modify)
 
