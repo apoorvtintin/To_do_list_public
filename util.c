@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "util.h"
 
@@ -100,7 +101,19 @@ ssize_t sock_readline(int fd, void *buf, size_t n)
             break;
         }
     }
-    return (n - nread);
+    return nread;
+}
+
+int str_to_int(char *str, int *res)
+{
+    char *end = NULL;
+    long int v = strtol(str, &end, 0);
+    if (v == LONG_MIN || *end != '\0')
+    {
+        return -1;
+    }
+    *res = (int)v;
+    return 0;
 }
 
 

@@ -10,31 +10,108 @@
 
 #include "c_s_iface.h"
 #include "util.h"
-#include "msg_util.h"
+#include "server.h"
 
 // Global variables
 int verbose = 0;
 
-typedef struct _server_ctx
+// Local help functions
+void print_user_req(client_ctx_t *client_ctx)
 {
-    int fd;
-    struct sockaddr_in addr;
-} server_ctx_t;
+    client_request_t *msg_ptr = &client_ctx->req;
+    printf("----------------------------------------------------------\n");    
+    printf("| Message Type : %d                                      |\n", msg_ptr->msg_type);
+    printf("| Task         : %s                                      |\n", msg_ptr->task);
+    printf("| Task Date    : %s                                      |\n", msg_ptr->date);
+    printf("| Task Status  : %d                                      |\n", msg_ptr->task_status);
+    printf("| Mod flags    : %d                                      |\n", msg_ptr->mod_flags);
+    printf("----------------------------------------------------------\n");    
+}
 
-typedef struct _client_ctx
+int parse_kv(client_ctx_t *client_ctx, char *key, char *value)
 {
-    int fd;
-    struct sockaddr_in addr;
-} client_ctx_t;
 
+    if(strcmp(key, "Client ID") == 0)
+    {
+        if(str_to_int(value, &client_ctx->client_id) != 0)
+        {
+            fprintf(stderr, "Client_id conversion failed; Malformed req!!!\n");
+            // TODO: write to client error.
+            return -1;
+        }
+    }
+    else if(strcmp(key, "Message Type") == 0)
+    {
+        if(str_to_int(value, (int *)&client_ctx->req.msg_type) != 0)
+        {
+            // TODO: write error to client;
+            fprintf(stderr, "Msg Id Conversion failed!!!\n");
+            return -1;
+        }       
+    }
+    else if(strcmp(key, "Task") == 0)
+    {
+        strncpy(client_ctx->req.task, value, sizeof(client_ctx->req.task));
+    }
+    else if(strcmp(key, "Task status") == 0)
+    {
+        if(str_to_int(value, (int *)&client_ctx->req.task_status) != 0)
+        {
+            // TODO: write error to client;
+            fprintf(stderr, "Msg Id Conversion failed!!!\n");
+            return -1;
+        }       
+    }
+    else if(strcmp(key, "Due date") == 0)
+    {
+        strncpy(client_ctx->req.date, value, sizeof(client_ctx->req.date));
+    }
+    return 0;
+}
 
 void handle_connection(client_ctx_t *client_ctx)
 {
     int msg_len = 0;
-    char msg_buf[MAXMSGSIZE];
-    msg_len = sock_readn(client_ctx->fd, msg_buf, MAXMSGSIZE);
-    // copy the buffer to message_storage.
-    print_msg(msg_buf);
+    char msg_buf[MAXMSGSIZE]; // define a MAXLINE macro.
+    char key[MAXMSGSIZE], value[MAXMSGSIZE];
+    unsigned int input_fields_counter = 0;
+    while(1)
+    {
+        msg_len = sock_readline(client_ctx->fd, msg_buf, MAXMSGSIZE);
+        if(msg_len == 0)
+        {
+            // The client closed the connection we should to.
+            goto _EXIT;
+        }
+
+        if(msg_len == 2 && msg_buf[0] == '\r' && msg_buf[1] == '\n')
+        {
+            // End of message.
+            break;
+        }
+        if(input_fields_counter >= MAX_REQ_FIELDS)
+        {
+            fprintf(stderr, "Client sent too many input fields \n");
+            // TODO: write some error to client.
+            goto _EXIT;
+        }
+        if(sscanf(msg_buf,"%[^:]: %[^\r\n]", key, value) != 2)
+        {
+            fprintf(stderr, "Malformed key value received in request!!!\n");
+            // TODO: write error to the client.
+            goto _EXIT;
+        }
+        if(parse_kv(client_ctx, key, value) == -1)
+        {
+            goto _EXIT;
+        }
+        ++input_fields_counter;
+        write(1, msg_buf, msg_len);
+//        write(1,"\n",1);   
+    }
+    // TODO: put a check to see if all the required fields are present.
+    print_user_req(client_ctx);
+_EXIT:
     if(client_ctx->fd >= 0)
     {
         close(client_ctx->fd);

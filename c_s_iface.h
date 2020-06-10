@@ -12,6 +12,8 @@
 #define MOD_FLAGS_DATE_MODIFIED				0x2
 #define MOD_FLAGS_STATUS_MODIFIED			0x4
 
+#define MAX_REQ_FIELDS 6
+
 enum t_status {
 	TASK_NOT_DONE = 0,
 	TASK_DONE = 1,
@@ -69,4 +71,13 @@ struct message_storage {
 	char task[MAXMSGSIZE];
     // make sure that this corresponds to the longest message.
 };
+
+typedef struct _client_request
+{
+    msg_type_t msg_type;
+    char task[1024];
+    char date[32];
+    enum t_status task_status;
+    int mod_flags;
+} client_request_t;
 #endif
