@@ -13,6 +13,10 @@
 #define MOD_FLAGS_STATUS_MODIFIED			0x4
 
 #define MAX_REQ_FIELDS 6
+#define MAX_LENGTH		8192
+
+#define TASK_LENGTH		1024
+#define DATE_LENGTH		32
 
 enum t_status {
 	TASK_NOT_DONE = 0,
@@ -28,49 +32,35 @@ typedef enum _msg_type {
     MSG_HEARTBEAT
 } msg_type_t;
 
-struct message_hdr {
-	int client_id;
-	msg_type_t msg_type;
-};
-
 struct message_add {
-    uint64_t msg_len;
-    msg_type_t msg_type;
-	char task[1024];
-	char task_date[32];
+	char task[TASK_LENGTH];
+	char task_date[DATE_LENGTH];
 	enum t_status task_status;
 };
 
 struct message_modify {
-    uint64_t msg_len;
-    msg_type_t msg_type;
-	char task[1024];
-	char new_task[1024];
-	char new_date[32];
+	char task[TASK_LENGTH];
+	char new_task[TASK_LENGTH];
+	char new_date[DATE_LENGTH];
 	enum t_status new_task_status;
 	int mod_flags;					// This flag tells us which fields are to be modified
 };
 
 struct message_get_all {
-    uint64_t msg_len;
-    msg_type_t msg_type;
 	char dummy_for_now;
 };
 
 struct message_remove {
-    uint64_t msg_len;
-    msg_type_t msg_type;
-	char task[1024];
+	char task[TASK_LENGTH];
 };
 
+struct message_response {
+	int client_id;
+	char status[TASK_LENGTH];
+};
 
 #define MAXMSGSIZE sizeof(struct message_modify)
 
-struct message_storage {
-    struct message_hdr header;
-	char task[MAXMSGSIZE];
-    // make sure that this corresponds to the longest message.
-};
 
 typedef struct _client_request
 {

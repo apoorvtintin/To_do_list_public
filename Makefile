@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS  = -Wall -Werror
+CFLAGS  = -pthread -Wall -Werror
 
 .PHONY: app clean client server
 
 app: server client
 
-client: client.c
+client: client.c libutil.a
 	$(CC) $(CFLAGS) $^ -o $@
 util.o:	util.c
 	gcc -O -c util.c
