@@ -33,6 +33,8 @@ void handle_connection(client_ctx_t *client_ctx)
     int msg_len = 0;
     char msg_buf[MAXMSGSIZE];
     msg_len = sock_readn(client_ctx->fd, msg_buf, MAXMSGSIZE);
+	if (msg_len < 0) {
+	}
     // copy the buffer to message_storage.
     print_msg(msg_buf);
     if(client_ctx->fd >= 0)

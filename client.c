@@ -7,7 +7,10 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <pthread.h>
+
 #include "c_s_iface.h"
+#include "util.h"
 
 typedef struct sockaddr SA;
 
@@ -48,10 +51,23 @@ int connect_to_server() {
 	return sockfd;
 }
 
+void create_add_message_to_server(char *buf, struct message_add *message,
+								int client_id) {
+	sprintf(buf,
+			"Client ID: %d\r\n"
+			"Message Type: %d\r\n"
+			"Task: %s\r\n"
+			"Task status: %d\r\n"
+			"Due date: %s\r\n\r\n",
+			client_id, MSG_ADD, message->task, message->task_status, message->task_date);
+}
+
 void handle_new_task() {
 	int clientfd = 0;
 	struct message_add message;
 	struct message_storage tot_msg;
+	char buf[8192];
+	char resp_buf[8192];
 
 	memset(&message, 0, sizeof(struct message_add));
 	memset(&tot_msg, 0, sizeof(struct message_storage));
@@ -69,12 +85,17 @@ void handle_new_task() {
 
 	message.task_status = TASK_NOT_DONE;
 
-	tot_msg.header.client_id = 1;
-	tot_msg.header.msg_type = MSG_ADD;
-	
-	memcpy(tot_msg.task, &message, sizeof(struct message_add));
+	create_add_message_to_server(buf, &message, 1);
 
-	write(clientfd, &tot_msg, sizeof(struct message_storage));
+	//write(clientfd, buf, 8192);
+
+	while(sock_readline(clientfd, resp_buf, 8192)) {
+		if(!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
+			break;
+		}
+		
+		printf("%s", resp_buf);
+	}
 
 	close(clientfd);
 
@@ -91,12 +112,45 @@ void handle_mod_task() {
 	return;
 }
 
+void *heartbeat_signal(void *vargp) {
+	int clientfd = 0;
+	struct message_storage tot_msg;
+
+	while(1) {
+		sleep(10);
+
+		clientfd = connect_to_server();
+		if (clientfd < 0) {
+			return NULL;
+		}
+
+		memset(&tot_msg, 0, sizeof(struct message_storage));
+
+		tot_msg.header.client_id = 1;
+		tot_msg.header.msg_type = MSG_HEARTBEAT;
+
+		write(clientfd, &tot_msg, sizeof(struct message_storage));
+
+		close(clientfd);
+	}
+
+	return NULL;
+}
+
 int main(int argc, char *argv[]) {
 	int choice = 0;
+	int status = 0;
+	pthread_t tid;
 
 	if (argc != 3) {
 		printf("Check arguments again!!!!\n");
 		exit(1);
+	}
+
+	// Spawn the heartbeat thread
+	status = pthread_create(&tid, NULL, heartbeat_signal, NULL);
+	if (status < 0) {
+		printf("Heartbeat thread create failed\n");
 	}
 
 	memset(&server, 0, sizeof(struct server_info));

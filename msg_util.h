@@ -7,7 +7,7 @@
 #ifndef __MSG_UTIL__H
 #define __MSG_UTIL__H
 
-void print_msg(char *msg);
+void print_msg(void *msg);
 
 
 #endif
