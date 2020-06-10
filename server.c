@@ -28,6 +28,25 @@ void print_user_req(client_ctx_t *client_ctx)
     printf("----------------------------------------------------------\n");    
 }
 
+void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg)
+{
+    char resp_buf[MAX_LENGTH];
+    int resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+            "Client ID: %d\r\n"
+            "Msg: %s\r\n"
+            "\r\n",status, client_ctx->client_id, msg);
+    if(resp_len > sizeof(resp_buf))
+    {
+        fprintf(stderr, "server resp is greater than the resp_buffer!!");
+        return;
+    }
+    if(sock_writen(client_ctx->fd, resp_buf, resp_len) == -1)
+    {
+        fprintf(stderr, "Error while writing responce to client\n");
+    }
+    return;
+}
+
 int parse_kv(client_ctx_t *client_ctx, char *key, char *value)
 {
 
@@ -37,6 +56,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value)
         {
             fprintf(stderr, "Client_id conversion failed; Malformed req!!!\n");
             // TODO: write to client error.
+            write_client_responce(client_ctx, "FAIL", "Malformed Client ID received");
             return -1;
         }
     }
@@ -45,6 +65,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value)
         if(str_to_int(value, (int *)&client_ctx->req.msg_type) != 0)
         {
             // TODO: write error to client;
+            write_client_responce(client_ctx, "FAIL", "Malformed Msg Type received");
             fprintf(stderr, "Msg Id Conversion failed!!!\n");
             return -1;
         }       
@@ -58,6 +79,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value)
         if(str_to_int(value, (int *)&client_ctx->req.task_status) != 0)
         {
             // TODO: write error to client;
+            write_client_responce(client_ctx, "FAIL", "Malformed Task Status");
             fprintf(stderr, "Msg Id Conversion failed!!!\n");
             return -1;
         }       
@@ -93,11 +115,13 @@ void handle_connection(client_ctx_t *client_ctx)
         {
             fprintf(stderr, "Client sent too many input fields \n");
             // TODO: write some error to client.
+            write_client_responce(client_ctx, "FAIL", "req had more than req num of fields");
             goto _EXIT;
         }
         if(sscanf(msg_buf,"%[^:]: %[^\r\n]", key, value) != 2)
         {
             fprintf(stderr, "Malformed key value received in request!!!\n");
+            write_client_responce(client_ctx, "FAIL", "Malformed Key-Value received in input");
             // TODO: write error to the client.
             goto _EXIT;
         }
@@ -106,11 +130,14 @@ void handle_connection(client_ctx_t *client_ctx)
             goto _EXIT;
         }
         ++input_fields_counter;
-        write(1, msg_buf, msg_len);
-//        write(1,"\n",1);   
+        //        write(1, msg_buf, msg_len);
+        //        write(1,"\n",1);   
     }
     // TODO: put a check to see if all the required fields are present.
     print_user_req(client_ctx);
+    //
+    // send responce.
+    write_client_responce(client_ctx, "OK", "Success");
 _EXIT:
     if(client_ctx->fd >= 0)
     {
