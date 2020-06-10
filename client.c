@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "c_s_iface.h"
 #include "util.h"
@@ -20,6 +21,7 @@ struct server_info {
 };
 
 struct server_info server;
+int client_id = 0;
 
 void display_initial_text() {
 	printf("\n*********************************\n");
@@ -36,6 +38,9 @@ int connect_to_server() {
 	int sockfd;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0) {
+		printf("Socket create failed: %s\n", strerror(errno));
+	}
 
 	memset(&servaddr, 0, sizeof(struct sockaddr_in));
 
@@ -60,43 +65,90 @@ void create_add_message_to_server(char *buf, struct message_add *message,
 			"Task status: %d\r\n"
 			"Due date: %s\r\n\r\n",
 			client_id, MSG_ADD, message->task, message->task_status, message->task_date);
+
+	return;
+}
+
+void create_heartbeat_message_to_server(char *buf) {
+	sprintf(buf,
+			"Client ID: %d\r\n"
+			"Message Type: %d\r\n",
+			client_id, MSG_HEARTBEAT);
+
+	return;
+}
+
+void get_response_from_server(int clientfd,
+							struct message_response *response) {
+	
+	char resp_buf[MAX_LENGTH];
+	char temp[TASK_LENGTH];
+
+	memset(resp_buf, 0, MAX_LENGTH);
+	memset(temp, 0, TASK_LENGTH);
+
+	while(sock_readline(clientfd, resp_buf, MAX_LENGTH) > 0) {
+		if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
+			break;
+		}
+	
+		if (!strncmp(resp_buf, "Status", strlen("Status"))) {
+			sscanf(resp_buf, "Status: %s", response->status);
+		}
+
+		if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
+			sscanf(resp_buf, "Client ID: %s", temp);
+			response->client_id = atoi(temp);
+		}
+		
+		printf("%s", resp_buf);
+	}
+
+	return;
+}
+void get_inputs_for_message_add(struct message_add *message) {
+
+	printf("\nAdding new Task\n");
+	printf("\nEnter task: ");
+	scanf("%s", message->task);
+	printf("\nEnter due date: ");
+	scanf("%s", message->task_date);
+
+	message->task_status = TASK_NOT_DONE;
+
+	return;
 }
 
 void handle_new_task() {
 	int clientfd = 0;
+	int status = 0;
 	struct message_add message;
-	struct message_storage tot_msg;
-	char buf[8192];
-	char resp_buf[8192];
+	struct message_response response;
+	char buf[MAX_LENGTH];
 
 	memset(&message, 0, sizeof(struct message_add));
-	memset(&tot_msg, 0, sizeof(struct message_storage));
+	memset(&response, 0, sizeof(struct message_response));
+	memset(buf, 0, MAX_LENGTH);
 
 	clientfd = connect_to_server();
 	if (clientfd < 0) {
 		return;
 	}
 
-	printf("\nAdding new Task\n");
-	printf("\nEnter task: ");
-	scanf("%s", message.task);
-	printf("\nEnter due date: ");
-	scanf("%s", message.task_date);
+	get_inputs_for_message_add(&message);
 
-	message.task_status = TASK_NOT_DONE;
-
-	create_add_message_to_server(buf, &message, 1);
-
-	//write(clientfd, buf, 8192);
-
-	while(sock_readline(clientfd, resp_buf, 8192)) {
-		if(!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
-			break;
-		}
-		
-		printf("%s", resp_buf);
+	create_add_message_to_server(buf, &message, client_id);
+	
+	status = write(clientfd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
 	}
 
+	get_response_from_server(clientfd, &response);
+	
+	printf("Client ID: %d\n", response.client_id);
+	printf("Status: %s\n", response.status);
+		
 	close(clientfd);
 
 	printf("\nAdded task.\n");
@@ -114,7 +166,12 @@ void handle_mod_task() {
 
 void *heartbeat_signal(void *vargp) {
 	int clientfd = 0;
-	struct message_storage tot_msg;
+	int status = 0;
+	char buf[MAX_LENGTH];
+	struct message_response response;
+
+	memset(buf, 0, MAX_LENGTH);
+	memset(&response, 0, sizeof(struct message_response));
 
 	while(1) {
 		sleep(10);
@@ -124,12 +181,14 @@ void *heartbeat_signal(void *vargp) {
 			return NULL;
 		}
 
-		memset(&tot_msg, 0, sizeof(struct message_storage));
+		create_heartbeat_message_to_server(buf);
 
-		tot_msg.header.client_id = 1;
-		tot_msg.header.msg_type = MSG_HEARTBEAT;
+		status = write(clientfd, buf, MAX_LENGTH);
+		if (status < 0) {
+			printf("Write failed: %s\n",strerror(errno));
+		}
 
-		write(clientfd, &tot_msg, sizeof(struct message_storage));
+		get_response_from_server(clientfd, &response);
 
 		close(clientfd);
 	}
@@ -146,6 +205,8 @@ int main(int argc, char *argv[]) {
 		printf("Check arguments again!!!!\n");
 		exit(1);
 	}
+
+	client_id = 1;
 
 	// Spawn the heartbeat thread
 	status = pthread_create(&tid, NULL, heartbeat_signal, NULL);
@@ -188,10 +249,6 @@ int main(int argc, char *argv[]) {
 				printf("\nEnter an option from the list\n");
 				break;
 		}
-
-		/* Connect to server */
-
-		/* */
 	}
 
 	return 0;
