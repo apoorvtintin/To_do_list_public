@@ -72,7 +72,7 @@ void create_add_message_to_server(char *buf, struct message_add *message,
 void create_heartbeat_message_to_server(char *buf) {
 	sprintf(buf,
 			"Client ID: %d\r\n"
-			"Message Type: %d\r\n",
+			"Message Type: %d\r\n\r\n",
 			client_id, MSG_HEARTBEAT);
 
 	return;
@@ -87,7 +87,10 @@ void get_response_from_server(int clientfd,
 	memset(resp_buf, 0, MAX_LENGTH);
 	memset(temp, 0, TASK_LENGTH);
 
-	while(sock_readline(clientfd, resp_buf, MAX_LENGTH) > 0) {
+    sock_buf_read client_fd;
+    init_buf_fd(&client_fd, clientfd);
+
+	while(sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
 		if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
 			break;
 		}

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <limits.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -69,40 +70,54 @@ ssize_t sock_writen(int fd, const void *buf, size_t n)
     }
     return n;
 }
-// TODO: Test this out once when coding the server.
-ssize_t sock_readline(int fd, void *buf, size_t n)
+
+
+void init_buf_fd(sock_buf_read *ptr, int fd)
 {
-    size_t nleft;
-    ssize_t nread;
-    unsigned char *ptr = buf;
-    nleft = n;
+    ptr->fd = fd;
+    memset(ptr->buf, 0, sizeof(ptr->buf));  
+    ptr->buf_ptr = ptr->buf;
+    ptr->bytes_pend = 0;
+}
+ssize_t sock_read(sock_buf_read *ptr, void *buf, size_t n)
+{
+    if(ptr->bytes_pend == 0)
+    {
+        ptr->bytes_pend = sock_readn(ptr->fd, ptr->buf, sizeof(ptr->buf));
+        if(ptr->bytes_pend < 0)
+        {
+            ptr->bytes_pend = 0;
+        }
+        ptr->buf_ptr = ptr->buf;
+    }
+    if(ptr->bytes_pend != 0)
+    {
+        memcpy(buf, ptr->buf_ptr, ((n < ptr->bytes_pend)?n:ptr->bytes_pend));
+        ptr->bytes_pend -= ((n < ptr->bytes_pend)?n:ptr->bytes_pend);
+        ptr->buf_ptr += ((n < ptr->bytes_pend)?n:ptr->bytes_pend);
+        return ((n < ptr->bytes_pend)?n:ptr->bytes_pend);
+    }
+    return 0;
+
+}
+ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n)
+{
+    char c;
+    size_t nleft = n;
+    char *out_buffer = buf;
     while(nleft > 0)
     {
-        if((nread = read(fd, ptr, nleft)) < 0)
-        {
-            if(errno == EINTR)
-            {
-                nread = 0;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        else if(nread == 0)
+        if(sock_read(ptr, &c, 1)); 
+        out_buffer[n-nleft] = c;
+        nleft -= 1;
+        if(c == '\n')
         {
             break;
-        }
-        nleft -= nread; 
-        ptr += nread;
-
-        if((ptr != buf) && (*(ptr - 1) == '\n'))
-        {
-            break;
-        }
+        }      
     }
-    return nread;
+    return n - nleft;
 }
+// TODO: Test this out once when coding the server.
 
 int str_to_int(char *str, int *res)
 {
