@@ -159,6 +159,8 @@ void *handle_connection(void *arg) {
     }
     // TODO: put a check to see if all the required fields are present.
     print_user_req(client_ctx);
+     //Handle strorage in database
+    handle_storage(client_ctx);
     //
     // send responce.
     write_client_responce(client_ctx, "OK", "Success");
@@ -238,6 +240,7 @@ int main(int argc, char *argv[]) {
     pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
 
+    storage_init();// init database for storage
     while (1) {
         accept_ret_val = accept(listen_fd, &client_addr, &client_addr_len);
         if (verbose >= 3) {
