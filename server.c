@@ -1,13 +1,13 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <getopt.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <pthread.h>
 
 #include "c_s_iface.h"
 #include "server.h"
@@ -18,16 +18,16 @@ int verbose = 0;
 
 // Local help functions
 
-void print_user_req(client_ctx_t *client_ctx)
-{
+void print_user_req(client_ctx_t *client_ctx) {
     client_request_t *msg_ptr = &client_ctx->req;
     static int once = 0;
-    if(once == 0)
-    {
+    if (once == 0) {
         char buffer[4096];
-        int ch = snprintf(buffer, sizeof(buffer),"%-2s%-8s%4s %-30s%8s %-10s%4s %-11s%4s %-8s%2s\n", 
-                "|","MSG Type", "","TASK", "","Date", "","Task Status", "","Mod Flags", "|");
-        ch = ch-2;
+        int ch = snprintf(buffer, sizeof(buffer),
+                          "%-2s%-8s%4s %-30s%8s %-10s%4s %-11s%4s %-8s%2s\n",
+                          "|", "MSG Type", "", "TASK", "", "Date", "",
+                          "Task Status", "", "Mod Flags", "|");
+        ch = ch - 2;
         printf("%s", buffer);
         memset(buffer, 0, sizeof(buffer));
         memset(buffer, '=', ch);
@@ -38,16 +38,13 @@ void print_user_req(client_ctx_t *client_ctx)
     }
     char buffer[4096];
 
-    int ch = snprintf(buffer, sizeof(buffer),"%-2s%-8d%4s %-30s%8s %-10s%4s %-11d%4s %-8d%3s\n", 
-            "|",
-            msg_ptr->msg_type,"",
-            msg_ptr->task,"",
-            msg_ptr->date,"",
-            msg_ptr->task_status,"",
-            msg_ptr->mod_flags,
-            "|");
-    printf("%s", buffer);memset(buffer, 0, sizeof(buffer));
-    ch = ch -2;
+    int ch = snprintf(buffer, sizeof(buffer),
+                      "%-2s%-8d%4s %-30s%8s %-10s%4s %-11d%4s %-8d%3s\n", "|",
+                      msg_ptr->msg_type, "", msg_ptr->task, "", msg_ptr->date,
+                      "", msg_ptr->task_status, "", msg_ptr->mod_flags, "|");
+    printf("%s", buffer);
+    memset(buffer, 0, sizeof(buffer));
+    ch = ch - 2;
     memset(buffer, '-', ch);
     buffer[0] = '+';
     buffer[ch] = '+';
@@ -60,16 +57,17 @@ void print_user_req(client_ctx_t *client_ctx)
     printf("| Task Date    : %s                                      |\n", msg_ptr->date);
     printf("| Task Status  : %d                                      |\n", msg_ptr->task_status);
     printf("| Mod flags    : %d                                      |\n", msg_ptr->mod_flags);
-    printf("----------------------------------------------------------\n");    
+    printf("----------------------------------------------------------\n");
 #endif
 }
 
 void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
     char resp_buf[MAX_LENGTH];
-    int resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
-                                                        "Client ID: %d\r\n"
-                                                        "Msg: %s\r\n"
-                                                        "\r\n",
+    int resp_len = snprintf(resp_buf, sizeof(resp_buf),
+                            "Status: %s\r\n"
+                            "Client ID: %d\r\n"
+                            "Msg: %s\r\n"
+                            "\r\n",
                             status, client_ctx->client_id, msg);
     if (resp_len > sizeof(resp_buf)) {
         fprintf(stderr, "server resp is greater than the resp_buffer!!");
@@ -114,8 +112,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
     return 0;
 }
 
-void* handle_connection(void *arg)
-{
+void *handle_connection(void *arg) {
     pthread_detach(pthread_self());
     client_ctx_t *client_ctx = arg;
     int msg_len = 0;
@@ -124,15 +121,13 @@ void* handle_connection(void *arg)
     unsigned int input_fields_counter = 0;
     sock_buf_read client_fd;
     init_buf_fd(&client_fd, client_ctx->fd);
-	memset(msg_buf, 0, MAXMSGSIZE);
-	memset(key, 0, MAXMSGSIZE);
-	memset(value, 0, MAXMSGSIZE);
+    memset(msg_buf, 0, MAXMSGSIZE);
+    memset(key, 0, MAXMSGSIZE);
+    memset(value, 0, MAXMSGSIZE);
 
-    while(1)
-    {
+    while (1) {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
-        if(msg_len == 0)
-        {
+        if (msg_len == 0) {
             // The client closed the connection we should to.
             goto _EXIT;
         }
@@ -172,8 +167,7 @@ _EXIT:
         close(client_ctx->fd);
         client_ctx->fd = -1;
     }
-    if(client_ctx)
-    {
+    if (client_ctx) {
         free(client_ctx);
         client_ctx = NULL;
     }
@@ -196,8 +190,7 @@ void init_client_ctx(client_ctx_t *ctx) {
 int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
     struct sockaddr_in server_addr;
-    if(argc < 3)
-    {
+    if (argc < 3) {
         // print usage
         fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -262,16 +255,15 @@ int main(int argc, char *argv[]) {
         client_ctx_t *conn_client_ctx = malloc(sizeof(client_ctx_t));
         init_client_ctx(conn_client_ctx);
         conn_client_ctx->fd = accept_ret_val;
-        memcpy(&conn_client_ctx->addr, &client_addr, sizeof(struct sockaddr_in));    
-        if(pthread_create(&th_id, NULL,handle_connection, 
-                    (void *)conn_client_ctx) != 0)
-        {
+        memcpy(&conn_client_ctx->addr, &client_addr,
+               sizeof(struct sockaddr_in));
+        if (pthread_create(&th_id, NULL, handle_connection,
+                           (void *)conn_client_ctx) != 0) {
             fprintf(stderr, "!!!!!!!!!!Thread Creation failed!!!!!!!");
-            if(conn_client_ctx->fd != -1)
-            {
+            if (conn_client_ctx->fd != -1) {
                 close(conn_client_ctx->fd);
                 free(conn_client_ctx);
-            }   
+            }
         }
     }
     return 0;

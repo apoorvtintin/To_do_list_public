@@ -6,8 +6,8 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -55,49 +55,41 @@ ssize_t sock_writen(int fd, const void *buf, size_t n) {
     return n;
 }
 
-
-void init_buf_fd(sock_buf_read *ptr, int fd)
-{
+void init_buf_fd(sock_buf_read *ptr, int fd) {
     ptr->fd = fd;
-    memset(ptr->buf, 0, sizeof(ptr->buf));  
+    memset(ptr->buf, 0, sizeof(ptr->buf));
     ptr->buf_ptr = ptr->buf;
     ptr->bytes_pend = 0;
 }
-ssize_t sock_read(sock_buf_read *ptr, void *buf, size_t n)
-{
-    if(ptr->bytes_pend == 0)
-    {
+ssize_t sock_read(sock_buf_read *ptr, void *buf, size_t n) {
+    if (ptr->bytes_pend == 0) {
         ptr->bytes_pend = sock_readn(ptr->fd, ptr->buf, sizeof(ptr->buf));
-        if(ptr->bytes_pend < 0)
-        {
+        if (ptr->bytes_pend < 0) {
             ptr->bytes_pend = 0;
         }
         ptr->buf_ptr = ptr->buf;
     }
-    if(ptr->bytes_pend != 0)
-    {
-        memcpy(buf, ptr->buf_ptr, ((n < ptr->bytes_pend)?n:ptr->bytes_pend));
-        ptr->bytes_pend -= ((n < ptr->bytes_pend)?n:ptr->bytes_pend);
-        ptr->buf_ptr += ((n < ptr->bytes_pend)?n:ptr->bytes_pend);
-        return ((n < ptr->bytes_pend)?n:ptr->bytes_pend);
+    if (ptr->bytes_pend != 0) {
+        memcpy(buf, ptr->buf_ptr,
+               ((n < ptr->bytes_pend) ? n : ptr->bytes_pend));
+        ptr->bytes_pend -= ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
+        ptr->buf_ptr += ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
+        return ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
     }
     return 0;
-
 }
-ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n)
-{
+ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n) {
     char c;
     size_t nleft = n;
     char *out_buffer = buf;
-    while(nleft > 0)
-    {
-        if(sock_read(ptr, &c, 1)); 
-        out_buffer[n-nleft] = c;
+    while (nleft > 0) {
+        if (sock_read(ptr, &c, 1))
+            ;
+        out_buffer[n - nleft] = c;
         nleft -= 1;
-        if(c == '\n')
-        {
+        if (c == '\n') {
             break;
-        }      
+        }
     }
     return n - nleft;
 }

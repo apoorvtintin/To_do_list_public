@@ -58,11 +58,12 @@ int connect_to_server() {
 
 void create_add_message_to_server(char *buf, struct message_add *message,
                                   int client_id) {
-    sprintf(buf, "Client ID: %d\r\n"
-                 "Message Type: %d\r\n"
-                 "Task: %s\r\n"
-                 "Task status: %d\r\n"
-                 "Due date: %s\r\n\r\n",
+    sprintf(buf,
+            "Client ID: %d\r\n"
+            "Message Type: %d\r\n"
+            "Task: %s\r\n"
+            "Task status: %d\r\n"
+            "Due date: %s\r\n\r\n",
             client_id, MSG_ADD, message->task, message->task_status,
             message->task_date);
 
@@ -70,42 +71,41 @@ void create_add_message_to_server(char *buf, struct message_add *message,
 }
 
 void create_heartbeat_message_to_server(char *buf) {
-	sprintf(buf,
-			"Client ID: %d\r\n"
-			"Message Type: %d\r\n\r\n",
-			client_id, MSG_HEARTBEAT);
+    sprintf(buf,
+            "Client ID: %d\r\n"
+            "Message Type: %d\r\n\r\n",
+            client_id, MSG_HEARTBEAT);
 
     return;
 }
 
-void get_response_from_server(int clientfd,
-							struct message_response *response) {
-	
-	char resp_buf[MAX_LENGTH];
-	char temp[TASK_LENGTH];
+void get_response_from_server(int clientfd, struct message_response *response) {
 
-	memset(resp_buf, 0, MAX_LENGTH);
-	memset(temp, 0, TASK_LENGTH);
+    char resp_buf[MAX_LENGTH];
+    char temp[TASK_LENGTH];
+
+    memset(resp_buf, 0, MAX_LENGTH);
+    memset(temp, 0, TASK_LENGTH);
 
     sock_buf_read client_fd;
     init_buf_fd(&client_fd, clientfd);
 
-	while(sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
-		if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
-			break;
-		}
-	
-		if (!strncmp(resp_buf, "Status", strlen("Status"))) {
-			sscanf(resp_buf, "Status: %s", response->status);
-		}
+    while (sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
+        if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
+            break;
+        }
 
-		if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
-			sscanf(resp_buf, "Client ID: %s", temp);
-			response->client_id = atoi(temp);
-		}
-	}
+        if (!strncmp(resp_buf, "Status", strlen("Status"))) {
+            sscanf(resp_buf, "Status: %s", response->status);
+        }
 
-	return;
+        if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
+            sscanf(resp_buf, "Client ID: %s", temp);
+            response->client_id = atoi(temp);
+        }
+    }
+
+    return;
 }
 void get_inputs_for_message_add(struct message_add *message) {
 
@@ -122,18 +122,18 @@ void get_inputs_for_message_add(struct message_add *message) {
 
 int parse_response_from_server(struct message_response *response) {
 
-	if (response->client_id != client_id) {
-		printf("Response message not intended for the client!!\n");
-		return -2;
-	}
+    if (response->client_id != client_id) {
+        printf("Response message not intended for the client!!\n");
+        return -2;
+    }
 
-	if (!strncmp(response->status, "OK", strlen("OK"))) {
-		return 0;
-	} else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
-		return -1;
-	}
+    if (!strncmp(response->status, "OK", strlen("OK"))) {
+        return 0;
+    } else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 void handle_new_task() {
@@ -164,13 +164,13 @@ void handle_new_task() {
     get_response_from_server(clientfd, &response);
 
     status = parse_response_from_server(&response);
-	if (status < 0) {
-		printf("\nTask not added successfully\n");
-	} else {
-		printf("\nTask added successfully\n");
-	}
-	
-	close(clientfd);
+    if (status < 0) {
+        printf("\nTask not added successfully\n");
+    } else {
+        printf("\nTask added successfully\n");
+    }
+
+    close(clientfd);
 
     return;
 }
@@ -182,7 +182,7 @@ void handle_mod_task() { return; }
 void *heartbeat_signal(void *vargp) {
     int clientfd = 0;
     int status = 0;
-	int connection = 0;
+    int connection = 0;
     char buf[MAX_LENGTH];
     struct message_response response;
 
@@ -194,16 +194,16 @@ void *heartbeat_signal(void *vargp) {
 
         clientfd = connect_to_server();
         if (clientfd < 0) {
-			printf("\nHeartbeat response not received: Server not active\n");
-			printf("Trying again in %d sec... \n\n\n", heartbeat_interval);
-			connection = 1;
-			continue;
+            printf("\nHeartbeat response not received: Server not active\n");
+            printf("Trying again in %d sec... \n\n\n", heartbeat_interval);
+            connection = 1;
+            continue;
         }
 
-		if (connection == 1) {
-			connection = 0;
-			printf("\nConnection to server restored\n\n");
-		}
+        if (connection == 1) {
+            connection = 0;
+            printf("\nConnection to server restored\n\n");
+        }
 
         create_heartbeat_message_to_server(buf);
 
@@ -213,13 +213,13 @@ void *heartbeat_signal(void *vargp) {
         }
 
         get_response_from_server(clientfd, &response);
-		
-		status = parse_response_from_server(&response);
-		if (status < 0) {
-			printf("Heartbeat response not received: Server not active\n");
-			printf("Trying again in %d sec... \n\n\n", heartbeat_interval);
-			connection = 1;
-		}
+
+        status = parse_response_from_server(&response);
+        if (status < 0) {
+            printf("Heartbeat response not received: Server not active\n");
+            printf("Trying again in %d sec... \n\n\n", heartbeat_interval);
+            connection = 1;
+        }
 
         close(clientfd);
     }
@@ -229,27 +229,27 @@ void *heartbeat_signal(void *vargp) {
 
 int validate_input_from_user(int choice) {
 
-	if ((choice >=1) && (choice <=4)) {
-		return 0;
-	} else {
-		return -1;
-	}
+    if ((choice >= 1) && (choice <= 4)) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 int main(int argc, char *argv[]) {
     int choice = 0;
     int status = 0;
     pthread_t tid;
-	char temp_choice;
+    char temp_choice;
 
     if (argc < 3) {
         printf("Check arguments again!!!!\n");
         exit(1);
     } else if (argc == 3) {
-		heartbeat_interval = 10;
-	} else if (argc == 4) {
-		heartbeat_interval = atoi(argv[3]);
-	}
+        heartbeat_interval = 10;
+    } else if (argc == 4) {
+        heartbeat_interval = atoi(argv[3]);
+    }
 
     client_id = 1;
 
@@ -270,14 +270,14 @@ int main(int argc, char *argv[]) {
     while (1) {
         /* Display options */
         display_initial_text();
-		
+
         /* Take inputs */
         printf("Choice: ");
-		temp_choice = getchar();
-		choice = (int)(temp_choice - 48);
+        temp_choice = getchar();
+        choice = (int)(temp_choice - 48);
 
-		while((temp_choice = getchar()) != '\n' && temp_choice != EOF)
-			/* discard */ ;
+        while ((temp_choice = getchar()) != '\n' && temp_choice != EOF)
+            /* discard */;
 
         switch (choice) {
         case 1:

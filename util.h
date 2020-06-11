@@ -6,8 +6,7 @@
  */
 #ifndef __UTIL__H
 #define __UTIL__H
-typedef struct buf_fd
-{
+typedef struct buf_fd {
     int fd;
     char buf[8192];
     char *buf_ptr;
