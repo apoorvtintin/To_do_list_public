@@ -22,6 +22,7 @@ struct server_info {
 
 struct server_info server;
 int client_id = 0;
+int heartbeat_interval = 0;
 
 void display_initial_text() {
     printf("\n*********************************\n");
@@ -49,7 +50,6 @@ int connect_to_server() {
     servaddr.sin_port = htons(server.port);
 
     if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0) {
-        printf("connection with the server failed...\n");
         return -1;
     }
 
@@ -103,8 +103,6 @@ void get_response_from_server(int clientfd,
 			sscanf(resp_buf, "Client ID: %s", temp);
 			response->client_id = atoi(temp);
 		}
-		
-		printf("%s", resp_buf);
 	}
 
 	return;
@@ -120,6 +118,22 @@ void get_inputs_for_message_add(struct message_add *message) {
     message->task_status = TASK_NOT_DONE;
 
     return;
+}
+
+int parse_response_from_server(struct message_response *response) {
+
+	if (response->client_id != client_id) {
+		printf("Response message not intended for the client!!\n");
+		return -2;
+	}
+
+	if (!strncmp(response->status, "OK", strlen("OK"))) {
+		return 0;
+	} else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
+		return -1;
+	}
+
+	return 0;
 }
 
 void handle_new_task() {
@@ -149,12 +163,14 @@ void handle_new_task() {
 
     get_response_from_server(clientfd, &response);
 
-    printf("Client ID: %d\n", response.client_id);
-    printf("Status: %s\n", response.status);
-
-    close(clientfd);
-
-    printf("\nAdded task.\n");
+    status = parse_response_from_server(&response);
+	if (status < 0) {
+		printf("\nTask not added successfully\n");
+	} else {
+		printf("\nTask added successfully\n");
+	}
+	
+	close(clientfd);
 
     return;
 }
@@ -166,6 +182,7 @@ void handle_mod_task() { return; }
 void *heartbeat_signal(void *vargp) {
     int clientfd = 0;
     int status = 0;
+	int connection = 0;
     char buf[MAX_LENGTH];
     struct message_response response;
 
@@ -173,12 +190,20 @@ void *heartbeat_signal(void *vargp) {
     memset(&response, 0, sizeof(struct message_response));
 
     while (1) {
-        sleep(10);
+        sleep(heartbeat_interval);
 
         clientfd = connect_to_server();
         if (clientfd < 0) {
-            return NULL;
+			printf("\nHeartbeat response not received: Server not active\n");
+			printf("Trying again in %d sec... \n\n\n", heartbeat_interval);
+			connection = 1;
+			continue;
         }
+
+		if (connection == 1) {
+			connection = 0;
+			printf("\nConnection to server restored\n\n");
+		}
 
         create_heartbeat_message_to_server(buf);
 
@@ -188,6 +213,13 @@ void *heartbeat_signal(void *vargp) {
         }
 
         get_response_from_server(clientfd, &response);
+		
+		status = parse_response_from_server(&response);
+		if (status < 0) {
+			printf("Heartbeat response not received: Server not active\n");
+			printf("Trying again in %d sec... \n\n\n", heartbeat_interval);
+			connection = 1;
+		}
 
         close(clientfd);
     }
@@ -195,15 +227,29 @@ void *heartbeat_signal(void *vargp) {
     return NULL;
 }
 
+int validate_input_from_user(int choice) {
+
+	if ((choice >=1) && (choice <=4)) {
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
 int main(int argc, char *argv[]) {
     int choice = 0;
     int status = 0;
     pthread_t tid;
+	char temp_choice;
 
-    if (argc != 3) {
+    if (argc < 3) {
         printf("Check arguments again!!!!\n");
         exit(1);
-    }
+    } else if (argc == 3) {
+		heartbeat_interval = 10;
+	} else if (argc == 4) {
+		heartbeat_interval = atoi(argv[3]);
+	}
 
     client_id = 1;
 
@@ -216,7 +262,6 @@ int main(int argc, char *argv[]) {
     memset(&server, 0, sizeof(struct server_info));
 
     memcpy(server.server_ip, argv[1], 1024);
-
     server.port = atoi(argv[2]);
 
     printf("Server IP: %s\n", server.server_ip);
@@ -225,10 +270,14 @@ int main(int argc, char *argv[]) {
     while (1) {
         /* Display options */
         display_initial_text();
-
+		
         /* Take inputs */
         printf("Choice: ");
-        scanf("%d", &choice);
+		temp_choice = getchar();
+		choice = (int)(temp_choice - 48);
+
+		while((temp_choice = getchar()) != '\n' && temp_choice != EOF)
+			/* discard */ ;
 
         switch (choice) {
         case 1:

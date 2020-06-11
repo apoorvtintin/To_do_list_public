@@ -2,5 +2,3 @@
 *.a
 server
 client
-tags
-cscope.out

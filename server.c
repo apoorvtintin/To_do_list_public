@@ -124,6 +124,10 @@ void* handle_connection(void *arg)
     unsigned int input_fields_counter = 0;
     sock_buf_read client_fd;
     init_buf_fd(&client_fd, client_ctx->fd);
+	memset(msg_buf, 0, MAXMSGSIZE);
+	memset(key, 0, MAXMSGSIZE);
+	memset(value, 0, MAXMSGSIZE);
+
     while(1)
     {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
@@ -185,6 +189,7 @@ void init_server_ctx(server_ctx_t *ctx) {
 void init_client_ctx(client_ctx_t *ctx) {
     ctx->fd = -1;
     memset(&ctx->addr, 0, sizeof(ctx->addr));
+    memset(&ctx->req, 0, sizeof(ctx->req));
     return;
 }
 
