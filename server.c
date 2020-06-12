@@ -12,7 +12,7 @@
 #include "c_s_iface.h"
 #include "server.h"
 #include "util.h"
-
+#include "storage.h"
 // Global variables
 int verbose = 0;
 
@@ -99,6 +99,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         }
     } else if (strcmp(key, "Task") == 0) {
         strncpy(client_ctx->req.task, value, sizeof(client_ctx->req.task));
+		client_ctx->req.task_len = strlen(client_ctx->req.task);
     } else if (strcmp(key, "Task status") == 0) {
         if (str_to_int(value, (int *)&client_ctx->req.task_status) != 0) {
             // TODO: write error to client;

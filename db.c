@@ -2,6 +2,7 @@
 /* @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
 
 /* HEADER FILES */
+#include <string.h>
 #include "db.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -40,7 +41,7 @@ static uint8_t* search_list(uint32_t hash, uint64_t key) {
 
 /* PUBLIC APIs */
 int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {
-    if(key == NULL) {
+    if(key == 0) {
         printf("ERROR: key is NULL");
         return -1;
     }
@@ -49,7 +50,7 @@ int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {
     if(new == NULL) {
         return -1;
     }
-    memcpy(new->key, key, SHA_40_len);
+    new->key = key;
     new->data_len = len;
     memcpy(new->raw_data, data, len);
     new->next = NULL;
@@ -91,7 +92,7 @@ int hash_table_delete(uint64_t key){
         prev = temp;
         temp = temp->next;
     }
-    return NULL;
+    return -1;
 }
 
 int hash_table_modify(uint64_t key, uint64_t nkey, uint8_t *new_data, uint64_t nlen) {
@@ -110,8 +111,9 @@ int hash_table_modify(uint64_t key, uint64_t nkey, uint8_t *new_data, uint64_t n
 
 int hash_table_get_all(uint8_t *buffer) {
     data_point *temp;
-    uint8_t buftemp = buffer;
-    for(int index = 0 ;index < hash_table_len; index++) {
+    uint8_t *buftemp = buffer;
+	int index;
+    for(index = 0 ;index < hash_table_len; index++) {
         temp = htable->data[index];
         while(temp != NULL) {
             buftemp +=
@@ -131,7 +133,8 @@ int hash_table_init() {
 
 void hash_table_deinit(){
     data_point *cur, *temp;
-    for(int index = 0 ;index < hash_table_len; index++) {
+	int index;
+    for(index = 0 ;index < hash_table_len; index++) {
         temp = htable->data[index];
         while(temp != NULL) {
             cur = temp;

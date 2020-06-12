@@ -17,7 +17,7 @@ typedef struct data_point_ {
     uint64_t key;
     uint8_t raw_data[MAX_DATA_LEN];
     uint64_t data_len;
-    data_point *next;
+    struct data_point_ *next;
 } data_point;
 
 typedef struct hash_table_ {

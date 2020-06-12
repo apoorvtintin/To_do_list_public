@@ -3,6 +3,9 @@
  * acts as an abstraction layer for the database.
  */
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include "c_s_iface.h"
 #include "server.h"
 
 int storage_init();
