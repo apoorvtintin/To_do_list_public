@@ -70,6 +70,34 @@ void create_add_message_to_server(char *buf, struct message_add *message,
     return;
 }
 
+void create_remove_message_to_server(char *buf, struct message_remove *message,
+                                  int client_id) {
+    sprintf(buf,
+            "Client ID: %d\r\n"
+            "Message Type: %d\r\n"
+            "Task: %s\r\n\r\n",
+            client_id, MSG_REMOVE, message->task);
+
+    return;
+}
+
+void create_modify_message_to_server(char *buf, struct message_modify *message,
+                                  int client_id) {
+    sprintf(buf,
+            "Client ID: %d\r\n"
+            "Message Type: %d\r\n"
+			"Flags: %d\r\n"
+            "Task: %s\r\n"
+			"New Task: %s\r\n"
+			"New Date: %s\r\n"
+			"New status: %d\r\n\r\n",
+            client_id, MSG_MODIFY, message->mod_flags, 
+			message->task, message->new_task, message->new_date,
+			message->new_task_status);
+
+    return;
+}
+
 void create_heartbeat_message_to_server(char *buf) {
     sprintf(buf,
             "Client ID: %d\r\n"
@@ -107,6 +135,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
 
     return;
 }
+
 void get_inputs_for_message_add(struct message_add *message) {
 
     printf("\nAdding new Task\n");
@@ -118,6 +147,52 @@ void get_inputs_for_message_add(struct message_add *message) {
     message->task_status = TASK_NOT_DONE;
 
     return;
+}
+
+void get_inputs_for_message_remove(struct message_remove *message) {
+
+    printf("\nRemoving Task\n");
+    printf("\nEnter task: ");
+    scanf("%s", message->task);
+
+    return;
+}
+
+void get_inputs_for_message_modify(struct message_modify *message) {
+
+	char temp[MAX_LENGTH];
+	memset(temp, 0, MAX_LENGTH);
+
+	printf("\nModifying Task\n");
+	printf("\nEnter Task: ");
+	scanf("%s", message->task);
+	printf("\nEnter fields to modify\n");
+	
+	printf("\nEnter new Task name: ");
+	scanf("%s", message->new_task);
+	if (!strncmp(message->new_task, "NA", strlen("NA"))) {
+	} else {
+		message->mod_flags |= MOD_FLAGS_TASK_STRING_MODIFIED;
+	}
+	
+	printf("\nEnter new Date: ");
+	scanf("%s", message->new_date);
+	if (!strncmp(message->new_date, "NA", strlen("NA"))) {
+	} else {
+		message->mod_flags |= MOD_FLAGS_DATE_MODIFIED;
+	}
+	
+	printf("\nEnter new Task status: ");
+	scanf("%s", temp);
+	if (!strncmp(temp, "NA", strlen("NA"))) {
+	} else {
+		message->mod_flags |= MOD_FLAGS_STATUS_MODIFIED;
+		if (!strncmp(temp, "DONE", strlen("DONE"))) {
+			message->new_task_status = TASK_NOT_DONE;
+		} else if (!strncmp(temp, "NOT_DONE", strlen("NOT_DONE"))) {
+			message->new_task_status = TASK_DONE;
+		}
+	}
 }
 
 int parse_response_from_server(struct message_response *response) {
@@ -136,48 +211,109 @@ int parse_response_from_server(struct message_response *response) {
     return 0;
 }
 
+int send_and_get_response(char *buf) {
+	int clientfd = 0;
+	int status = 0;
+    struct message_response response;
+
+    memset(&response, 0, sizeof(struct message_response));
+	
+	clientfd = connect_to_server();
+    if (clientfd < 0) {
+        return -1;
+    }
+
+    status = write(clientfd, buf, MAX_LENGTH);
+    if (status < 0) {
+        printf("Write failed: %s\n", strerror(errno));
+		close(clientfd);
+		return -1;
+    }
+
+    get_response_from_server(clientfd, &response);
+
+    close(clientfd);
+    
+	status = parse_response_from_server(&response);
+	if (status < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
 void handle_new_task() {
-    int clientfd = 0;
     int status = 0;
     struct message_add message;
-    struct message_response response;
     char buf[MAX_LENGTH];
 
     memset(&message, 0, sizeof(struct message_add));
-    memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);
-
-    clientfd = connect_to_server();
-    if (clientfd < 0) {
-        return;
-    }
 
     get_inputs_for_message_add(&message);
 
     create_add_message_to_server(buf, &message, client_id);
 
-    status = write(clientfd, buf, MAX_LENGTH);
-    if (status < 0) {
-        printf("Write failed: %s\n", strerror(errno));
-    }
-
-    get_response_from_server(clientfd, &response);
-
-    status = parse_response_from_server(&response);
-    if (status < 0) {
+	status = send_and_get_response(buf);
+	if (status < 0) {
         printf("\nTask not added successfully\n");
     } else {
         printf("\nTask added successfully\n");
     }
 
-    close(clientfd);
-
     return;
 }
 
-void handle_remove_task() { return; }
+void handle_remove_task() {
+	struct message_remove message;
+	int status = 0;
+	char buf[MAX_LENGTH];
 
-void handle_mod_task() { return; }
+	memset(&message, 0, sizeof(struct message_remove));
+	memset(buf, 0, MAX_LENGTH);
+
+	get_inputs_for_message_remove(&message);
+
+	create_remove_message_to_server(buf, &message, client_id);
+
+	status = send_and_get_response(buf);
+    if (status < 0) {
+        printf("\nTask not removed successfully\n");
+    } else {
+        printf("\nTask removed successfully\n");
+    }
+
+	return; 
+}
+
+void handle_mod_task() {
+	struct message_modify message;
+	int status = 0;
+	char buf[MAX_LENGTH];
+
+	memset(&message, 0, sizeof(struct message_remove));
+	memset(buf, 0, MAX_LENGTH);
+
+	get_inputs_for_message_modify(&message);
+#if 0
+	printf("Task %s\n", message.task);
+	printf("New task %s\n", message.new_task);
+	printf("New date %s\n", message.new_date);
+	printf("New status %d\n", message.new_task_status);
+	printf("Flags %x", message.mod_flags);
+#endif
+
+	create_modify_message_to_server(buf, &message, client_id);
+	
+	status = send_and_get_response(buf);
+	if (status < 0) {
+		printf("\nTask modify failed\n");
+	} else {
+		printf("\nTask modified successfully\n");
+	}	
+
+	return;
+}
 
 void *heartbeat_signal(void *vargp) {
     int clientfd = 0;
@@ -239,30 +375,37 @@ int validate_input_from_user(int choice) {
 int main(int argc, char *argv[]) {
     int choice = 0;
     int status = 0;
+	int c = 0;
     pthread_t tid;
     char temp_choice;
 
-    if (argc < 3) {
-        printf("Check arguments again!!!!\n");
-        exit(1);
-    } else if (argc == 3) {
-        heartbeat_interval = 10;
-    } else if (argc == 4) {
-        heartbeat_interval = atoi(argv[3]);
-    }
-
-    client_id = 1;
+    memset(&server, 0, sizeof(struct server_info));
+	
+	while((c = getopt(argc, argv, "C:I:H:P:")) != -1) {
+		switch(c) {
+			case 'C':
+				client_id = atoi(optarg);
+				break;
+			case 'I':
+				heartbeat_interval = atoi(optarg);
+				break;
+			case 'H':
+				memcpy(server.server_ip, optarg, strlen(optarg));
+				break;
+			case 'P':
+				server.port = atoi(optarg);
+				break;
+			case '?':
+				printf("\nPlease check arguments passed\n");
+				break;
+		}
+	}
 
     // Spawn the heartbeat thread
     status = pthread_create(&tid, NULL, heartbeat_signal, NULL);
     if (status < 0) {
         printf("Heartbeat thread create failed\n");
     }
-
-    memset(&server, 0, sizeof(struct server_info));
-
-    memcpy(server.server_ip, argv[1], 1024);
-    server.port = atoi(argv[2]);
 
     printf("Server IP: %s\n", server.server_ip);
     printf("Server port: %d\n", server.port);
