@@ -17,7 +17,7 @@ A distributed to do list
 
 **To start the client:**
 
-`./client {IP} {Port} {heartbeat interval}`
+`./client -C {Client ID} -I {Heartbeat interval} -H {Server IP} -P {Port}`
 
 The interval is optional. If no value is given as input then default 10 sec value is set.
 
