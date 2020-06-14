@@ -161,7 +161,11 @@ void *handle_connection(void *arg) {
     // TODO: put a check to see if all the required fields are present.
     print_user_req(client_ctx);
      //Handle strorage in database
-    handle_storage(client_ctx);
+    if(handle_storage(client_ctx) != 0) {
+		printf("ERROR: handle storage failed\n");
+	} else {
+		printf("handle storage success\n");
+	}
     //
     // send responce.
     write_client_responce(client_ctx, "OK", "Success");

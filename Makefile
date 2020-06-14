@@ -11,12 +11,16 @@ app: server client
 
 client: client.c libutil.a
 	$(CC) $(CFLAGS) $^ -o $@
+db.o: db.c
+	gcc -O -g -c db.c
+storage.o: storage.c
+	gcc -O -g -c storage.c
 util.o:	util.c
 	gcc -O -g -c util.c
 libutil.a:	util.o
 	ar rcs libutil.a util.o
-server: server.c libutil.a
-	$(CC) $(CFLAGS) $^ -o server
+server: server.c libutil.a storage.o db.o
+	$(CC) $(CFLAGS) $^ -o server -lcrypto
 
 format: $(CFILES) $(HFILES)
 	$(LLVM_PATH)clang-format -style=file -i $^

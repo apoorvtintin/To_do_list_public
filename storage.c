@@ -3,25 +3,46 @@
 
 /* HEADER FILES */
 #include <stdlib.h>
-#include "openssl/sha.h"
+#include <stdio.h>
+#include <openssl/sha.h>
+#include <string.h>
 
 #include "storage.h" 
 #include "db.h"
 #include "c_s_iface.h"
 
 /* DEFINATIONS AND GLOBAL VARIABLES */
-
-SHA_CTX sha_context;
-
+union hashstr2key {
+	char hash[5];
+	uint64_t key;
+};
 /* PRIVATE functins */
 static uint64_t generate_key(uint8_t *raw_data, int client_id, uint64_t data_len) {
 	//buffer
-	uint8_t hash[5] = SHA1_Transform(sha_context, raw_data);	
+	char raw_buffer[TASK_LENGTH];
+	//char buffer[5]; 
+	union hashstr2key instance;
+	//uint64_t ret_key;
+	SHA_CTX context;
+	
+	if(data_len < TASK_LENGTH) {
+		snprintf(raw_buffer, TASK_LENGTH, "%d", client_id);
+	}
+	memcpy(raw_buffer + 5, raw_data, data_len);
+    if(!SHA1_Init(&context))
+        return -1;
+
+    if(!SHA1_Update(&context, (unsigned char*)raw_data, data_len + 5))
+        return -1;
+
+    if(!SHA1_Final(instance.hash, &context))
+        return -1;
+	printf("SHA1 %d\n", instance.key);
+	return instance.key;
 }
 
 /* PUBLIC APIs */
 int storage_init() {
-	SHA1_INIT(sha_context);
     return hash_table_init();
 }
 
@@ -35,15 +56,14 @@ int handle_storage(client_ctx_t *client_ctx) {
     int ret = 0;
 	uint8_t *buffer;
     uint64_t old_key;
-
     switch(msg_type) {
         case MSG_ADD:
-            req->hash_key = generate_key(req->task, client_ctx->client_id);
+            req->hash_key = generate_key(req->task, client_ctx->client_id, req->task_len);
             ret = hash_table_insert(req->hash_key, req->task, req->task_len);
         break;
         case MSG_MODIFY:
             old_key = req->hash_key;
-            req->hash_key = generate_key(req->task, client_ctx->client_id);
+            req->hash_key = generate_key(req->task, client_ctx->client_id, req->task_len);
             ret = hash_table_modify(old_key, req->hash_key, req->task, req->task_len);
         break;
         case MSG_REMOVE:
@@ -56,6 +76,7 @@ int handle_storage(client_ctx_t *client_ctx) {
         case INVALID:
         case MSG_HEARTBEAT:
             ret = 0;
+		break;
         default:
             ret = -1;
     }

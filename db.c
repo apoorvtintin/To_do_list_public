@@ -62,7 +62,7 @@ int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {
 
 int hash_table_get(uint64_t key, uint8_t *buffer) {
     uint32_t hash = hash_func(key);
-    uint8_t *raw_data = get_data_point(hash);
+    uint8_t *raw_data = search_list(hash, key);
     if(raw_data == NULL) {
         //data not found
         return -1;
@@ -79,7 +79,7 @@ int hash_table_delete(uint64_t key){
     data_point *temp = htable->data[hash];
     data_point *prev = temp;
     while(temp != NULL) {
-        if(memcmp(key, temp->key, SHA_40_len)) {
+        if(key == temp->key) {
             if(temp == htable->data[hash]) {
                 htable->data[hash] = temp->next;
             } else {
