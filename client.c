@@ -91,6 +91,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     init_buf_fd(&client_fd, clientfd);
 
     while (sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
+		printf("%s\n", resp_buf);
         if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
             break;
         }
@@ -102,6 +103,10 @@ void get_response_from_server(int clientfd, struct message_response *response) {
         if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
             sscanf(resp_buf, "Client ID: %s", temp);
             response->client_id = atoi(temp);
+        }
+		if (!strncmp(resp_buf, "Key", strlen("Key"))) {
+            sscanf(resp_buf, "Key: %s", temp);
+            response->hash_key = atol(temp);
         }
     }
 
@@ -132,6 +137,9 @@ int parse_response_from_server(struct message_response *response) {
     } else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
         return -1;
     }
+	if(response->hash_key != 0) {
+		printf("Key of stored data is %ld\n", response->hash_key);
+	}
 
     return 0;
 }
@@ -143,6 +151,7 @@ void handle_new_task() {
     struct message_response response;
     char buf[MAX_LENGTH];
 
+	response.hash_key = 0;
     memset(&message, 0, sizeof(struct message_add));
     memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);

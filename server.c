@@ -68,11 +68,13 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
         client_ctx->req.msg_type == MSG_MODIFY) {
         if(client_ctx->req.hash_key == 0) {
             printf("ERROR: HASHKEY NULL\n");
+		}
         resp_len = snprintf(resp_buf, sizeof(resp_buf),
                                 "Status: %s\r\n"
                                 "Client ID: %d\r\n"
                                 "Msg: %s\r\n"
-                                "Key: %d\r\n",
+                                "Key: %ld\r\n"
+								"\r\n",
                                 status, client_ctx->client_id, msg, 
                                 client_ctx->req.hash_key);
     } else {
