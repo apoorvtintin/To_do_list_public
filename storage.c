@@ -37,7 +37,7 @@ static uint64_t generate_key(uint8_t *raw_data, int client_id, uint64_t data_len
 
     if(!SHA1_Final(instance.hash, &context))
         return -1;
-	printf("SHA1 %d\n", instance.key);
+	printf("SHA1 %lu\n", instance.key);
 	return instance.key;
 }
 

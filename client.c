@@ -91,7 +91,6 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     init_buf_fd(&client_fd, clientfd);
 
     while (sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
-		printf("%s\n", resp_buf);
         if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
             break;
         }
@@ -107,6 +106,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
 		if (!strncmp(resp_buf, "Key", strlen("Key"))) {
             sscanf(resp_buf, "Key: %s", temp);
             response->hash_key = atol(temp);
+			printf("recieved key %lu\n", response->hash_key);
         }
     }
 

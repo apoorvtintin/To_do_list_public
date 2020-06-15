@@ -73,7 +73,7 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
                                 "Status: %s\r\n"
                                 "Client ID: %d\r\n"
                                 "Msg: %s\r\n"
-                                "Key: %ld\r\n"
+                                "Key: %lu\r\n"
 								"\r\n",
                                 status, client_ctx->client_id, msg, 
                                 client_ctx->req.hash_key);
