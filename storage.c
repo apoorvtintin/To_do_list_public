@@ -58,16 +58,19 @@ int handle_storage(client_ctx_t *client_ctx) {
         req->hash_key =
             generate_key(req->task, client_ctx->client_id, req->task_len);
         ret = hash_table_insert(req->hash_key, req->task, req->task_len);
-        break;
+        print_htable();
+		break;
     case MSG_MODIFY:
         old_key = req->hash_key;
         req->hash_key =
             generate_key(req->task, client_ctx->client_id, req->task_len);
         ret =
             hash_table_modify(old_key, req->hash_key, req->task, req->task_len);
+        print_htable();
         break;
     case MSG_REMOVE:
         ret = hash_table_delete(req->hash_key);
+        print_htable();
         break;
     case MSG_GET_ALL:
         buffer = calloc(hash_table_get_dat_size(), sizeof(uint8_t));

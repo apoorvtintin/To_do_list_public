@@ -7,7 +7,7 @@
 
 /* DEFINATIONS */
 #define SHA_40_len 4
-#define hash_table_len 1021
+#define hash_table_len 13
 // prime close to 1024
 #define MAX_DATA_LEN 512
 

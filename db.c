@@ -18,11 +18,17 @@ static uint32_t hash_func(uint64_t val) { return val % hash_table_len; }
 static int insert_data_point(uint32_t hash, data_point *new) {
     if (new == NULL)
         return -1;
-    data_point *temp = htable->data[hash];
-    while (temp != NULL) {
-        temp = temp->next;
-    }
-    temp = new;
+	if(htable->data[hash] == NULL) {
+		htable->data[hash] = new;
+	}
+    else {
+		data_point *temp = htable->data[hash];
+    	while (temp->next != NULL) {
+       		 temp = temp->next;
+    	}
+	    temp->next = new;
+	}
+	
     return 0;
 }
 
@@ -43,6 +49,7 @@ int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {
         return -1;
     }
     uint32_t hash = hash_func(key);
+	printf("hash value is %u\n", hash);
     data_point *new = malloc(sizeof(data_point));
     if (new == NULL) {
         return -1;
@@ -69,7 +76,7 @@ int hash_table_get(uint64_t key, uint8_t *buffer) {
 
 int hash_table_delete(uint64_t key) {
     uint32_t hash = hash_func(key);
-
+	printf("hash value is %u\n", hash);
     data_point *temp = htable->data[hash];
     data_point *prev = temp;
     while (temp != NULL) {
@@ -121,8 +128,12 @@ int hash_table_get_all(uint8_t *buffer) {
 }
 
 int hash_table_init() {
+	int index;
     htable = malloc(sizeof(htable));
     htable->data_size = 0;
+    for (index = 0; index < hash_table_len; index++) {
+        htable->data[index] = NULL;
+	}
 }
 
 void hash_table_deinit() {
@@ -140,5 +151,19 @@ void hash_table_deinit() {
 }
 
 int hash_table_get_dat_size() { return htable->data_size; }
+
+void print_htable() {
+	int index;
+    data_point *temp;
+    for (index = 0; index < hash_table_len; index++) {
+        temp = htable->data[index];
+		printf("next index %d \n", index);
+        while (temp != NULL) {
+			printf("task %s, key %lu\n", temp->raw_data, temp->key);
+			temp = temp->next;
+        }
+    }
+
+}
 
 /* EOF */

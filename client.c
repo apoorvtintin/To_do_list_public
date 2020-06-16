@@ -135,7 +135,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
 
         if (!strncmp(resp_buf, "Key", strlen("Key"))) {
             sscanf(resp_buf, "Key: %s", temp);
-            response->hash_key = atoll(temp);
+            response->hash_key = strtoul(temp, NULL, 10);
             //printf("Task Key: %llu\n", response->hash_key);
         }
         //printf("%s\n", resp_buf);
@@ -257,7 +257,7 @@ void print_task_details(char *task, char *date, enum t_status status,
     } else if (status == TASK_NOT_DONE) {
         printf("Task status: NOT DONE\n");
     }
-    printf("Task Key: %llu\n", response->hash_key);
+    printf("Task Key: %lu\n", response->hash_key);
     printf("\n*******************************************\n");
 
     return;

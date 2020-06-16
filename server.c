@@ -73,7 +73,7 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
                             "Status: %s\r\n"
                             "Client ID: %d\r\n"
                             "Msg: %s\r\n"
-                            "Key: %llu\r\n"
+                            "Key: %lu\r\n"
                             "\r\n",
                             status, client_ctx->client_id, msg,
                             client_ctx->req.hash_key);
@@ -126,8 +126,8 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
     } else if (strcmp(key, "Due date") == 0) {
         strncpy(client_ctx->req.date, value, sizeof(client_ctx->req.date));
     } else if (strcmp(key, "Key") == 0) {
-        client_ctx->req.hash_key = atoll(value);
-        printf("Key: %llu\n", client_ctx->req.hash_key);
+        client_ctx->req.hash_key = strtoul(value, NULL, 10);
+        printf("Key: %lu\n", client_ctx->req.hash_key);
     }
     return 0;
 }
