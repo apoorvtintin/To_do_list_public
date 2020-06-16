@@ -1,6 +1,7 @@
 CC = gcc
 CFLAGS  = -pthread -Wall -Werror -g
 LLVM_PATH = /usr/local/depot/llvm-3.9.1/bin/
+#LLVM_PATH = /Users/phani/code/llvm-project/build/bin/
 
 CFILES = $(wildcard *.c)
 HFILES = $(wildcard *.h)
