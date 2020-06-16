@@ -11,8 +11,8 @@
 
 #include "c_s_iface.h"
 #include "server.h"
-#include "util.h"
 #include "storage.h"
+#include "util.h"
 // Global variables
 int verbose = 0;
 
@@ -64,26 +64,26 @@ void print_user_req(client_ctx_t *client_ctx) {
 void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
     char resp_buf[MAX_LENGTH];
     int resp_len;
-    if( client_ctx->req.msg_type == MSG_ADD || 
+    if (client_ctx->req.msg_type == MSG_ADD ||
         client_ctx->req.msg_type == MSG_MODIFY) {
-        if(client_ctx->req.hash_key == 0) {
+        if (client_ctx->req.hash_key == 0) {
             printf("ERROR: HASHKEY NULL\n");
-		}
+        }
         resp_len = snprintf(resp_buf, sizeof(resp_buf),
-                                "Status: %s\r\n"
-                                "Client ID: %d\r\n"
-                                "Msg: %s\r\n"
-                                "Key: %lu\r\n"
-								"\r\n",
-                                status, client_ctx->client_id, msg, 
-                                client_ctx->req.hash_key);
+                            "Status: %s\r\n"
+                            "Client ID: %d\r\n"
+                            "Msg: %s\r\n"
+                            "Key: %lu\r\n"
+                            "\r\n",
+                            status, client_ctx->client_id, msg,
+                            client_ctx->req.hash_key);
     } else {
         resp_len = snprintf(resp_buf, sizeof(resp_buf),
-                                "Status: %s\r\n"
-                                "Client ID: %d\r\n"
-                                "Msg: %s\r\n"
-                                "\r\n",
-                                status, client_ctx->client_id, msg);
+                            "Status: %s\r\n"
+                            "Client ID: %d\r\n"
+                            "Msg: %s\r\n"
+                            "\r\n",
+                            status, client_ctx->client_id, msg);
     }
     if (resp_len > sizeof(resp_buf)) {
         fprintf(stderr, "server resp is greater than the resp_buffer!!");
@@ -115,7 +115,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         }
     } else if (strcmp(key, "Task") == 0) {
         strncpy(client_ctx->req.task, value, sizeof(client_ctx->req.task));
-		client_ctx->req.task_len = strlen(client_ctx->req.task);
+        client_ctx->req.task_len = strlen(client_ctx->req.task);
     } else if (strcmp(key, "Task status") == 0) {
         if (str_to_int(value, (int *)&client_ctx->req.task_status) != 0) {
             // TODO: write error to client;
@@ -176,12 +176,12 @@ void *handle_connection(void *arg) {
     }
     // TODO: put a check to see if all the required fields are present.
     print_user_req(client_ctx);
-     //Handle strorage in database
-    if(handle_storage(client_ctx) != 0) {
-		printf("ERROR: handle storage failed\n");
-	} else {
-		printf("handle storage success\n");
-	}
+    // Handle strorage in database
+    if (handle_storage(client_ctx) != 0) {
+        printf("ERROR: handle storage failed\n");
+    } else {
+        printf("handle storage success\n");
+    }
     //
     // send responce.
     write_client_responce(client_ctx, "OK", "Success");
@@ -261,7 +261,7 @@ int main(int argc, char *argv[]) {
     pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
 
-    storage_init();// init database for storage
+    storage_init(); // init database for storage
     while (1) {
         accept_ret_val = accept(listen_fd, &client_addr, &client_addr_len);
         if (verbose >= 3) {

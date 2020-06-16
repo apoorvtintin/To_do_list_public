@@ -7,7 +7,7 @@
 
 /* DEFINATIONS */
 #define SHA_40_len 4
-#define hash_table_len 1021 
+#define hash_table_len 1021
 // prime close to 1024
 #define MAX_DATA_LEN 512
 
@@ -29,7 +29,8 @@ typedef struct hash_table_ {
 
 int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len);
 
-int hash_table_modify(uint64_t key, uint64_t nkey, uint8_t *new_data, uint64_t nlen);
+int hash_table_modify(uint64_t key, uint64_t nkey, uint8_t *new_data,
+                      uint64_t nlen);
 
 int hash_table_delete(uint64_t key);
 
