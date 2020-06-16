@@ -131,6 +131,11 @@ void get_response_from_server(int clientfd, struct message_response *response) {
             sscanf(resp_buf, "Client ID: %s", temp);
             response->client_id = atoi(temp);
         }
+		if (!strncmp(resp_buf, "Key", strlen("Key"))) {
+            sscanf(resp_buf, "Key: %s", temp);
+            response->hash_key = atol(temp);
+			printf("recieved key %lu\n", response->hash_key);
+        }
     }
 
     return;
@@ -207,6 +212,9 @@ int parse_response_from_server(struct message_response *response) {
     } else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
         return -1;
     }
+	if(response->hash_key != 0) {
+		printf("Key of stored data is %ld\n", response->hash_key);
+	}
 
     return 0;
 }
@@ -216,6 +224,7 @@ int send_and_get_response(char *buf) {
 	int status = 0;
     struct message_response response;
 
+	response.hash_key = 0;
     memset(&response, 0, sizeof(struct message_response));
 	
 	clientfd = connect_to_server();

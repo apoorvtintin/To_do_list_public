@@ -57,6 +57,7 @@ struct message_remove {
 struct message_response {
     int client_id;
     char status[TASK_LENGTH];
+    uint64_t hash_key;
 };
 
 #define MAXMSGSIZE sizeof(struct message_modify)
@@ -67,5 +68,7 @@ typedef struct _client_request {
     char date[32];
     enum t_status task_status;
     int mod_flags;
+	uint64_t task_len;
+    uint64_t hash_key;
 } client_request_t;
 #endif
