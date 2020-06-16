@@ -55,9 +55,9 @@ struct message_remove {
 };
 
 struct message_response {
+    uint64_t hash_key;
     int client_id;
     char status[TASK_LENGTH];
-    uint64_t hash_key;
 };
 
 #define MAXMSGSIZE sizeof(struct message_modify)

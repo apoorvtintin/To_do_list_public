@@ -75,7 +75,7 @@ void create_remove_message_to_server(char *buf, struct message_remove *message,
     sprintf(buf,
             "Client ID: %d\r\n"
             "Message Type: %d\r\n"
-            "Task: %s\r\n\r\n",
+            "Key: %s\r\n\r\n",
             client_id, MSG_REMOVE, message->task);
 
     return;
@@ -87,7 +87,7 @@ void create_modify_message_to_server(char *buf, struct message_modify *message,
             "Client ID: %d\r\n"
             "Message Type: %d\r\n"
             "Flags: %d\r\n"
-            "Task: %s\r\n"
+            "Key: %s\r\n"
             "New Task: %s\r\n"
             "New Date: %s\r\n"
             "New status: %d\r\n\r\n",
@@ -117,6 +117,8 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     sock_buf_read client_fd;
     init_buf_fd(&client_fd, clientfd);
 
+    //printf("\n**********\n");
+
     while (sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
         if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
             break;
@@ -130,11 +132,13 @@ void get_response_from_server(int clientfd, struct message_response *response) {
             sscanf(resp_buf, "Client ID: %s", temp);
             response->client_id = atoi(temp);
         }
+
         if (!strncmp(resp_buf, "Key", strlen("Key"))) {
             sscanf(resp_buf, "Key: %s", temp);
-            response->hash_key = atol(temp);
-            printf("recieved key %lu\n", response->hash_key);
+            response->hash_key = atoll(temp);
+            //printf("Task Key: %llu\n", response->hash_key);
         }
+        //printf("%s\n", resp_buf);
     }
 
     return;
@@ -144,9 +148,9 @@ void get_inputs_for_message_add(struct message_add *message) {
 
     printf("\nAdding new Task\n");
     printf("\nEnter task: ");
-    scanf("%s", message->task);
+    fgets(message->task, MAX_LENGTH, stdin);
     printf("\nEnter due date: ");
-    scanf("%s", message->task_date);
+    fgets(message->task_date, MAX_LENGTH, stdin);
 
     message->task_status = TASK_NOT_DONE;
 
@@ -156,8 +160,8 @@ void get_inputs_for_message_add(struct message_add *message) {
 void get_inputs_for_message_remove(struct message_remove *message) {
 
     printf("\nRemoving Task\n");
-    printf("\nEnter task: ");
-    scanf("%s", message->task);
+    printf("\nEnter key: ");
+	fgets(message->task, MAX_LENGTH, stdin);
 
     return;
 }
@@ -169,25 +173,25 @@ void get_inputs_for_message_modify(struct message_modify *message) {
 
     printf("\nModifying Task\n");
     printf("\nEnter Task: ");
-    scanf("%s", message->task);
+	fgets(message->task, MAX_LENGTH, stdin);
     printf("\nEnter fields to modify\n");
 
     printf("\nEnter new Task name: ");
-    scanf("%s", message->new_task);
+	fgets(message->new_task, MAX_LENGTH, stdin);
     if (!strncmp(message->new_task, "NA", strlen("NA"))) {
     } else {
         message->mod_flags |= MOD_FLAGS_TASK_STRING_MODIFIED;
     }
 
     printf("\nEnter new Date: ");
-    scanf("%s", message->new_date);
+	fgets(message->new_date, MAX_LENGTH, stdin);
     if (!strncmp(message->new_date, "NA", strlen("NA"))) {
     } else {
         message->mod_flags |= MOD_FLAGS_DATE_MODIFIED;
     }
 
     printf("\nEnter new Task status: ");
-    scanf("%s", temp);
+	fgets(temp, MAX_LENGTH, stdin);
     if (!strncmp(temp, "NA", strlen("NA"))) {
     } else {
         message->mod_flags |= MOD_FLAGS_STATUS_MODIFIED;
@@ -211,20 +215,13 @@ int parse_response_from_server(struct message_response *response) {
     } else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
         return -1;
     }
-    if (response->hash_key != 0) {
-        printf("Key of stored data is %ld\n", response->hash_key);
-    }
 
     return 0;
 }
 
-int send_and_get_response(char *buf) {
+int send_and_get_response(char *buf, struct message_response *response) {
     int clientfd = 0;
     int status = 0;
-    struct message_response response;
-
-    response.hash_key = 0;
-    memset(&response, 0, sizeof(struct message_response));
 
     clientfd = connect_to_server();
     if (clientfd < 0) {
@@ -238,11 +235,11 @@ int send_and_get_response(char *buf) {
         return -1;
     }
 
-    get_response_from_server(clientfd, &response);
+    get_response_from_server(clientfd, response);
 
     close(clientfd);
 
-    status = parse_response_from_server(&response);
+    status = parse_response_from_server(response);
     if (status < 0) {
         return -1;
     }
@@ -250,23 +247,43 @@ int send_and_get_response(char *buf) {
     return 0;
 }
 
+void print_task_details(char *task, char *date, enum t_status status,
+                        struct message_response *response) {
+    printf("\n*******************************************\n");
+	printf("Task: %s\n", task);
+    printf("Due date: %s\n", date);
+    if (status == TASK_DONE) {
+        printf("Task status: DONE\n");
+    } else if (status == TASK_NOT_DONE) {
+        printf("Task status: NOT DONE\n");
+    }
+    printf("Task Key: %llu\n", response->hash_key);
+    printf("\n*******************************************\n");
+
+    return;
+}
+
 void handle_new_task() {
     int status = 0;
     struct message_add message;
+    struct message_response response;
     char buf[MAX_LENGTH];
 
     memset(&message, 0, sizeof(struct message_add));
+    memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);
 
     get_inputs_for_message_add(&message);
 
     create_add_message_to_server(buf, &message, client_id);
 
-    status = send_and_get_response(buf);
+    status = send_and_get_response(buf, &response);
     if (status < 0) {
         printf("\nTask not added successfully\n");
     } else {
         printf("\nTask added successfully\n");
+        print_task_details(message.task, message.task_date, message.task_status,
+                           &response);
     }
 
     return;
@@ -274,17 +291,19 @@ void handle_new_task() {
 
 void handle_remove_task() {
     struct message_remove message;
+    struct message_response response;
     int status = 0;
     char buf[MAX_LENGTH];
 
     memset(&message, 0, sizeof(struct message_remove));
+    memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);
 
     get_inputs_for_message_remove(&message);
 
     create_remove_message_to_server(buf, &message, client_id);
 
-    status = send_and_get_response(buf);
+    status = send_and_get_response(buf, &response);
     if (status < 0) {
         printf("\nTask not removed successfully\n");
     } else {
@@ -296,10 +315,12 @@ void handle_remove_task() {
 
 void handle_mod_task() {
     struct message_modify message;
+    struct message_response response;
     int status = 0;
     char buf[MAX_LENGTH];
 
     memset(&message, 0, sizeof(struct message_remove));
+    memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);
 
     get_inputs_for_message_modify(&message);
@@ -313,7 +334,7 @@ void handle_mod_task() {
 
     create_modify_message_to_server(buf, &message, client_id);
 
-    status = send_and_get_response(buf);
+    status = send_and_get_response(buf, &response);
     if (status < 0) {
         printf("\nTask modify failed\n");
     } else {
@@ -410,13 +431,16 @@ int main(int argc, char *argv[]) {
     }
 
     // Spawn the heartbeat thread
+#if 1
     status = pthread_create(&tid, NULL, heartbeat_signal, NULL);
     if (status < 0) {
         printf("Heartbeat thread create failed\n");
     }
+#endif
 
     printf("Server IP: %s\n", server.server_ip);
     printf("Server port: %d\n", server.port);
+    printf("Heatbeat: %d\n", heartbeat_interval);
 
     while (1) {
         /* Display options */
