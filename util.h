@@ -4,6 +4,9 @@
  * @brief this file includes all the common utility functions and definitions
  * for the distributed app.
  */
+
+#include "c_s_iface.h"
+
 #ifndef __UTIL__H
 #define __UTIL__H
 typedef struct buf_fd {
@@ -13,6 +16,11 @@ typedef struct buf_fd {
     size_t bytes_pend;
 } sock_buf_read;
 
+struct server_info {
+    char server_ip[1024];
+    int port;
+};
+
 // Socket Read and write funnctions which account for
 // short counts.
 // reference: CSAPP:3e
@@ -21,5 +29,9 @@ ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n);
 ssize_t sock_writen(int fd, const void *buf, size_t maxlen);
 int str_to_int(char *str, int *res);
 void init_buf_fd(sock_buf_read *ptr, int fd);
+
+int connect_to_server(struct server_info *server);
+void get_response_from_server(int clientfd, struct message_response *response);
+int parse_response_from_server(struct message_response *response, int client_id);
 
 #endif

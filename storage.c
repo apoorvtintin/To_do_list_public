@@ -38,7 +38,7 @@ static uint64_t generate_key(uint8_t *raw_data, int client_id,
 
     if (!SHA1_Final(instance.hash, &context))
         return -1;
-    printf("SHA1 %lu\n", instance.key);
+    //printf("SHA1 %lu\n", instance.key);
     return instance.key;
 }
 
@@ -59,7 +59,7 @@ int handle_storage(client_ctx_t *client_ctx) {
             generate_key(req->task, client_ctx->client_id, req->task_len);
         ret = hash_table_insert(req->hash_key, req->task, req->task_len);
         print_htable();
-		break;
+        break;
     case MSG_MODIFY:
         old_key = req->hash_key;
         req->hash_key =

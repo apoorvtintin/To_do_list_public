@@ -13,6 +13,7 @@
 #include "server.h"
 #include "storage.h"
 #include "util.h"
+#include "local_f_detector.h"
 // Global variables
 int verbose = 0;
 
@@ -73,7 +74,7 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
                             "Status: %s\r\n"
                             "Client ID: %d\r\n"
                             "Msg: %s\r\n"
-                            "Key: %lu\r\n"
+                            "Key: %llu\r\n"
                             "\r\n",
                             status, client_ctx->client_id, msg,
                             client_ctx->req.hash_key);
@@ -127,7 +128,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         strncpy(client_ctx->req.date, value, sizeof(client_ctx->req.date));
     } else if (strcmp(key, "Key") == 0) {
         client_ctx->req.hash_key = strtoul(value, NULL, 10);
-        printf("Key: %lu\n", client_ctx->req.hash_key);
+        printf("Key: %llu\n", client_ctx->req.hash_key);
     }
     return 0;
 }
@@ -184,7 +185,7 @@ void *handle_connection(void *arg) {
         printf("ERROR: handle storage failed\n");
         write_client_responce(client_ctx, "FAIL", "Check inputs");
     } else {
-        printf("handle storage success\n");
+        //printf("handle storage success\n");
     }
     //
     // send responce.
@@ -216,10 +217,14 @@ void init_client_ctx(client_ctx_t *ctx) {
 
 int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
+    int heartbeat_interval = 0;
     struct sockaddr_in server_addr;
-    if (argc < 3) {
+	int port;
+
+    if (argc < 4) {
         // print usage
-        fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <ip_address> <port> <heartbeat interval>\n",
+                argv[0]);
         exit(EXIT_FAILURE);
     }
     while ((opt = getopt(argc, argv, "v:")) != -1) {
@@ -239,6 +244,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+	port = atoi(argv[2]);
     server_addr.sin_port = htons(atoi(argv[2]));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
@@ -260,12 +266,17 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    heartbeat_interval = atoi(argv[3]);
+
     struct sockaddr client_addr;
     socklen_t client_addr_len;
     pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
 
     storage_init(); // init database for storage
+
+    initialize_local_fault_detector(heartbeat_interval, port);
+
     while (1) {
         accept_ret_val = accept(listen_fd, &client_addr, &client_addr_len);
         if (verbose >= 3) {

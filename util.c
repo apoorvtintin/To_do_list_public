@@ -9,6 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 #include "util.h"
 
@@ -103,5 +108,81 @@ int str_to_int(char *str, int *res) {
         return -1;
     }
     *res = (int)v;
+    return 0;
+}
+
+int connect_to_server(struct server_info *server) {
+    struct sockaddr_in servaddr;
+    int sockfd;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        printf("Socket create failed: %s\n", strerror(errno));
+    }
+
+    memset(&servaddr, 0, sizeof(struct sockaddr_in));
+
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = inet_addr(server->server_ip);
+    servaddr.sin_port = htons(server->port);
+
+    if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0) {
+        return -1;
+    }
+
+    return sockfd;
+}
+
+void get_response_from_server(int clientfd, struct message_response *response) {
+
+    char resp_buf[MAX_LENGTH];
+    char temp[TASK_LENGTH];
+
+    memset(resp_buf, 0, MAX_LENGTH);
+    memset(temp, 0, TASK_LENGTH);
+
+    sock_buf_read client_fd;
+    init_buf_fd(&client_fd, clientfd);
+
+    // printf("\n**********\n");
+
+    while (sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
+        if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
+            break;
+        }
+
+        if (!strncmp(resp_buf, "Status", strlen("Status"))) {
+            sscanf(resp_buf, "Status: %s", response->status);
+        }
+
+        if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
+            sscanf(resp_buf, "Client ID: %s", temp);
+            response->client_id = atoi(temp);
+        }
+
+        if (!strncmp(resp_buf, "Key", strlen("Key"))) {
+            sscanf(resp_buf, "Key: %s", temp);
+            response->hash_key = strtoul(temp, NULL, 10);
+            // printf("Task Key: %llu\n", response->hash_key);
+        }
+        // printf("%s\n", resp_buf);
+    }
+
+    return;
+}
+
+int parse_response_from_server(struct message_response *response, int client_id) {
+
+    if (response->client_id != client_id) {
+        printf("Response message not intended for the client!!\n");
+        return -2;
+    }
+
+    if (!strncmp(response->status, "OK", strlen("OK"))) {
+        return 0;
+    } else if (!strncmp(response->status, "FAIL", strlen("FAIL"))) {
+        return -1;
+    }
+
     return 0;
 }

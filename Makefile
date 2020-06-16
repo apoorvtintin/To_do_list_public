@@ -12,6 +12,10 @@ app: server client
 
 client: client.c libutil.a
 	$(CC) $(CFLAGS) $^ -o $@
+
+local_f_detector.o: local_f_detector.c
+	$(CC) $(CFLAGS) -c $^
+
 db.o: db.c
 	gcc -O -g -c db.c
 storage.o: storage.c
@@ -20,7 +24,7 @@ util.o:	util.c
 	gcc -O -g -c util.c
 libutil.a:	util.o
 	ar rcs libutil.a util.o
-server: server.c libutil.a storage.o db.o
+server: server.c local_f_detector.o libutil.a storage.o db.o
 	$(CC) $(CFLAGS) $^ -o server -lcrypto
 
 format: $(CFILES) $(HFILES)

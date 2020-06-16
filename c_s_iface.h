@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 
+typedef struct sockaddr SA;
+
 /* Flags for mod_flags */
 #define MOD_FLAGS_TASK_STRING_MODIFIED 0x1
 #define MOD_FLAGS_DATE_MODIFIED 0x2
