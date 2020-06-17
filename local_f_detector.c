@@ -20,9 +20,8 @@ int client_id = 0;
 char local_ip[MAX_LENGTH] = "127.0.0.1";
 
 void create_heartbeat_message_to_server(char *buf) {
-    sprintf(buf,
-            "Client ID: %d\r\n"
-            "Message Type: %d\r\n\r\n",
+    sprintf(buf, "Client ID: %d\r\n"
+                 "Message Type: %d\r\n\r\n",
             client_id, MSG_HEARTBEAT);
 
     return;
@@ -88,7 +87,7 @@ void initialize_local_fault_detector(int heartbeat_interval, int port) {
     interval_g = heartbeat_interval;
 
     memcpy(server.server_ip, local_ip, 1024);
-	server.port = port;
+    server.port = port;
 
     status = pthread_create(&tid, NULL, heartbeat_signal, NULL);
     if (status < 0) {

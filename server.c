@@ -10,12 +10,14 @@
 #include <unistd.h>
 
 #include "c_s_iface.h"
+#include "local_f_detector.h"
 #include "server.h"
 #include "storage.h"
 #include "util.h"
-#include "local_f_detector.h"
 // Global variables
 int verbose = 0;
+
+static pthread_mutex_t storage_lock;
 
 // Local help functions
 
@@ -70,20 +72,18 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
         if (client_ctx->req.hash_key == 0) {
             printf("ERROR: HASHKEY NULL\n");
         }
-        resp_len = snprintf(resp_buf, sizeof(resp_buf),
-                            "Status: %s\r\n"
-                            "Client ID: %d\r\n"
-                            "Msg: %s\r\n"
-                            "Key: %lu\r\n"
-                            "\r\n",
+        resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+                                                        "Client ID: %d\r\n"
+                                                        "Msg: %s\r\n"
+                                                        "Key: %lu\r\n"
+                                                        "\r\n",
                             status, client_ctx->client_id, msg,
                             client_ctx->req.hash_key);
     } else {
-        resp_len = snprintf(resp_buf, sizeof(resp_buf),
-                            "Status: %s\r\n"
-                            "Client ID: %d\r\n"
-                            "Msg: %s\r\n"
-                            "\r\n",
+        resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+                                                        "Client ID: %d\r\n"
+                                                        "Msg: %s\r\n"
+                                                        "\r\n",
                             status, client_ctx->client_id, msg);
     }
     if (resp_len > sizeof(resp_buf)) {
@@ -181,12 +181,18 @@ void *handle_connection(void *arg) {
     // TODO: put a check to see if all the required fields are present.
     print_user_req(client_ctx);
     // Handle strorage in database
+
+    pthread_mutex_lock(&storage_lock);
+
     if (handle_storage(client_ctx) != 0) {
         printf("ERROR: handle storage failed\n");
         write_client_responce(client_ctx, "FAIL", "Check inputs");
     } else {
-        //printf("handle storage success\n");
+        // printf("handle storage success\n");
     }
+
+    pthread_mutex_unlock(&storage_lock);
+
     //
     // send responce.
     write_client_responce(client_ctx, "OK", "Success");
@@ -219,7 +225,7 @@ int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
     int heartbeat_interval = 0;
     struct sockaddr_in server_addr;
-	int port;
+    int port;
 
     if (argc < 4) {
         // print usage
@@ -244,7 +250,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-	port = atoi(argv[2]);
+    port = atoi(argv[2]);
     server_addr.sin_port = htons(atoi(argv[2]));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
@@ -276,6 +282,8 @@ int main(int argc, char *argv[]) {
     storage_init(); // init database for storage
 
     initialize_local_fault_detector(heartbeat_interval, port);
+
+    pthread_mutex_init(&storage_lock, NULL);
 
     while (1) {
         accept_ret_val = accept(listen_fd, &client_addr, &client_addr_len);

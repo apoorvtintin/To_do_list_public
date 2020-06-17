@@ -4,16 +4,16 @@
  * @author Mohammed Sameer (mohammes@andrew.cmu.edu)
  */
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "util.h"
 
@@ -171,7 +171,8 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     return;
 }
 
-int parse_response_from_server(struct message_response *response, int client_id) {
+int parse_response_from_server(struct message_response *response,
+                               int client_id) {
 
     if (response->client_id != client_id) {
         printf("Response message not intended for the client!!\n");
