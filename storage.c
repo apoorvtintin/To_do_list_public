@@ -13,7 +13,7 @@
 
 /* DEFINATIONS AND GLOBAL VARIABLES */
 union hashstr2key {
-    char hash[5];
+    char hash[8];
     uint64_t key;
 };
 /* PRIVATE functins */
@@ -65,7 +65,7 @@ int handle_storage(client_ctx_t *client_ctx) {
         req->hash_key =
             generate_key(req->task, client_ctx->client_id, req->task_len);
         ret =
-            hash_table_modify(old_key, req->hash_key, req->task, req->task_len);
+            hash_table_modify(old_key, req->hash_key, req->task_status);
         print_htable();
         break;
     case MSG_REMOVE:

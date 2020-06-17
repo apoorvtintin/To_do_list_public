@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "c_s_iface.h"
 
 /* DEFINATIONS */
 
@@ -31,11 +32,11 @@ static int insert_data_point(uint32_t hash, data_point *new) {
     return 0;
 }
 
-static uint8_t *search_list(uint32_t hash, uint64_t key) {
+static data_point *search_list(uint32_t hash, uint64_t key) {
     data_point *temp = htable->data[hash];
     while (temp != NULL) {
         if (key == temp->key) {
-            return temp->raw_data;
+            return temp;
         }
     }
     return NULL;
@@ -64,12 +65,13 @@ int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {
 
 int hash_table_get(uint64_t key, uint8_t *buffer) {
     uint32_t hash = hash_func(key);
-    uint8_t *raw_data = search_list(hash, key);
-    if (raw_data == NULL) {
+    data_point * task = search_list(hash, key);
+    if (task == NULL) {
         // data not found
         return -1;
     }
-    snprintf(buffer, MAX_DATA_LEN, "task: %s \r\n", raw_data);
+    snprintf(buffer, MAX_DATA_LEN, "task: %s status: %d \r\n", task->raw_data, 
+            task->task_status);
     return 0;
 }
 
@@ -95,18 +97,15 @@ int hash_table_delete(uint64_t key) {
     return -1;
 }
 
-int hash_table_modify(uint64_t key, uint64_t nkey, uint8_t *new_data,
-                      uint64_t nlen) {
+int hash_table_modify(uint64_t key, enum t_status task_status) {
     uint32_t hash = hash_func(key);
-    if (hash_table_delete(key) == -1) {
+    data_point *task = search_list(hash, key);
+    if (task == NULL) {
         printf("ERROR: data not found");
         // data not found
-        return 0;
-    }
-    if (hash_table_insert(nkey, new_data, nlen)) {
-        printf("ERROR: could not be inserted");
         return -1;
-    }
+    } 
+    task->task_status = task_status;
     return 0;
 }
 

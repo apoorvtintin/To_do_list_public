@@ -66,8 +66,7 @@ void print_user_req(client_ctx_t *client_ctx) {
 void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
     char resp_buf[MAX_LENGTH];
     int resp_len;
-    if (client_ctx->req.msg_type == MSG_ADD ||
-        client_ctx->req.msg_type == MSG_MODIFY) {
+    if (client_ctx->req.msg_type == MSG_ADD) {
         if (client_ctx->req.hash_key == 0) {
             printf("ERROR: HASHKEY NULL\n");
         }
