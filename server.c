@@ -10,10 +10,10 @@
 #include <unistd.h>
 
 #include "c_s_iface.h"
+#include "local_f_detector.h"
 #include "server.h"
 #include "storage.h"
 #include "util.h"
-#include "local_f_detector.h"
 // Global variables
 int verbose = 0;
 
@@ -24,10 +24,11 @@ void print_user_req(client_ctx_t *client_ctx) {
     static int once = 0;
     if (once == 0) {
         char buffer[4096];
-        int ch = snprintf(buffer, sizeof(buffer),
-                          "%-2s%-8s%4s %-30s%8s %-10s%4s %-11s%4s %-8s%2s\n",
-                          "|", "MSG Type", "", "TASK", "", "Date", "",
-                          "Task Status", "", "Mod Flags", "|");
+        int ch = snprintf(
+            buffer, sizeof(buffer),
+            "%-2s%-14s%4s %-24s%4s %-30s%8s %-10s%4s %-15s%4s %-4s%2s\n", "|",
+            "MSG Type", "", "Hash", "", "TASK", "", "Date", "", "Task Status",
+            "", "Mod Flags", "|");
         ch = ch - 2;
         printf("%s", buffer);
         memset(buffer, 0, sizeof(buffer));
@@ -39,10 +40,12 @@ void print_user_req(client_ctx_t *client_ctx) {
     }
     char buffer[4096];
 
-    int ch = snprintf(buffer, sizeof(buffer),
-                      "%-2s%-8d%4s %-30s%8s %-10s%4s %-11d%4s %-8d%3s\n", "|",
-                      msg_ptr->msg_type, "", msg_ptr->task, "", msg_ptr->date,
-                      "", msg_ptr->task_status, "", msg_ptr->mod_flags, "|");
+    int ch = snprintf(
+        buffer, sizeof(buffer),
+        "%-2s%-14s%4s %-24lu%4s %-30s%8s %-10s%4s %-15s%4s %-8d%3s\n", "|",
+        get_msg_type_str(msg_ptr->msg_type), "", msg_ptr->hash_key, "",
+        msg_ptr->task, "", msg_ptr->date, "",
+        get_task_status_str(msg_ptr->task_status), "", msg_ptr->mod_flags, "|");
     printf("%s", buffer);
     memset(buffer, 0, sizeof(buffer));
     ch = ch - 2;
@@ -50,16 +53,6 @@ void print_user_req(client_ctx_t *client_ctx) {
     buffer[0] = '+';
     buffer[ch] = '+';
     printf("%s\n", buffer);
-#if 0
-    printf("----------------------------------------------------------\n");    
-    printf("    %-10d\t\t %-12s\t\t %8d\t %8.2f\n\n", 100, "Mohammed", 2, 10000000);
-    printf("| Message Type : %d                                      |\n", msg_ptr->msg_type);
-    printf("| Task         : %s                                      |\n", msg_ptr->task);
-    printf("| Task Date    : %s                                      |\n", msg_ptr->date);
-    printf("| Task Status  : %d                                      |\n", msg_ptr->task_status);
-    printf("| Mod flags    : %d                                      |\n", msg_ptr->mod_flags);
-    printf("----------------------------------------------------------\n");
-#endif
 }
 
 void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
@@ -70,20 +63,18 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
         if (client_ctx->req.hash_key == 0) {
             printf("ERROR: HASHKEY NULL\n");
         }
-        resp_len = snprintf(resp_buf, sizeof(resp_buf),
-                            "Status: %s\r\n"
-                            "Client ID: %d\r\n"
-                            "Msg: %s\r\n"
-                            "Key: %lu\r\n"
-                            "\r\n",
+        resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+                                                        "Client ID: %d\r\n"
+                                                        "Msg: %s\r\n"
+                                                        "Key: %lu\r\n"
+                                                        "\r\n",
                             status, client_ctx->client_id, msg,
                             client_ctx->req.hash_key);
     } else {
-        resp_len = snprintf(resp_buf, sizeof(resp_buf),
-                            "Status: %s\r\n"
-                            "Client ID: %d\r\n"
-                            "Msg: %s\r\n"
-                            "\r\n",
+        resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+                                                        "Client ID: %d\r\n"
+                                                        "Msg: %s\r\n"
+                                                        "\r\n",
                             status, client_ctx->client_id, msg);
     }
     if (resp_len > sizeof(resp_buf)) {
@@ -101,14 +92,12 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
     if (strcmp(key, "Client ID") == 0) {
         if (str_to_int(value, &client_ctx->client_id) != 0) {
             fprintf(stderr, "Client_id conversion failed; Malformed req!!!\n");
-            // TODO: write to client error.
             write_client_responce(client_ctx, "FAIL",
                                   "Malformed Client ID received");
             return -1;
         }
     } else if (strcmp(key, "Message Type") == 0) {
         if (str_to_int(value, (int *)&client_ctx->req.msg_type) != 0) {
-            // TODO: write error to client;
             write_client_responce(client_ctx, "FAIL",
                                   "Malformed Msg Type received");
             fprintf(stderr, "Msg Id Conversion failed!!!\n");
@@ -119,7 +108,6 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         client_ctx->req.task_len = strlen(client_ctx->req.task);
     } else if (strcmp(key, "Task status") == 0) {
         if (str_to_int(value, (int *)&client_ctx->req.task_status) != 0) {
-            // TODO: write error to client;
             write_client_responce(client_ctx, "FAIL", "Malformed Task Status");
             fprintf(stderr, "Msg Id Conversion failed!!!\n");
             return -1;
@@ -159,7 +147,6 @@ void *handle_connection(void *arg) {
         }
         if (input_fields_counter >= MAX_REQ_FIELDS) {
             fprintf(stderr, "Client sent too many input fields \n");
-            // TODO: write some error to client.
             write_client_responce(client_ctx, "FAIL",
                                   "req had more than req num of fields");
             goto _EXIT;
@@ -168,15 +155,12 @@ void *handle_connection(void *arg) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
             write_client_responce(client_ctx, "FAIL",
                                   "Malformed Key-Value received in input");
-            // TODO: write error to the client.
             goto _EXIT;
         }
         if (parse_kv(client_ctx, key, value) == -1) {
             goto _EXIT;
         }
         ++input_fields_counter;
-        //        write(1, msg_buf, msg_len);
-        //        write(1,"\n",1);
     }
     // TODO: put a check to see if all the required fields are present.
     print_user_req(client_ctx);
@@ -185,7 +169,7 @@ void *handle_connection(void *arg) {
         printf("ERROR: handle storage failed\n");
         write_client_responce(client_ctx, "FAIL", "Check inputs");
     } else {
-        //printf("handle storage success\n");
+        // printf("handle storage success\n");
     }
     //
     // send responce.
@@ -219,7 +203,7 @@ int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
     int heartbeat_interval = 0;
     struct sockaddr_in server_addr;
-	int port;
+    int port;
 
     if (argc < 4) {
         // print usage
@@ -244,7 +228,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-	port = atoi(argv[2]);
+    port = atoi(argv[2]);
     server_addr.sin_port = htons(atoi(argv[2]));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {

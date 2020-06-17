@@ -4,16 +4,16 @@
  * @author Mohammed Sameer (mohammes@andrew.cmu.edu)
  */
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "util.h"
 
@@ -89,8 +89,7 @@ ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n) {
     size_t nleft = n;
     char *out_buffer = buf;
     while (nleft > 0) {
-        if (sock_read(ptr, &c, 1))
-            ;
+        sock_read(ptr, &c, 1);
         out_buffer[n - nleft] = c;
         nleft -= 1;
         if (c == '\n') {
@@ -99,7 +98,6 @@ ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n) {
     }
     return n - nleft;
 }
-// TODO: Test this out once when coding the server.
 
 int str_to_int(char *str, int *res) {
     char *end = NULL;
@@ -171,7 +169,8 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     return;
 }
 
-int parse_response_from_server(struct message_response *response, int client_id) {
+int parse_response_from_server(struct message_response *response,
+                               int client_id) {
 
     if (response->client_id != client_id) {
         printf("Response message not intended for the client!!\n");
@@ -185,4 +184,32 @@ int parse_response_from_server(struct message_response *response, int client_id)
     }
 
     return 0;
+}
+
+char *get_task_status_str(enum t_status stat) {
+    switch (stat) {
+    case TASK_NOT_DONE:
+        return "TASK_NOT_DONE";
+    case TASK_DONE:
+        return "TASK_DONE";
+    };
+    return "NA_NA";
+}
+
+char *get_msg_type_str(msg_type_t msg_type) {
+    switch (msg_type) {
+    case INVALID:
+        return "INVALID";
+    case MSG_ADD:
+        return "MSG_ADD";
+    case MSG_MODIFY:
+        return "MSG_MODIFY";
+    case MSG_GET_ALL:
+        return "MSG_GET_ALL";
+    case MSG_REMOVE:
+        return "MSG_REMOVE";
+    case MSG_HEARTBEAT:
+        return "MSG_HEARTBEAT";
+    };
+    return "NA_NA";
 }
