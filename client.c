@@ -132,6 +132,7 @@ int send_and_get_response(char *buf, struct message_response *response) {
 
     clientfd = connect_to_server(&server);
     if (clientfd < 0) {
+        printf("connect failed: %s\n", strerror(errno));
         return -1;
     }
 
@@ -164,7 +165,7 @@ void print_task_details(char *task, char *date, enum t_status status,
     } else if (status == TASK_NOT_DONE) {
         printf("Task status: NOT DONE\n");
     }
-    printf("Task Key: %llu\n", response->hash_key);
+    printf("Task Key: %lu\n", response->hash_key);
     printf("\n*******************************************\n");
 
     return;
