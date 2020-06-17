@@ -10,7 +10,6 @@
 #include <unistd.h>
 
 #include "c_s_iface.h"
-#include "local_f_detector.h"
 #include "server.h"
 #include "storage.h"
 #include "util.h"
@@ -223,14 +222,11 @@ void init_client_ctx(client_ctx_t *ctx) {
 
 int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
-    int heartbeat_interval = 0;
     struct sockaddr_in server_addr;
-    int port;
 
-    if (argc < 4) {
+    if (argc < 3) {
         // print usage
-        fprintf(stderr, "Usage: %s <ip_address> <port> <heartbeat interval>\n",
-                argv[0]);
+        fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     while ((opt = getopt(argc, argv, "v:")) != -1) {
@@ -250,7 +246,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    port = atoi(argv[2]);
     server_addr.sin_port = htons(atoi(argv[2]));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
@@ -272,16 +267,12 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    heartbeat_interval = atoi(argv[3]);
-
     struct sockaddr client_addr;
     socklen_t client_addr_len;
     pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
 
     storage_init(); // init database for storage
-
-    initialize_local_fault_detector(heartbeat_interval, port);
 
     pthread_mutex_init(&storage_lock, NULL);
 

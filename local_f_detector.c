@@ -96,3 +96,37 @@ void initialize_local_fault_detector(int heartbeat_interval, int port) {
 
     return;
 }
+
+int main(int argc, char *argv[]) {
+    int port;
+    int heartbeat_interval;
+    char buf[MAX_LENGTH];
+
+    memset(buf, 0, MAX_LENGTH);
+
+    if (argc < 3) {
+        printf("Usage: %s <port> <heartbeat interval>\n", argv[0]);
+    }
+
+    port = atoi(argv[1]);
+    heartbeat_interval = atoi(argv[2]);
+
+    initialize_local_fault_detector(heartbeat_interval, port);
+
+    printf("\nLocal fault detector started with %d interval\n", heartbeat_interval);
+
+    while (1) {
+        printf("\nEnter the new interval below to change it\n");
+        printf("\nHeartbeat interval: ");
+
+        fgets(buf, MAX_LENGTH, stdin);
+
+        interval_g = atoi(buf);
+        if (interval_g < 0) {
+            printf("\nEnter a proper number\n");
+            continue;
+        }
+
+        printf("Local fault detector changed to %d", interval_g);
+    }
+}
