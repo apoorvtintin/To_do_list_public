@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "c_s_iface.h"
 
 /* DEFINATIONS */
 

@@ -61,11 +61,7 @@ int handle_storage(client_ctx_t *client_ctx) {
         print_htable();
         break;
     case MSG_MODIFY:
-        old_key = req->hash_key;
-        req->hash_key =
-            generate_key(req->task, client_ctx->client_id, req->task_len);
-        ret =
-            hash_table_modify(old_key, req->hash_key, req->task_status);
+        hash_table_modify(req->hash_key, req->task_status);
         print_htable();
         break;
     case MSG_REMOVE:
