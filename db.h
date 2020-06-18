@@ -31,8 +31,7 @@ typedef struct hash_table_ {
 
 int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len);
 
-int hash_table_modify(uint64_t key, uint64_t nkey, uint8_t *new_data,
-                      uint64_t nlen);
+int hash_table_modify(uint64_t key, enum t_status task_status);
 
 int hash_table_delete(uint64_t key);
 
