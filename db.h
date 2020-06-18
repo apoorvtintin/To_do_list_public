@@ -4,6 +4,7 @@
 
 /* HEADER FILES */
 #include <stdint.h>
+#include "c_s_iface.h"
 
 /* DEFINATIONS */
 #define SHA_40_len 4
@@ -17,6 +18,7 @@ typedef struct data_point_ {
     uint64_t key;
     uint8_t raw_data[MAX_DATA_LEN];
     uint64_t data_len;
+    enum t_status task_status;
     struct data_point_ *next;
 } data_point;
 

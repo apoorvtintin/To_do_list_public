@@ -28,12 +28,11 @@ void display_initial_text() {
 
 void create_add_message_to_server(char *buf, struct message_add *message,
                                   int client_id) {
-    sprintf(buf,
-            "Client ID: %d\r\n"
-            "Message Type: %d\r\n"
-            "Task: %s\r\n"
-            "Task status: %d\r\n"
-            "Due date: %s\r\n\r\n",
+    sprintf(buf, "Client ID: %d\r\n"
+                 "Message Type: %d\r\n"
+                 "Task: %s\r\n"
+                 "Task status: %d\r\n"
+                 "Due date: %s\r\n\r\n",
             client_id, MSG_ADD, message->task, message->task_status,
             message->task_date);
 
@@ -42,10 +41,9 @@ void create_add_message_to_server(char *buf, struct message_add *message,
 
 void create_remove_message_to_server(char *buf, struct message_remove *message,
                                      int client_id) {
-    sprintf(buf,
-            "Client ID: %d\r\n"
-            "Message Type: %d\r\n"
-            "Key: %s\r\n\r\n",
+    sprintf(buf, "Client ID: %d\r\n"
+                 "Message Type: %d\r\n"
+                 "Key: %s\r\n\r\n",
             client_id, MSG_REMOVE, message->task);
 
     return;
@@ -53,14 +51,13 @@ void create_remove_message_to_server(char *buf, struct message_remove *message,
 
 void create_modify_message_to_server(char *buf, struct message_modify *message,
                                      int client_id) {
-    sprintf(buf,
-            "Client ID: %d\r\n"
-            "Message Type: %d\r\n"
-            "Flags: %d\r\n"
-            "Key: %s\r\n"
-            "New Task: %s\r\n"
-            "New Date: %s\r\n"
-            "New status: %d\r\n\r\n",
+    sprintf(buf, "Client ID: %d\r\n"
+                 "Message Type: %d\r\n"
+                 "Flags: %d\r\n"
+                 "Key: %s\r\n"
+                 "New Task: %s\r\n"
+                 "New Date: %s\r\n"
+                 "New status: %d\r\n\r\n",
             client_id, MSG_MODIFY, message->mod_flags, message->task,
             message->new_task, message->new_date, message->new_task_status);
 

@@ -13,6 +13,4 @@ int storage_init();
 
 void storage_deinit();
 
-// int generate_key(client_ctx_t *client_ctx);
-
 int handle_storage(client_ctx_t *client_ctx);

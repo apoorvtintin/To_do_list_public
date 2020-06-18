@@ -8,13 +8,13 @@ HFILES = $(wildcard *.h)
 
 .PHONY: app clean client server format
 
-app: server client
+app: server client local_f_detector
 
 client: client.c libutil.a
 	$(CC) $(CFLAGS) $^ -o $@
 
-local_f_detector.o: local_f_detector.c
-	$(CC) $(CFLAGS) -c $^
+local_f_detector: local_f_detector.c libutil.a
+	$(CC) $(CFLAGS) $^ -o $@
 
 db.o: db.c
 	gcc -O -g -c db.c
@@ -24,7 +24,7 @@ util.o:	util.c
 	gcc -O -g -c util.c
 libutil.a:	util.o
 	ar rcs libutil.a util.o
-server: server.c local_f_detector.o libutil.a storage.o db.o
+server: server.c libutil.a storage.o db.o
 	$(CC) $(CFLAGS) $^ -o server -lcrypto
 
 format: $(CFILES) $(HFILES)
