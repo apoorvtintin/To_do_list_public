@@ -21,16 +21,17 @@ static pthread_mutex_t storage_lock;
 
 // Local help functions
 
-void print_user_req(client_ctx_t *client_ctx) {
+void print_user_req(client_ctx_t *client_ctx, char *dir) {
     client_request_t *msg_ptr = &client_ctx->req;
     static int once = 0;
     if (once == 0) {
         char buffer[4096];
         int ch = snprintf(
-            buffer, sizeof(buffer),
-            "%-2s%-14s%4s %-24s%4s %-30s%8s %-10s%4s %-15s%4s %-4s%2s\n", "|",
-            "MSG Type", "", "Hash", "", "TASK", "", "Date", "", "Task Status",
-            "", "Mod Flags", "|");
+            buffer, sizeof(buffer), "%-2s %3.3s%1s %7s%2s %-14s%2s "
+                                    "%-24s%2s %-30s%2s %-10s%2s "
+                                    "%-15s%2s %-4s%2s\n",
+            "|", "DIR", "", "ClntID", "", "MSG Type", "", "Hash", "", "TASK",
+            "", "Date", "", "Task Status", "", "Mod Flags", "|");
         ch = ch - 2;
         printf("%s", buffer);
         memset(buffer, 0, sizeof(buffer));
@@ -43,15 +44,19 @@ void print_user_req(client_ctx_t *client_ctx) {
     char buffer[4096];
 
     int ch = snprintf(
-        buffer, sizeof(buffer),
-        "%-2s%-14s%4s %-24lu%4s %-30s%8s %-10s%4s %-15s%4s %-8d%3s\n", "|",
+        buffer, sizeof(buffer), "%-2s %3.3s%1s %7d%2s %-14s%2s %-24lu%2s "
+                                "%-30s%2s %-10s%2s %-15s%2s %-8d%3s\n",
+        "|", dir, "", client_ctx->client_id, "",
         get_msg_type_str(msg_ptr->msg_type), "", msg_ptr->hash_key, "",
         msg_ptr->task, "", msg_ptr->date, "",
         get_task_status_str(msg_ptr->task_status), "", msg_ptr->mod_flags, "|");
     printf("%s", buffer);
     memset(buffer, 0, sizeof(buffer));
     ch = ch - 2;
-    memset(buffer, '-', ch);
+    if (!strcmp(dir, "Res"))
+        memset(buffer, '=', ch);
+    else
+        memset(buffer, '-', ch);
     buffer[0] = '+';
     buffer[ch] = '+';
     printf("%s\n", buffer);
@@ -164,10 +169,10 @@ void *handle_connection(void *arg) {
         ++input_fields_counter;
     }
     // TODO: put a check to see if all the required fields are present.
-    print_user_req(client_ctx);
     // Handle strorage in database
 
     pthread_mutex_lock(&storage_lock);
+    print_user_req(client_ctx, "Req");
 
     if (handle_storage(client_ctx) != 0) {
         printf("ERROR: handle storage failed\n");
@@ -175,6 +180,7 @@ void *handle_connection(void *arg) {
     } else {
         // printf("handle storage success\n");
     }
+    print_user_req(client_ctx, "Res");
 
     pthread_mutex_unlock(&storage_lock);
 
