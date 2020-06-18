@@ -123,7 +123,19 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
     } else if (strcmp(key, "Key") == 0) {
         client_ctx->req.hash_key = strtoul(value, NULL, 10);
         printf("Key: %lu\n", client_ctx->req.hash_key);
-    }
+    } else if (strcmp(key, "New Task") == 0) {
+        strncpy(client_ctx->req.task, value, sizeof(client_ctx->req.task));
+        client_ctx->req.task_len = strlen(client_ctx->req.task);
+	} else if (strcmp(key, "New Date") == 0) {
+        strncpy(client_ctx->req.date, value, sizeof(client_ctx->req.date));
+	} else if (strcmp(key, "New status") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.task_status) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Task Status");
+            fprintf(stderr, "Msg Id Conversion failed!!!\n");
+            return -1;
+        }
+	}
+
     return 0;
 }
 
