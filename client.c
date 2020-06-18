@@ -92,7 +92,7 @@ void get_inputs_for_message_modify(struct message_modify *message) {
     memset(temp, 0, MAX_LENGTH);
 
     printf("\nModifying Task\n");
-    printf("\nEnter Task: ");
+    printf("\nEnter Key: ");
     scanf("%" MAX_LENGTH_STR "s", message->task);
     printf("\nEnter fields to modify\n");
 
@@ -116,9 +116,9 @@ void get_inputs_for_message_modify(struct message_modify *message) {
     } else {
         message->mod_flags |= MOD_FLAGS_STATUS_MODIFIED;
         if (!strncmp(temp, "DONE", strlen("DONE"))) {
-            message->new_task_status = TASK_NOT_DONE;
-        } else if (!strncmp(temp, "NOT_DONE", strlen("NOT_DONE"))) {
             message->new_task_status = TASK_DONE;
+        } else if (!strncmp(temp, "NOT_DONE", strlen("NOT_DONE"))) {
+            message->new_task_status = TASK_NOT_DONE;
         }
     }
 }
