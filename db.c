@@ -64,13 +64,13 @@ int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {
 
 int hash_table_get(uint64_t key, uint8_t *buffer) {
     uint32_t hash = hash_func(key);
-    data_point * task = search_list(hash, key);
+    data_point *task = search_list(hash, key);
     if (task == NULL) {
         // data not found
         return -1;
     }
-    snprintf(buffer, MAX_DATA_LEN, "task: %s status: %d \r\n", task->raw_data, 
-            task->task_status);
+    snprintf(buffer, MAX_DATA_LEN, "task: %s status: %d \r\n", task->raw_data,
+             task->task_status);
     return 0;
 }
 
@@ -103,7 +103,7 @@ int hash_table_modify(uint64_t key, enum t_status task_status) {
         printf("ERROR: data not found");
         // data not found
         return -1;
-    } 
+    }
     task->task_status = task_status;
     return 0;
 }

@@ -113,7 +113,8 @@ int main(int argc, char *argv[]) {
 
     initialize_local_fault_detector(heartbeat_interval, port);
 
-    printf("\nLocal fault detector started with %d interval\n", heartbeat_interval);
+    printf("\nLocal fault detector started with %d interval\n",
+           heartbeat_interval);
 
     while (1) {
         printf("\nEnter the new interval below to change it\n");

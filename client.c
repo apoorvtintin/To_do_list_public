@@ -68,9 +68,9 @@ void get_inputs_for_message_add(struct message_add *message) {
 
     printf("\nAdding new Task\n");
     printf("\nEnter task: ");
-    fgets(message->task, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", message->task);
     printf("\nEnter due date: ");
-    fgets(message->task_date, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", message->task_date);
 
     message->task_status = TASK_NOT_DONE;
 
@@ -81,7 +81,7 @@ void get_inputs_for_message_remove(struct message_remove *message) {
 
     printf("\nRemoving Task\n");
     printf("\nEnter key: ");
-    fgets(message->task, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", message->task);
 
     return;
 }
@@ -93,25 +93,25 @@ void get_inputs_for_message_modify(struct message_modify *message) {
 
     printf("\nModifying Task\n");
     printf("\nEnter Task: ");
-    fgets(message->task, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", message->task);
     printf("\nEnter fields to modify\n");
 
     printf("\nEnter new Task name: ");
-    fgets(message->new_task, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", message->new_task);
     if (!strncmp(message->new_task, "NA", strlen("NA"))) {
     } else {
         message->mod_flags |= MOD_FLAGS_TASK_STRING_MODIFIED;
     }
 
     printf("\nEnter new Date: ");
-    fgets(message->new_date, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", message->new_date);
     if (!strncmp(message->new_date, "NA", strlen("NA"))) {
     } else {
         message->mod_flags |= MOD_FLAGS_DATE_MODIFIED;
     }
 
     printf("\nEnter new Task status: ");
-    fgets(temp, MAX_LENGTH, stdin);
+    scanf("%" MAX_LENGTH_STR "s", temp);
     if (!strncmp(temp, "NA", strlen("NA"))) {
     } else {
         message->mod_flags |= MOD_FLAGS_STATUS_MODIFIED;

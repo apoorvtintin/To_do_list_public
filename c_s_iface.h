@@ -16,6 +16,8 @@ typedef struct sockaddr SA;
 
 #define MAX_REQ_FIELDS 6
 #define MAX_LENGTH 8192
+/* MAX_LEN-1 in string for use in scanf */
+#define MAX_LENGTH_STR "8191"
 
 #define TASK_LENGTH 1024
 #define DATE_LENGTH 32

@@ -3,8 +3,8 @@
 /* @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
 
 /* HEADER FILES */
-#include <stdint.h>
 #include "c_s_iface.h"
+#include <stdint.h>
 
 /* DEFINATIONS */
 #define SHA_40_len 4
