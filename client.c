@@ -13,8 +13,15 @@
 #include "c_s_iface.h"
 #include "util.h"
 
-struct server_info server;
+struct all_servers {
+	int count;
+	struct server_info server[3];
+};
+
+struct all_servers server_arr;
+
 int client_id = 0;
+int request_no_g = 0;
 
 void display_initial_text() {
     printf("\n*********************************\n");
@@ -28,12 +35,13 @@ void display_initial_text() {
 
 void create_add_message_to_server(char *buf, struct message_add *message,
                                   int client_id) {
-    sprintf(buf, "Client ID: %d\r\n"
+    sprintf(buf, "Request No: %d\r\n"
+				 "Client ID: %d\r\n"
                  "Message Type: %d\r\n"
                  "Task: %s\r\n"
                  "Task status: %d\r\n"
                  "Due date: %s\r\n\r\n",
-            client_id, MSG_ADD, message->task, message->task_status,
+            request_no_g, client_id, MSG_ADD, message->task, message->task_status,
             message->task_date);
 
     return;
@@ -127,7 +135,7 @@ int send_and_get_response(char *buf, struct message_response *response) {
     int clientfd = 0;
     int status = 0;
 
-    clientfd = connect_to_server(&server);
+    clientfd = connect_to_server(&server_arr.server[1]);
     if (clientfd < 0) {
         printf("connect failed: %s\n", strerror(errno));
         return -1;
@@ -168,6 +176,30 @@ void print_task_details(char *task, char *date, enum t_status status,
     return;
 }
 
+void print_add_request_to_console(struct message_add *message) {
+
+	printf("---------------------------------------\n");
+	printf("|  Direction        | \t    Request    \n");
+	printf("|  Request No       | \t    %d       \n", request_no_g);
+	printf("|  Client ID        | \t    %d      \n", client_id);
+	printf("|  Message type     | \t   MSG_ADD  \n");
+	printf("|  Task             | \t   %s \n", message->task);
+	printf("|  Due date         | \t   %s \n", message->task_date);
+	printf("|  Status           | \t   %s \n", get_task_status_str(message->task_status));
+	printf("---------------------------------------\n");
+}
+
+void print_add_response_to_console(struct message_response *response) {
+
+	printf("---------------------------------------\n");
+	printf("|  Direction        | \t    Reply    \n");
+	printf("|  Request No       | \t    %d       \n", response->req_no);
+	printf("|  Client ID        | \t    %d      \n", response->client_id);
+	printf("|  Status           | \t    %s      \n", response->status);
+	printf("|  Key              | \t    %lu      \n", response->hash_key);;
+	printf("---------------------------------------\n");
+}
+
 void handle_new_task() {
     int status = 0;
     struct message_add message;
@@ -180,16 +212,21 @@ void handle_new_task() {
 
     get_inputs_for_message_add(&message);
 
+	request_no_g++;
     create_add_message_to_server(buf, &message, client_id);
+
+	print_add_request_to_console(&message);
 
     status = send_and_get_response(buf, &response);
     if (status < 0) {
         printf("\nTask not added successfully\n");
     } else {
         printf("\nTask added successfully\n");
-        print_task_details(message.task, message.task_date, message.task_status,
-                           &response);
+        //print_task_details(message.task, message.task_date, message.task_status,
+        //                   &response);
     }
+
+	print_add_response_to_console(&response);
 
     return;
 }
@@ -258,32 +295,57 @@ int validate_input_from_user(int choice) {
     }
 }
 
+int parse_input_arguments(int argc, char *argv[]) {
+    int c = 0;
+	char temp1[1024], temp2[1024], temp3[1024];
+	
+	while ((c = getopt(argc, argv, "C:N:H:P:")) != -1) {
+		switch (c) {
+			case 'C':
+				client_id = atoi(optarg);
+				break;
+			case 'N':
+				server_arr.count = atoi(optarg);
+				break;
+			case 'H':
+				sscanf(optarg, "%s %s %s", server_arr.server[0].server_ip,
+						server_arr.server[1].server_ip,
+						server_arr.server[2].server_ip);
+				break;
+			case 'P':
+				sscanf(optarg, "%s %s %s", temp1, temp2, temp3);
+				server_arr.server[0].port = atoi(temp1);
+				server_arr.server[1].port = atoi(temp2);
+				server_arr.server[2].port = atoi(temp3);
+				break;
+			case '?':
+				printf("\nPlease check arguments passed\n");
+				return -1;
+		}
+	}
+
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
     int choice = 0;
-    int c = 0;
+	int status = 0;
     char temp_choice;
 
-    memset(&server, 0, sizeof(struct server_info));
+    memset(&server_arr, 0, sizeof(struct all_servers));
 
-    while ((c = getopt(argc, argv, "C:H:P:")) != -1) {
-        switch (c) {
-        case 'C':
-            client_id = atoi(optarg);
-            break;
-        case 'H':
-            memcpy(server.server_ip, optarg, strlen(optarg));
-            break;
-        case 'P':
-            server.port = atoi(optarg);
-            break;
-        case '?':
-            printf("\nPlease check arguments passed\n");
-            break;
-        }
-    }
+	status = parse_input_arguments(argc, argv);
+	if (status < 0) {
+		exit(0);
+	}
 
-    printf("Server IP: %s\n", server.server_ip);
-    printf("Server port: %d\n", server.port);
+	printf("Server count: %d\n", server_arr.count);
+	printf("Server 1 IP: %s\n", server_arr.server[0].server_ip);
+    printf("Server 1 port: %d\n", server_arr.server[0].port);
+	printf("Server 2 IP: %s\n", server_arr.server[1].server_ip);
+    printf("Server 2 port: %d\n", server_arr.server[1].port);
+	printf("Server 3 IP: %s\n", server_arr.server[2].server_ip);
+    printf("Server 3 port: %d\n", server_arr.server[2].port);
 
     while (1) {
         /* Display options */

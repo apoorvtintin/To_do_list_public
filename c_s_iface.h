@@ -56,12 +56,14 @@ struct message_get_all {
 
 struct message_remove {
     char task[TASK_LENGTH];
+	int req_no;
 };
 
 struct message_response {
     uint64_t hash_key;
     int client_id;
     char status[TASK_LENGTH];
+	int req_no;
 };
 
 #define MAXMSGSIZE sizeof(struct message_modify)
