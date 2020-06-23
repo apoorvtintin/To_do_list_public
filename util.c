@@ -152,6 +152,11 @@ void get_response_from_server(int clientfd, struct message_response *response) {
         if (!strncmp(resp_buf, "Status", strlen("Status"))) {
             sscanf(resp_buf, "Status: %s", response->status);
         }
+		
+		if (!strncmp(resp_buf, "Request No", strlen("Request No"))) {
+            sscanf(resp_buf, ": Request No: %s", temp);
+			response->req_no = atoi(temp);
+        }
 
         if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
             sscanf(resp_buf, "Client ID: %s", temp);
