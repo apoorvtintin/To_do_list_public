@@ -142,7 +142,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     sock_buf_read client_fd;
     init_buf_fd(&client_fd, clientfd);
 
-    // printf("\n**********\n");
+   	//printf("\n**********\n");
 
     while (sock_readline(&client_fd, resp_buf, MAX_LENGTH) > 0) {
         if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
@@ -152,10 +152,10 @@ void get_response_from_server(int clientfd, struct message_response *response) {
         if (!strncmp(resp_buf, "Status", strlen("Status"))) {
             sscanf(resp_buf, "Status: %s", response->status);
         }
-		
-		if (!strncmp(resp_buf, "Request No", strlen("Request No"))) {
-            sscanf(resp_buf, ": Request No: %s", temp);
-			response->req_no = atoi(temp);
+
+        if (!strncmp(resp_buf, "Request No", strlen("Request No"))) {
+            sscanf(resp_buf, "Request No: %s", temp);
+            response->req_no = atoi(temp);
         }
 
         if (!strncmp(resp_buf, "Client ID", strlen("Client ID"))) {
@@ -168,7 +168,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
             response->hash_key = strtoul(temp, NULL, 10);
             // printf("Task Key: %llu\n", response->hash_key);
         }
-        // printf("%s\n", resp_buf);
+        //printf("%s\n", resp_buf);
     }
 
     return;
