@@ -71,17 +71,21 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
         }
         resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
                                                         "Client ID: %d\r\n"
+                                                        "Request No: %lu\r\n"
                                                         "Msg: %s\r\n"
                                                         "Key: %lu\r\n"
                                                         "\r\n",
-                            status, client_ctx->client_id, msg,
+                            status, client_ctx->client_id, 
+                            client_ctx->req.req_no, msg,
                             client_ctx->req.hash_key);
     } else {
         resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
                                                         "Client ID: %d\r\n"
+                                                        "Request No: %lu\r\n"
                                                         "Msg: %s\r\n"
                                                         "\r\n",
-                            status, client_ctx->client_id, msg);
+                            status, client_ctx->client_id, 
+                            client_ctx->req.req_no,msg);
     }
     if (resp_len > sizeof(resp_buf)) {
         fprintf(stderr, "server resp is greater than the resp_buffer!!");
