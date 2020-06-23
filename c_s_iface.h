@@ -74,5 +74,6 @@ typedef struct _client_request {
     int mod_flags;
     uint64_t task_len;
     uint64_t hash_key;
+    uint64_t req_no;
 } client_request_t;
 #endif
