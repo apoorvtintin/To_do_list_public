@@ -50,7 +50,8 @@ void print_heartbeat_response_to_console(struct message_response *response) {
     printf("|  Status           | \t    %s      \n", response->status);
     printf("---------------------------------------\n");
 
-    printf("\nHeatbeats received: %d/%d\n", heartbeat_received_g, heartbeat_count_g);
+    printf("\nHeatbeats received: %d/%d\n", heartbeat_received_g,
+           heartbeat_count_g);
 }
 
 void *heartbeat_signal(void *vargp) {
@@ -70,8 +71,8 @@ void *heartbeat_signal(void *vargp) {
         clientfd = connect_to_server(&server);
         if (clientfd < 0) {
             printf("\nHeartbeat response not received: Server not active\n");
-			printf("Heartbeat response received for %d out of %d requests\n",
-					heartbeat_received_g, heartbeat_count_g);				
+            printf("Heartbeat response received for %d out of %d requests\n",
+                   heartbeat_received_g, heartbeat_count_g);
             printf("Trying again in %d sec... \n\n\n", interval_g);
             connection = 1;
             continue;
@@ -84,7 +85,7 @@ void *heartbeat_signal(void *vargp) {
 
         create_heartbeat_message_to_server(buf);
 
-		print_heartbeat_request_to_console();
+        print_heartbeat_request_to_console();
 
         status = write(clientfd, buf, MAX_LENGTH);
         if (status < 0) {
@@ -96,14 +97,14 @@ void *heartbeat_signal(void *vargp) {
         status = parse_response_from_server(&response, client_id);
         if (status < 0) {
             printf("Heartbeat response not received: Server not active\n");
-			printf("Heartbeat response received for %d out of %d requests\n",
-					heartbeat_received_g, heartbeat_count_g);				
+            printf("Heartbeat response received for %d out of %d requests\n",
+                   heartbeat_received_g, heartbeat_count_g);
             printf("Trying again in %d sec... \n\n\n", interval_g);
             connection = 1;
         }
 
         heartbeat_received_g++;
-		print_heartbeat_response_to_console(&response);
+        print_heartbeat_response_to_console(&response);
 
         close(clientfd);
     }
@@ -146,7 +147,7 @@ int main(int argc, char *argv[]) {
 
     port = atoi(argv[2]);
     heartbeat_interval = atoi(argv[3]);
-	memcpy(local_ip, argv[1], strlen(argv[1]));
+    memcpy(local_ip, argv[1], strlen(argv[1]));
 
     initialize_local_fault_detector(heartbeat_interval, port);
 
