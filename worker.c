@@ -65,9 +65,10 @@ void *run(void *argp)
                 }
                 free(node);
             }
-            else
+            if(c_count && n_count)
             {
-                fprintf(stderr, "Error!, we should never have reached here!\n");
+                fprintf(stderr, "Error!, we should never have reached here! %d\n",
+                        prio);
             }
         }
     }

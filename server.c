@@ -154,6 +154,15 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
     return 0;
 }
 
+int enqueue_client_req(server_log_t *svr,
+        client_ctx_t *client_ctx)
+{
+    log_node_t *node = malloc(sizeof(log_node_t));
+    node->val = client_ctx;
+    log_msg_type m_type = (client_ctx->req.msg_type == MSG_HEARTBEAT) ?
+        CONTROL : NORMAL;
+    return enqueue(svr, node, m_type);
+}
 void *handle_connection(void *arg) {
     pthread_detach(pthread_self());
     client_ctx_t *client_ctx = arg;
@@ -181,13 +190,13 @@ void *handle_connection(void *arg) {
         if (input_fields_counter >= MAX_REQ_FIELDS) {
             fprintf(stderr, "Client sent too many input fields \n");
             write_client_responce(client_ctx, "FAIL",
-                                  "req had more than req num of fields");
+                    "req had more than req num of fields");
             goto _EXIT;
         }
         if (sscanf(msg_buf, "%[^:]: %[^\r\n]", key, value) != 2) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
             write_client_responce(client_ctx, "FAIL",
-                                  "Malformed Key-Value received in input");
+                    "Malformed Key-Value received in input");
             goto _EXIT;
         }
         if (parse_kv(client_ctx, key, value) == -1) {
@@ -197,6 +206,45 @@ void *handle_connection(void *arg) {
     }
     // TODO: put a check to see if all the required fields are present.
     // Handle strorage in database
+#if 0
+    pthread_mutex_lock(&storage_lock);
+    print_user_req(client_ctx, "Req");
+
+    if (handle_storage(client_ctx) != 0) {
+        printf("ERROR: handle storage failed\n");
+        write_client_responce(client_ctx, "FAIL", "Check inputs");
+    } else {
+        // printf("handle storage success\n");
+    }
+    print_user_req(client_ctx, "Res");
+
+    pthread_mutex_unlock(&storage_lock);
+
+    //
+    // send responce.
+    write_client_responce(client_ctx, "OK", "Success");
+#endif
+    if(enqueue_client_req(&svr_log, client_ctx) != 0)
+    {
+        fprintf(stderr, "Enqueue failed !!!\n");    
+        goto _EXIT;
+    }
+    return (void *)0;
+_EXIT:
+    if (client_ctx->fd >= 0) {
+        close(client_ctx->fd);
+        client_ctx->fd = -1;
+    }
+    if (client_ctx) {
+        free(client_ctx);
+        client_ctx = NULL;
+    }
+    return (void *)-1;
+}
+
+void* execute_msg(void *arg)
+{
+    client_ctx_t *client_ctx = arg;
 
     pthread_mutex_lock(&storage_lock);
     print_user_req(client_ctx, "Req");
@@ -214,7 +262,7 @@ void *handle_connection(void *arg) {
     //
     // send responce.
     write_client_responce(client_ctx, "OK", "Success");
-_EXIT:
+//_EXIT:
     if (client_ctx->fd >= 0) {
         close(client_ctx->fd);
         client_ctx->fd = -1;
@@ -239,15 +287,6 @@ void init_client_ctx(client_ctx_t *ctx) {
     return;
 }
 
-int enqueue_client_req(server_log_t *svr,
-        client_ctx_t *client_ctx)
-{
-    log_node_t *node = malloc(sizeof(log_node_t));
-    node->val = client_ctx;
-    log_msg_type m_type = (client_ctx->req.msg_type == MSG_HEARTBEAT) ?
-        CONTROL : NORMAL;
-    return enqueue(svr, node, m_type);
-}
 
 
 int main(int argc, char *argv[]) {
@@ -299,13 +338,13 @@ int main(int argc, char *argv[]) {
 
     struct sockaddr client_addr;
     socklen_t client_addr_len;
-    //pthread_t th_id;
+    pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
 
     init_log_queue(&svr_log, 50, 50);
 
     if(start_worker_threads(&svr_log, 
-                handle_connection, handle_connection) != 0)
+                execute_msg, execute_msg) != 0)
     {
         fprintf(stderr, "Failed to start the worker thread\n");
         exit(-1);
@@ -334,13 +373,13 @@ int main(int argc, char *argv[]) {
         conn_client_ctx->fd = accept_ret_val;
         memcpy(&conn_client_ctx->addr, &client_addr,
                sizeof(struct sockaddr_in));
-#if 0
         if (pthread_create(&th_id, NULL, handle_connection,
                            (void *)conn_client_ctx) != 0) 
-#endif
+#if 0
         if(enqueue_client_req(&svr_log,conn_client_ctx) != 0)
+#endif
         {
-            fprintf(stderr, "!!!!!!!! Enqueue Failed !!!!!!!");
+            fprintf(stderr, "!!!!!!!! Pthread Create Failed !!!!!!!");
             if (conn_client_ctx->fd != -1) {
                 close(conn_client_ctx->fd);
                 free(conn_client_ctx);
