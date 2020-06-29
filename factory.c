@@ -15,6 +15,7 @@
 #include "storage.h"
 #include "util.h"
 #include "libconfuse/confuse.h"
+#include "replication_util.h"
 
 // Definitions
 #define SERVER_PATH "server"
@@ -22,7 +23,8 @@
 
 // Global Variables
 int verbose = 0;
-extern char **environ; /* Defined by libc */
+extern char **environ; /* Defined by libsc */
+int replica_id = -1;
 
 void sigchld_handler(int sig)  {
     int olderr = errno;
@@ -40,6 +42,7 @@ int read_config_file(char *path, struct sockaddr_in server_addr) {
 		CFG_SIMPLE_BOOL("verbose", &verbose),
 		CFG_SIMPLE_STR("ip", &ip),
 		CFG_SIMPLE_STR("port", &port),
+        CFG_SIMPLE_INT("replica_id", &replica_id),
 		CFG_END()
 	};
 	cfg_t *cfg;
@@ -155,11 +158,11 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
     char key[MAXMSGSIZE], value[MAXMSGSIZE];
     unsigned int input_fields_counter = 0;
     sock_buf_read client_fd;
-    init_buf_fd(&client_fd, client_ctx->fd);
+    init_buf_fd(&client_fd, conn_client_ctx.fd);
     memset(msg_buf, 0, MAXMSGSIZE);
     memset(key, 0, MAXMSGSIZE);
     memset(value, 0, MAXMSGSIZE);
-    rep_manager_ctx; // replication manager stuff
+    factory_message message; // replication manager stuff
 
     while (1) {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
@@ -174,26 +177,30 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
         }
         if (input_fields_counter >= MAX_REQ_FIELDS) {
             fprintf(stderr, "Client sent too many input fields \n");
-            write_client_responce(client_ctx, "FAIL",
+            write_client_responce(conn_client_ctx, "FAIL",
                                   "req had more than req num of fields");
             return -1;
         }
         if (sscanf(msg_buf, "%[^:]: %[^\r\n]", key, value) != 2) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
-            write_client_responce(client_ctx, "FAIL",
+            write_client_responce(conn_client_ctx, "FAIL",
                                   "Malformed Key-Value received in input");
             return -1;
         }
-        if (parse_rep_manager_kv(rep_manager_ctx, key, value) == -1) {
+        if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
         ++input_fields_counter;
     }
-    return handle_command(rep_manager_ctx);
+    return handle_rep_man_command(message);
 }
 
-int handle_rep_man_command() {
-
+int handle_rep_man_command(factory_message message) {
+    if(message.replica_id == replica_id) {
+        if(message.req == STARTUP) {
+            spawn_server(SERVER_PATH);
+        }
+    }
     return 0;
 }
 

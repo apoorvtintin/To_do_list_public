@@ -1,46 +1,16 @@
-#include <arpa/inet.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include "c_s_iface.h"
 #include "util.h"
 #include "server.h"
-
-// Definitions
-#define MAX_REPLICAS 3
-
-// Structures
-enum replica_state {
-    RUNNING,
-    FAULTED,
-    SENT_STARTUP_REQ
-};
-
-typedef struct replica_node_t {
-    int replica_id;
-    enum replica_state;
-    struct sockaddr_in factory_addr;
-} replica_node;
-
-typedef struct rep_manager_data_t {
-    int num_replicas;
-    replica_node node[MAX_REPLICAS];
-} rep_manager_data;
+#include "replication_util.h"
 
 // Global Variables
 int verbose = 0;
+rep_manager_data data;
 
 int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
     struct sockaddr_in server_addr;
+
 
     if (argc < 2) {
         // print usage
@@ -58,10 +28,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
     }
 
-    if(read_config_file(argv[1], server_addr) != 0) {
+    if(read_config_file(argv[1], server_addr, &data) != 0) {
         fprintf(stderr, "READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
+
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
@@ -115,22 +86,22 @@ int main(int argc, char *argv[]) {
         memcpy(&conn_client_ctx.addr, &client_addr,
                 sizeof(struct sockaddr_in));
 
-        handle_fault_detector_message(conn_client_ctx);
+        handle_fault_detector_message(&conn_client_ctx);
     }
     return 0;
 }
 
-int handle_fault_detector_message(client_ctx_t conn_client_ctx) {
+int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {
     int msg_len = 0;
     char msg_buf[MAXMSGSIZE]; // define a MAXLINE macro.
     char key[MAXMSGSIZE], value[MAXMSGSIZE];
     unsigned int input_fields_counter = 0;
     sock_buf_read client_fd;
-    init_buf_fd(&client_fd, client_ctx->fd);
+    init_buf_fd(&client_fd, conn_client_ctx->fd);
     memset(msg_buf, 0, MAXMSGSIZE);
     memset(key, 0, MAXMSGSIZE);
     memset(value, 0, MAXMSGSIZE);
-    fault_detector_ctx; // replication manager stuff
+    replication_manager_message fault_detector_ctx; // replication manager stuff
 
     while (1) {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
@@ -145,14 +116,10 @@ int handle_fault_detector_message(client_ctx_t conn_client_ctx) {
         }
         if (input_fields_counter >= MAX_REQ_FIELDS) {
             fprintf(stderr, "Client sent too many input fields \n");
-            write_client_responce(client_ctx, "FAIL",
-                                  "req had more than req num of fields");
             return -1;
         }
         if (sscanf(msg_buf, "%[^:]: %[^\r\n]", key, value) != 2) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
-            write_client_responce(client_ctx, "FAIL",
-                                  "Malformed Key-Value received in input");
             return -1;
         }
         if (parse_fault_detector_kv(fault_detector_ctx, key, value) == -1) {
@@ -160,10 +127,81 @@ int handle_fault_detector_message(client_ctx_t conn_client_ctx) {
         }
         ++input_fields_counter;
     }
-    return handle_command(fault_detector_ctx);
+    handle_state(fault_detector_ctx);
 }
 
-int handle_fault_detector_message(fault_detector_ctx) {
+int handle_state(replication_manager_message fault_detector_ctx) {
+    // change internal state
+    int replica_id = fault_detector_ctx.replica_id;
+    data.node[replica_id].state = fault_detector_ctx.state;
+    // check if unstable state
+    // take action based on that
+    handle_current_state();
+    return 0;
+}
+
+int handle_current_state() {
+    int replica_iter, active_count, inactive_count, startup_req;
+    active_count = 0;
+    inactive_count = 0;
+    startup_req = 0;
+
+    for(replica_iter = 0; replica_iter < data.num_replicas; replica_iter++) {
+        
+        if(data.node[replica_iter].state == RUNNING) {
+            active_count++;
+        } 
+
+        else if (data.node[replica_iter].state == FAULTED) {
+            if(restart_server(replica_iter) != 0) {
+                fprintf(stderr, "Startup req could not be sent\n");
+            } else {
+                data.node[replica_iter].state = SENT_STARTUP_REQ;
+            }
+            inactive_count++;
+        }
+
+        else if(data.node[replica_iter].state == SENT_STARTUP_REQ) {
+            inactive_count++;
+            startup_req++;
+        }
+
+        else {
+            fprintf(stderr, "Unhandled state :/\n");
+        }
+    }
+
+    fprintf(stdout, "Number of active replicas %d, " 
+                    "Number of inactive replicas %d, "
+                    "Number of startup requests sent %d\n",
+                    active_count, inactive_count, startup_req);
+    return 0;
+}
+
+int restart_server(int replica_id) {
+    int clientfd = 0;
+    int status = 0;
+
+    char buf[MAX_LENGTH];
+
+    sprintf(buf,"Replica ID: %d\r\n"
+            "Factory Req: %d\r\n",
+            replica_id, STARTUP);
+
+    clientfd = connect_to_server(&data.node[replica_id].factory);
+    if (clientfd < 0) {
+        printf("connect failed: %s\n", strerror(errno));
+        return -1;
+    }
+
+    status = write(clientfd, buf, MAX_LENGTH);
+    if (status < 0) {
+        printf("Write failed: %s\n", strerror(errno));
+        close(clientfd);
+        return -1;
+    }
+
+    close(clientfd);
 
     return 0;
 }
