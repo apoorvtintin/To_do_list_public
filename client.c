@@ -22,6 +22,7 @@ struct all_servers server_arr;
 
 int client_id = 0;
 int request_no_g = 0;
+int response_no_g = 0;
 
 void display_initial_text() {
     printf("\n*********************************\n");
@@ -49,25 +50,28 @@ void create_add_message_to_server(char *buf, struct message_add *message,
 
 void create_remove_message_to_server(char *buf, struct message_remove *message,
                                      int client_id) {
-    sprintf(buf, "Client ID: %d\r\n"
+    sprintf(buf, "Request No: %d\r\n"
+                 "Client ID: %d\r\n"
                  "Message Type: %d\r\n"
                  "Key: %s\r\n\r\n",
-            client_id, MSG_REMOVE, message->task);
+            request_no_g, client_id, MSG_REMOVE, message->task);
 
     return;
 }
 
 void create_modify_message_to_server(char *buf, struct message_modify *message,
                                      int client_id) {
-    sprintf(buf, "Client ID: %d\r\n"
+    sprintf(buf, "Request No: %d\r\n"
+                 "Client ID: %d\r\n"
                  "Message Type: %d\r\n"
                  "Flags: %d\r\n"
                  "Key: %s\r\n"
                  "New Task: %s\r\n"
                  "New Date: %s\r\n"
                  "New status: %d\r\n\r\n",
-            client_id, MSG_MODIFY, message->mod_flags, message->task,
-            message->new_task, message->new_date, message->new_task_status);
+            request_no_g, client_id, MSG_MODIFY, message->mod_flags,
+            message->task, message->new_task, message->new_date,
+            message->new_task_status);
 
     return;
 }
@@ -134,27 +138,40 @@ void get_inputs_for_message_modify(struct message_modify *message) {
 int send_and_get_response(char *buf, struct message_response *response) {
     int clientfd = 0;
     int status = 0;
+    int i = 0;
 
-    clientfd = connect_to_server(&server_arr.server[0]);
-    if (clientfd < 0) {
-        printf("connect failed: %s\n", strerror(errno));
-        return -1;
-    }
+    for (i = 0; i < server_arr.count; i++) {
 
-    status = write(clientfd, buf, MAX_LENGTH);
-    if (status < 0) {
-        printf("Write failed: %s\n", strerror(errno));
+        clientfd = connect_to_server(&server_arr.server[i]);
+        if (clientfd < 0) {
+            printf("connect failed: %s\n", strerror(errno));
+            return -1;
+        }
+
+        status = write(clientfd, buf, MAX_LENGTH);
+        if (status < 0) {
+            printf("Write failed: %s\n", strerror(errno));
+            close(clientfd);
+            return -1;
+        }
+
+        get_response_from_server(clientfd, response);
+
         close(clientfd);
-        return -1;
-    }
 
-    get_response_from_server(clientfd, response);
+        if (response->req_no == response_no_g) {
+            printf("\nServer %d response, but reponse already recieved for "
+                   "request no %d\n",
+                   i + 1, response_no_g);
+            continue;
+        }
 
-    close(clientfd);
+        response_no_g++;
 
-    status = parse_response_from_server(response, client_id);
-    if (status < 0) {
-        return -1;
+        status = parse_response_from_server(response, client_id);
+        if (status < 0) {
+            return -1;
+        }
     }
 
     return 0;
@@ -182,11 +199,38 @@ void print_add_request_to_console(struct message_add *message) {
     printf("|  Direction        | \t    Request    \n");
     printf("|  Request No       | \t    %d       \n", request_no_g);
     printf("|  Client ID        | \t    %d      \n", client_id);
-    printf("|  Message type     | \t   MSG_ADD  \n");
-    printf("|  Task             | \t   %s \n", message->task);
-    printf("|  Due date         | \t   %s \n", message->task_date);
-    printf("|  Status           | \t   %s \n",
+    printf("|  Message type     | \t    MSG_ADD  \n");
+    printf("|  Task             | \t    %s \n", message->task);
+    printf("|  Due date         | \t    %s \n", message->task_date);
+    printf("|  Status           | \t    %s \n",
            get_task_status_str(message->task_status));
+    printf("---------------------------------------\n");
+}
+
+void print_remove_request_to_console(struct message_remove *message) {
+
+    printf("---------------------------------------\n");
+    printf("|  Direction        | \t    Request    \n");
+    printf("|  Request No       | \t    %d       \n", request_no_g);
+    printf("|  Client ID        | \t    %d      \n", client_id);
+    printf("|  Message type     | \t    MSG_REMOVE  \n");
+    printf("|  Key              | \t    %s \n", message->task);
+    printf("---------------------------------------\n");
+}
+
+void print_modify_request_to_console(struct message_modify *message) {
+
+    printf("---------------------------------------\n");
+    printf("|  Direction        | \t    Request    \n");
+    printf("|  Request No       | \t    %d       \n", request_no_g);
+    printf("|  Client ID        | \t    %d      \n", client_id);
+    printf("|  Message type     | \t    MSG_MODIFY  \n");
+    printf("|  Key              | \t    %s \n", message->task);
+    printf("|  New Task         | \t    %s \n", message->new_task);
+    printf("|  New date         | \t    %s \n", message->new_date);
+    printf("|  New status       | \t    %s \n",
+           get_task_status_str(message->new_task_status));
+
     printf("---------------------------------------\n");
 }
 
@@ -198,7 +242,26 @@ void print_add_response_to_console(struct message_response *response) {
     printf("|  Client ID        | \t    %d      \n", response->client_id);
     printf("|  Status           | \t    %s      \n", response->status);
     printf("|  Key              | \t    %lu      \n", response->hash_key);
-    ;
+    printf("---------------------------------------\n");
+}
+
+void print_remove_response_to_console(struct message_response *response) {
+
+    printf("---------------------------------------\n");
+    printf("|  Direction        | \t    Reply    \n");
+    printf("|  Request No       | \t    %d       \n", response->req_no);
+    printf("|  Client ID        | \t    %d      \n", response->client_id);
+    printf("|  Status           | \t    %s      \n", response->status);
+    printf("---------------------------------------\n");
+}
+
+void print_modify_response_to_console(struct message_response *response) {
+
+    printf("---------------------------------------\n");
+    printf("|  Direction        | \t    Reply    \n");
+    printf("|  Request No       | \t    %d       \n", response->req_no);
+    printf("|  Client ID        | \t    %d      \n", response->client_id);
+    printf("|  Status           | \t    %s      \n", response->status);
     printf("---------------------------------------\n");
 }
 
@@ -244,7 +307,10 @@ void handle_remove_task() {
     memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);
 
+    request_no_g++;
     get_inputs_for_message_remove(&message);
+
+    print_remove_request_to_console(&message);
 
     create_remove_message_to_server(buf, &message, client_id);
 
@@ -254,6 +320,8 @@ void handle_remove_task() {
     } else {
         printf("\nTask removed successfully\n");
     }
+
+    print_remove_response_to_console(&response);
 
     return;
 }
@@ -268,6 +336,7 @@ void handle_mod_task() {
     memset(&response, 0, sizeof(struct message_response));
     memset(buf, 0, MAX_LENGTH);
 
+    request_no_g++;
     get_inputs_for_message_modify(&message);
 #if 0
 	printf("Task %s\n", message.task);
@@ -277,6 +346,8 @@ void handle_mod_task() {
 	printf("Flags %x", message.mod_flags);
 #endif
 
+    print_modify_request_to_console(&message);
+
     create_modify_message_to_server(buf, &message, client_id);
 
     status = send_and_get_response(buf, &response);
@@ -285,6 +356,8 @@ void handle_mod_task() {
     } else {
         printf("\nTask modified successfully\n");
     }
+
+    print_modify_response_to_console(&response);
 
     return;
 }
@@ -298,28 +371,59 @@ int validate_input_from_user(int choice) {
     }
 }
 
+void parse_and_prepare_server_array(char *file) {
+    FILE *fptr;
+    char line[1024];
+    char temp[1024];
+    int i = 0;
+
+    memset(line, 0, 1024);
+    memset(temp, 0, 1024);
+
+    fptr = fopen(file, "r");
+
+    while (fgets(line, 1024, fptr)) {
+        if (!strncmp(line, "###", strlen("###"))) {
+            i = 0;
+            continue;
+        }
+
+        if (!strncmp(line, "##", strlen("##"))) {
+            i++;
+            memset(line, 0, 1024);
+            memset(temp, 0, 1024);
+            server_arr.count = i + 1;
+            continue;
+        }
+
+        if (!strncmp(line, "Server", strlen("Server"))) {
+            sscanf(line, "Server: %s", temp);
+            memcpy(server_arr.server[i].server_ip, temp, strlen(temp));
+        }
+
+        if (!strncmp(line, "Port", strlen("Port"))) {
+            sscanf(line, "Port: %s", temp);
+            server_arr.server[i].port = atoi(temp);
+        }
+    }
+
+    fclose(fptr);
+}
+
 int parse_input_arguments(int argc, char *argv[]) {
     int c = 0;
-    char temp1[1024], temp2[1024], temp3[1024];
+    char filename[1024];
 
-    while ((c = getopt(argc, argv, "C:N:H:P:")) != -1) {
+    memset(filename, 0, 1024);
+
+    while ((c = getopt(argc, argv, "C:F:")) != -1) {
         switch (c) {
         case 'C':
             client_id = atoi(optarg);
             break;
-        case 'N':
-            server_arr.count = atoi(optarg);
-            break;
-        case 'H':
-            sscanf(optarg, "%s %s %s", server_arr.server[0].server_ip,
-                   server_arr.server[1].server_ip,
-                   server_arr.server[2].server_ip);
-            break;
-        case 'P':
-            sscanf(optarg, "%s %s %s", temp1, temp2, temp3);
-            server_arr.server[0].port = atoi(temp1);
-            server_arr.server[1].port = atoi(temp2);
-            server_arr.server[2].port = atoi(temp3);
+        case 'F':
+            memcpy(filename, optarg, strlen(optarg));
+            parse_and_prepare_server_array(filename);
             break;
         case '?':
             printf("\nPlease check arguments passed\n");
