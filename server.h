@@ -1,5 +1,5 @@
 /*
- * @file util.h
+ * @file server.h
  * @author Mohammed Sameer
  * @brief this file includes all the common utility functions and definitions
  * for the distributed app.
@@ -19,4 +19,7 @@ typedef struct _client_ctx {
     struct sockaddr_in addr;
     client_request_t req;
 } client_ctx_t;
+
 #endif
+
+

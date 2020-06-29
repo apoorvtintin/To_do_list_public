@@ -2,3 +2,4 @@
 *.a
 server
 client
+local_f_detector

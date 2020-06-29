@@ -31,11 +31,11 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
     if (once == 0) {
         char buffer[4096];
         int ch = snprintf(
-            buffer, sizeof(buffer), "%-2s %3.3s%1s %7s%2s %-14s%2s "
-                                    "%-24s%2s %-30s%2s %-10s%2s "
-                                    "%-15s%2s %-4s%2s\n",
-            "|", "DIR", "", "ClntID", "", "MSG Type", "", "Hash", "", "TASK",
-            "", "Date", "", "Task Status", "", "Mod Flags", "|");
+            buffer, sizeof(buffer), "%-2s %3.3s%1s %7s%1s %7s%1s %-14s%1s "
+                                    "%-24s%1s %-30s%1s %-10s%1s "
+                                    "%-15s%1s %-4s%2s\n",
+            "|", "DIR", "", "ClntID", "", "Seq No", "", "MSG Type", "", "Hash",
+            "", "TASK", "", "Date", "", "Task Status", "", "Mod Flags", "|");
         ch = ch - 2;
         printf("%s", buffer);
         memset(buffer, 0, sizeof(buffer));
@@ -47,13 +47,14 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
     }
     char buffer[4096];
 
-    int ch = snprintf(
-        buffer, sizeof(buffer), "%-2s %3.3s%1s %7d%2s %-14s%2s %-24lu%2s "
-                                "%-30s%2s %-10s%2s %-15s%2s %-8d%3s\n",
-        "|", dir, "", client_ctx->client_id, "",
-        get_msg_type_str(msg_ptr->msg_type), "", msg_ptr->hash_key, "",
-        msg_ptr->task, "", msg_ptr->date, "",
-        get_task_status_str(msg_ptr->task_status), "", msg_ptr->mod_flags, "|");
+    int ch = snprintf(buffer, sizeof(buffer),
+                      "%-2s %3.3s%1s %7d%2s %7lu%1s %-14s%2s %-24lu%2s "
+                      "%-30s%2s %-10s%2s %-15s%2s %-8d%3s\n",
+                      "|", dir, "", client_ctx->client_id, "", msg_ptr->req_no,
+                      "", get_msg_type_str(msg_ptr->msg_type), "",
+                      msg_ptr->hash_key, "", msg_ptr->task, "", msg_ptr->date,
+                      "", get_task_status_str(msg_ptr->task_status), "",
+                      msg_ptr->mod_flags, "|");
     printf("%s", buffer);
     memset(buffer, 0, sizeof(buffer));
     ch = ch - 2;
@@ -73,19 +74,23 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
         if (client_ctx->req.hash_key == 0) {
             printf("ERROR: HASHKEY NULL\n");
         }
-        resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
-                                                        "Client ID: %d\r\n"
-                                                        "Msg: %s\r\n"
-                                                        "Key: %lu\r\n"
-                                                        "\r\n",
-                            status, client_ctx->client_id, msg,
-                            client_ctx->req.hash_key);
+        resp_len =
+            snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+                                                 "Client ID: %d\r\n"
+                                                 "Request No: %lu\r\n"
+                                                 "Msg: %s\r\n"
+                                                 "Key: %lu\r\n"
+                                                 "\r\n",
+                     status, client_ctx->client_id, client_ctx->req.req_no, msg,
+                     client_ctx->req.hash_key);
     } else {
         resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
                                                         "Client ID: %d\r\n"
+                                                        "Request No: %lu\r\n"
                                                         "Msg: %s\r\n"
                                                         "\r\n",
-                            status, client_ctx->client_id, msg);
+                            status, client_ctx->client_id,
+                            client_ctx->req.req_no, msg);
     }
     if (resp_len > sizeof(resp_buf)) {
         fprintf(stderr, "server resp is greater than the resp_buffer!!");
@@ -136,6 +141,12 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         if (str_to_int(value, (int *)&client_ctx->req.task_status) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Task Status");
             fprintf(stderr, "Msg Id Conversion failed!!!\n");
+            return -1;
+        }
+    } else if (strcmp(key, "Request No") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.req_no) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Req No.");
+            fprintf(stderr, "Req No Conversion failed!!!\n");
             return -1;
         }
     }
