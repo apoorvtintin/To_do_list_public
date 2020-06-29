@@ -14,8 +14,12 @@
 #include "server.h"
 #include "storage.h"
 #include "util.h"
+#include "log.h"
+#include "worker.h"
+
 // Global variables
 int verbose = 0;
+server_log_t svr_log;
 
 static pthread_mutex_t storage_lock;
 
@@ -126,15 +130,15 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
     } else if (strcmp(key, "New Task") == 0) {
         strncpy(client_ctx->req.task, value, sizeof(client_ctx->req.task));
         client_ctx->req.task_len = strlen(client_ctx->req.task);
-	} else if (strcmp(key, "New Date") == 0) {
+    } else if (strcmp(key, "New Date") == 0) {
         strncpy(client_ctx->req.date, value, sizeof(client_ctx->req.date));
-	} else if (strcmp(key, "New status") == 0) {
+    } else if (strcmp(key, "New status") == 0) {
         if (str_to_int(value, (int *)&client_ctx->req.task_status) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Task Status");
             fprintf(stderr, "Msg Id Conversion failed!!!\n");
             return -1;
         }
-	}
+    }
 
     return 0;
 }
@@ -224,6 +228,17 @@ void init_client_ctx(client_ctx_t *ctx) {
     return;
 }
 
+int enqueue_client_req(server_log_t *svr,
+        client_ctx_t *client_ctx)
+{
+    log_node_t *node = malloc(sizeof(log_node_t));
+    node->val = client_ctx;
+    log_msg_type m_type = (client_ctx->req.msg_type == MSG_HEARTBEAT) ?
+        CONTROL : NORMAL;
+    return enqueue(svr, node, m_type);
+}
+
+
 int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
     struct sockaddr_in server_addr;
@@ -273,8 +288,17 @@ int main(int argc, char *argv[]) {
 
     struct sockaddr client_addr;
     socklen_t client_addr_len;
-    pthread_t th_id;
+    //pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
+
+    init_log_queue(&svr_log, 50, 50);
+
+    if(start_worker_threads(&svr_log, 
+                handle_connection, handle_connection) != 0)
+    {
+        fprintf(stderr, "Failed to start the worker thread\n");
+        exit(-1);
+    }
 
     storage_init(); // init database for storage
 
@@ -299,9 +323,13 @@ int main(int argc, char *argv[]) {
         conn_client_ctx->fd = accept_ret_val;
         memcpy(&conn_client_ctx->addr, &client_addr,
                sizeof(struct sockaddr_in));
+#if 0
         if (pthread_create(&th_id, NULL, handle_connection,
-                           (void *)conn_client_ctx) != 0) {
-            fprintf(stderr, "!!!!!!!!!!Thread Creation failed!!!!!!!");
+                           (void *)conn_client_ctx) != 0) 
+#endif
+        if(enqueue_client_req(&svr_log,conn_client_ctx) != 0)
+        {
+            fprintf(stderr, "!!!!!!!! Enqueue Failed !!!!!!!");
             if (conn_client_ctx->fd != -1) {
                 close(conn_client_ctx->fd);
                 free(conn_client_ctx);
