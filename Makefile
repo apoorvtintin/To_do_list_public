@@ -10,7 +10,7 @@ HFILES = $(wildcard *.h)
 
 app: server client local_f_detector factory replication_manager
 
-factory: factory.c libconfuse.a
+factory: factory.c libconfuse.a libutil.a
 	$(CC) $(CFLAGS) $^ -o $@
 
 replication_manager: replication_manager.c libconfuse.a libutil.a

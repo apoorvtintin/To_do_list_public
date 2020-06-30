@@ -29,13 +29,7 @@ static int parse_fault_detector_kv(
             replication_manager_message *fault_detector_ctx, 
             char *key, char *value);
 
-void init_server_ctx(server_ctx_t *ctx) {
-    ctx->fd = -1;
-    memset(&ctx->addr, 0, sizeof(ctx->addr));
-    return;
-}
-
-void init_client_ctx(client_ctx_t *ctx) {
+static void init_client_ctx(client_ctx_t *ctx) {
     ctx->fd = -1;
     memset(&ctx->addr, 0, sizeof(ctx->addr));
     memset(&ctx->req, 0, sizeof(ctx->req));

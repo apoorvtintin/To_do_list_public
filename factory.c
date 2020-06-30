@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 #include "c_s_iface.h"
 #include "local_f_detector.h"
@@ -24,7 +26,23 @@
 // Global Variables
 int verbose = 0;
 extern char **environ; /* Defined by libsc */
-int replica_id = -1;
+long replica_id = -1;
+
+// Forward Declarations
+static int handle_replication_manager_message(client_ctx_t conn_client_ctx);
+static int handle_rep_man_command(factory_message message);
+static int spawn_server(char* path);
+static int spawn_fault_detector(char* path);
+static int parse_rep_manager_kv (
+    factory_message *rep_manager_ctx, 
+    char *key, char *value);
+
+static void init_client_ctx(client_ctx_t *ctx) {
+    ctx->fd = -1;
+    memset(&ctx->addr, 0, sizeof(ctx->addr));
+    memset(&ctx->req, 0, sizeof(ctx->req));
+    return;
+}
 
 void sigchld_handler(int sig)  {
     int olderr = errno;
@@ -32,9 +50,6 @@ void sigchld_handler(int sig)  {
     while ((waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0);
     errno = olderr;
 }
-
-// Global variables
-int verbose = 0;
 
 static int read_config_file(char *path, char *ip, char *port) {
 
@@ -68,12 +83,19 @@ static int read_config_file(char *path, char *ip, char *port) {
 
 int factory_init(char *server_path, char *fault_detector_path) {
     if(server_path == NULL) {
-        fprinf(stderr,"servre path NULL\n");
+        fprintf(stderr,"servre path NULL\n");
         return -1;
     }
+
+    // Create environment variable
+    if (putenv("MY_ENV=42") < 0) {
+        perror("putenv error");
+        exit(1);
+    }
+
     // Handles terminated or stopped child
-    Signal(SIGCHLD, sigchld_handler);
-    if(spawn_server(server_path) & 
+    signal(SIGCHLD, sigchld_handler);
+    if(spawn_server(server_path) || 
        spawn_fault_detector(fault_detector_path)) {
         fprintf(stderr, "Spawn error");
         return -1;
@@ -120,7 +142,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_port = htons(port);
+    server_addr.sin_port = htons(atoi(port));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
         fprintf(stderr, "Socket creation failed. Reason: %s\n",
@@ -146,7 +168,6 @@ int main(int argc, char *argv[]) {
 
     struct sockaddr client_addr;
     socklen_t client_addr_len;
-    pthread_t th_id;
     memset(&client_addr, 0, sizeof(struct sockaddr));
     client_ctx_t conn_client_ctx;
     while (1) {
@@ -197,14 +218,10 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
         }
         if (input_fields_counter >= MAX_REQ_FIELDS) {
             fprintf(stderr, "Client sent too many input fields \n");
-            write_client_responce(conn_client_ctx, "FAIL",
-                                  "req had more than req num of fields");
             return -1;
         }
         if (sscanf(msg_buf, "%[^:]: %[^\r\n]", key, value) != 2) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
-            write_client_responce(conn_client_ctx, "FAIL",
-                                  "Malformed Key-Value received in input");
             return -1;
         }
         if (parse_rep_manager_kv(&message, key, value) == -1) {
@@ -225,29 +242,58 @@ int handle_rep_man_command(factory_message message) {
 }
 
 int spawn_server(char* path) {
+    //command line arguments
+    char *newargv[] = { NULL, "hello", "world", NULL };
+    
     //Fork server
     pid_t pid = fork();
-    if(pid == 0)
-        if (execve(path, NULL, environ) < 0) {
+    if(pid == 0) {
+        if (execve(path, newargv, environ) < 0) {
             //proccess execve error
-            fprinf(stderr,"server path incorrect or binary does not exist\n");
+            fprintf(stderr,"server path incorrect or binary does not exist\n");
             exit(0);
         }
-    else if(pid < 0) {
+    } else if(pid < 0) {
         fprintf(stderr,"error occurred while forking\n");
+        return -1;
     }
+    return 0;
 }
 
 int spawn_fault_detector(char* path) {
+    //command line arguments
+    char *newargv[] = { NULL, "hello", "world", NULL };
+
     //Fork server
     pid_t pid = fork();
-    if(pid == 0)
-        if (execve(path, NULL, environ) < 0) {
+    if(pid == 0) {
+        if (execve(path, newargv, environ) < 0) {
             //proccess execve error
-            fprinf(stderr,"fault detector path incorrect or binary does not exist\n");
+            fprintf(stderr,"fault detector path incorrect or binary does not exist\n");
             exit(0);
         }
+    }
     else if(pid < 0) {
         fprintf(stderr,"error occurred while forking\n");
+        return -1;
     }
+    return 0;
+}
+
+static int parse_rep_manager_kv (
+    factory_message *rep_manager_ctx, 
+    char *key, char *value) 
+{
+    if (strcmp(key, "Replica ID") == 0) {
+        if (str_to_int(value, &rep_manager_ctx->replica_id) != 0) {
+            fprintf(stderr, "replica_id conversion failed; Malformed req!!!\n");
+            return -1;
+        }
+    } else if (strcmp(key, "Factory Req") == 0) {
+        if (str_to_int(value, (int *)&rep_manager_ctx->req) != 0) {
+            fprintf(stderr, "Msg type Conversion failed!!!\n");
+            return -1;
+        }
+    }
+    return 0;
 }
