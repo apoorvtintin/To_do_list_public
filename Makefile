@@ -6,9 +6,15 @@ LLVM_PATH = /usr/local/depot/llvm-3.9.1/bin/
 CFILES = $(wildcard *.c)
 HFILES = $(wildcard *.h)
 
-.PHONY: app clean client server format
+.PHONY: app clean client server format factory replication_manager
 
-app: server client local_f_detector
+app: server client local_f_detector factory replication_manager
+
+factory: factory.c libconfuse.a
+	$(CC) $(CFLAGS) $^ -o $@
+
+replication_manager: replication_manager.c libconfuse.a libutil.a
+	$(CC) $(CFLAGS) $^ -o $@
 
 client: client.c libutil.a
 	$(CC) $(CFLAGS) $^ -o $@
@@ -26,6 +32,8 @@ libutil.a:	util.o
 	ar rcs libutil.a util.o
 server: server.c libutil.a storage.o db.o
 	$(CC) $(CFLAGS) $^ -o server -lcrypto
+
+
 
 format: $(CFILES) $(HFILES)
 	$(LLVM_PATH)clang-format -style=file -i $^
