@@ -13,10 +13,34 @@
 #include "util.h"
 #include "server.h"
 #include "replication_util.h"
+#include "confuse.h"
 
 // Global Variables
 int verbose = 0;
 rep_manager_data data;
+
+//FORWARD DECLARATIONS
+static int handle_fault_detector_message(client_ctx_t *conn_client_ctx);
+static int read_config_file(char *path, char *ip, char *port);
+static int restart_server(int replica_id);
+static int handle_current_state();
+static int handle_state(replication_manager_message fault_detector_ctx);
+static int parse_fault_detector_kv(
+            replication_manager_message *fault_detector_ctx, 
+            char *key, char *value);
+
+void init_server_ctx(server_ctx_t *ctx) {
+    ctx->fd = -1;
+    memset(&ctx->addr, 0, sizeof(ctx->addr));
+    return;
+}
+
+void init_client_ctx(client_ctx_t *ctx) {
+    ctx->fd = -1;
+    memset(&ctx->addr, 0, sizeof(ctx->addr));
+    memset(&ctx->req, 0, sizeof(ctx->req));
+    return;
+}
 
 int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
@@ -39,7 +63,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
     }
 
-    if(read_config_file(argv[1], server_addr, &data) != 0) {
+    char *ip, *port;
+    ip = NULL;
+    port = NULL;
+
+    if(read_config_file(argv[1], ip, port) != 0) {
         fprintf(stderr, "READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
@@ -47,12 +75,12 @@ int main(int argc, char *argv[]) {
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
-    if (inet_pton(AF_INET, argv[1], &server_addr.sin_addr.s_addr) != 1) {
+    if (inet_pton(AF_INET, ip, &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_port = htons(atoi(argv[2]));
+    server_addr.sin_port = htons(atoi(port));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
         fprintf(stderr, "Socket creation failed. Reason: %s\n",
@@ -73,11 +101,14 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    free(ip);
+    free(port);
+
     struct sockaddr client_addr;
     socklen_t client_addr_len;
-    pthread_t th_id;
-    memset(&client_addr, 0, sizeof(struct sockaddr));
     client_ctx_t conn_client_ctx;
+
+    memset(&client_addr, 0, sizeof(struct sockaddr));
     while (1) {
         accept_ret_val = accept(listen_fd, &client_addr, &client_addr_len);
         if (verbose >= 3) {
@@ -100,6 +131,7 @@ int main(int argc, char *argv[]) {
         handle_fault_detector_message(&conn_client_ctx);
     }
     return 0;
+    
 }
 
 int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {
@@ -133,12 +165,12 @@ int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
             return -1;
         }
-        if (parse_fault_detector_kv(fault_detector_ctx, key, value) == -1) {
+        if (parse_fault_detector_kv(&fault_detector_ctx, key, value) == -1) {
             return -1;
         }
         ++input_fields_counter;
     }
-    handle_state(fault_detector_ctx);
+    return handle_state(fault_detector_ctx);
 }
 
 int handle_state(replication_manager_message fault_detector_ctx) {
@@ -214,5 +246,52 @@ int restart_server(int replica_id) {
 
     close(clientfd);
 
+    return 0;
+}
+
+static int read_config_file(char *path, char *ip, char *port) {
+
+    static cfg_bool_t verbose = cfg_false;
+    int parse_ret;
+
+	cfg_opt_t opts[] = {
+		CFG_SIMPLE_BOOL("configuration manager verbose", &verbose),
+		CFG_SIMPLE_STR("configuration manager ip", &ip),
+		CFG_SIMPLE_STR("configuration manager port", &port),
+		CFG_END()
+	};
+	cfg_t *cfg;
+    cfg = cfg_init(opts, 0);
+    
+    if((parse_ret = cfg_parse(cfg, "global.conf")) != CFG_SUCCESS) {
+        if(parse_ret == CFG_FILE_ERROR) {
+            fprintf(stderr,"FACTORY config file not found\n");
+        } else {
+            fprintf(stderr,"FACTORY config file parse error\n");
+        }
+        return -1;
+    } 
+
+    //DEBUG
+    printf("replication manager IP: %s port: %s \n", ip, port);
+
+    return 0;
+}
+
+static int parse_fault_detector_kv(
+            replication_manager_message *fault_detector_ctx, 
+            char *key, char *value) 
+{
+    if (strcmp(key, "Replica ID") == 0) {
+        if (str_to_int(value, &fault_detector_ctx->replica_id) != 0) {
+            fprintf(stderr, "replica_id conversion failed; Malformed req!!!\n");
+            return -1;
+        }
+    } else if (strcmp(key, "Message Type") == 0) {
+        if (str_to_int(value, (int *)&fault_detector_ctx->state) != 0) {
+            fprintf(stderr, "Msg type Conversion failed!!!\n");
+            return -1;
+        }
+    }
     return 0;
 }

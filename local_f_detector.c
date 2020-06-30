@@ -25,6 +25,9 @@ char local_ip[MAX_LENGTH];
 
 replication_manager rep_manager;
 
+int inform_rep_manager(enum replica_state state);
+int send_rep_manager(char *buf, replication_manager_message message);
+
 void create_heartbeat_message_to_server(char *buf) {
     sprintf(buf, "Client ID: %d\r\n"
                  "Request No: %d\r\n"
@@ -125,9 +128,9 @@ void initialize_local_fault_detector(int heartbeat_interval, int port) {
 
     printf("Interval %d\n", heartbeat_interval);
     printf("Port %d\n", port);
-    printf("Replication Manager IP", rep_manager.rep_manager.server_ip);
-    printf("Replication Manager port", rep_manager.rep_manager.port);
-    printf("Replica ID", rep_manager.replica_id);
+    printf("Replication Manager IP %s ", rep_manager.rep_manager.server_ip);
+    printf("Replication Manager port %d ", rep_manager.rep_manager.port);
+    printf("Replica ID %d ", rep_manager.replica_id);
 
     memset(&server, 0, sizeof(struct server_info));
 
@@ -202,7 +205,7 @@ int send_rep_manager(char *buf, replication_manager_message message) {
     int clientfd = 0;
     int status = 0;
 
-    clientfd = connect_to_server(&rep_manager);
+    clientfd = connect_to_server(&rep_manager.rep_manager);
     if (clientfd < 0) {
         printf("connect failed: %s\n", strerror(errno));
         return -1;
@@ -216,4 +219,5 @@ int send_rep_manager(char *buf, replication_manager_message message) {
     }
 
     close(clientfd);
+    return 0;
 }

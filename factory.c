@@ -14,7 +14,7 @@
 #include "server.h"
 #include "storage.h"
 #include "util.h"
-#include "libconfuse/confuse.h"
+#include "confuse.h"
 #include "replication_util.h"
 
 // Definitions
@@ -35,22 +35,35 @@ void sigchld_handler(int sig)  {
 
 // Global variables
 int verbose = 0;
-int read_config_file(char *path, struct sockaddr_in server_addr) {
+
+static int read_config_file(char *path, char *ip, char *port) {
+
     static cfg_bool_t verbose = cfg_false;
-    char *port, ip;
+    int parse_ret;
+
 	cfg_opt_t opts[] = {
-		CFG_SIMPLE_BOOL("verbose", &verbose),
-		CFG_SIMPLE_STR("ip", &ip),
-		CFG_SIMPLE_STR("port", &port),
-        CFG_SIMPLE_INT("replica_id", &replica_id),
+		CFG_SIMPLE_BOOL("factory verbose", &verbose),
+		CFG_SIMPLE_STR("factory ip", &ip),
+		CFG_SIMPLE_STR("factory port", &port),
+        CFG_SIMPLE_INT("factory replica_id", &replica_id),
 		CFG_END()
 	};
 	cfg_t *cfg;
     cfg = cfg_init(opts, 0);
-    cfg_parse(cfg, "global.conf");
+
+    if((parse_ret = cfg_parse(cfg, "global.conf")) != CFG_SUCCESS) {
+        if(parse_ret == CFG_FILE_ERROR) {
+            fprintf(stderr,"REPLICATION MANAGER config file not found\n");
+        } else {
+            fprintf(stderr,"REPLICATION MANAGER config file parse error\n");
+        }
+        return -1;
+    } 
 
     //DEBUG
-    printf("IP: %s port: %s \n", verbose);
+    printf("factory IP: %s port: %s \n", ip, port);
+
+    return 0;
 }
 
 int factory_init(char *server_path, char *fault_detector_path) {
@@ -88,7 +101,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
     }
 
-    if(read_config_file(argv[1], server_addr) != 0) {
+    char *ip, *port;
+    ip = NULL;
+    port = NULL;
+
+    if(read_config_file(argv[1], ip, port) != 0) {
         fprintf(stderr, "READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
@@ -98,12 +115,12 @@ int main(int argc, char *argv[]) {
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
-    if (inet_pton(AF_INET, argv[1], &server_addr.sin_addr.s_addr) != 1) {
+    if (inet_pton(AF_INET, ip, &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_port = htons(atoi(argv[2]));
+    server_addr.sin_port = htons(port);
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
         fprintf(stderr, "Socket creation failed. Reason: %s\n",
@@ -123,6 +140,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "listen() failed. Reason: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
+
+    free(ip);
+    free(port);
 
     struct sockaddr client_addr;
     socklen_t client_addr_len;
