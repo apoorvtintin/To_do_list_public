@@ -80,6 +80,7 @@ void *heartbeat_signal(void *vargp) {
 					heartbeat_received_g, heartbeat_count_g);				
             printf("Trying again in %d sec... \n\n\n", interval_g);
             connection = 1;
+            inform_rep_manager(FAULTED);
             continue;
         }
 
@@ -108,6 +109,7 @@ void *heartbeat_signal(void *vargp) {
 			printf("Heartbeat response received for %d out of %d requests\n",
 					heartbeat_received_g, heartbeat_count_g);				
             printf("Trying again in %d sec... \n\n\n", interval_g);
+            printf(" what>??? %s \n", __func__);
             connection = 1;
             inform_rep_manager(FAULTED);
             // send message to replication manager
@@ -154,9 +156,10 @@ int main(int argc, char *argv[]) {
 
     memset(buf, 0, MAX_LENGTH);
 
-    if (argc < 5) {
+    if (argc < 7) {
         printf("Usage: %s <port> <heartbeat interval> "  
         "<replication manager IP> <replication manager port> <replica_id>\n", argv[0]);
+        exit(-1);
     }
 
     port = atoi(argv[2]);
@@ -191,11 +194,12 @@ int inform_rep_manager(enum replica_state state) {
     replication_manager_message message;
     char buf[MAX_LENGTH];
 
+    printf("came %s \n", __func__);
     message.replica_id = rep_manager.replica_id;
     message.state = state;
 
     sprintf(buf,"Replica ID: %d\r\n"
-                "Message Type: %d\r\n",
+                "Message Type: %d\r\n\r\n",
         message.replica_id, message.state);
 
     return send_rep_manager(buf, message);
@@ -205,6 +209,7 @@ int send_rep_manager(char *buf, replication_manager_message message) {
     int clientfd = 0;
     int status = 0;
 
+    printf("came %s \n", __func__);
     clientfd = connect_to_server(&rep_manager.rep_manager);
     if (clientfd < 0) {
         printf("connect failed: %s\n", strerror(errno));
@@ -217,7 +222,7 @@ int send_rep_manager(char *buf, replication_manager_message message) {
         close(clientfd);
         return -1;
     }
-
+    printf("Sent %d \n", __LINE__);
     close(clientfd);
     return 0;
 }

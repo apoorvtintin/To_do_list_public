@@ -27,7 +27,9 @@ typedef struct replica_node_t {
 } replica_node;
 
 typedef struct rep_manager_data_t {
-    int num_replicas;
+    long num_replicas;
+    char *server_ip;
+    char *port;
     replica_node node[MAX_REPLICAS];
 } rep_manager_data;
 
@@ -41,6 +43,12 @@ typedef struct replication_manager_message_t {
     int replica_id;
     enum replica_state state;
 } replication_manager_message;
+
+typedef struct factory_data_t {
+    int num_starts;
+    char *server_ip;
+    char *port;
+} factory_data;
 
 enum factory_req {
     STARTUP = 0,

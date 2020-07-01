@@ -21,7 +21,7 @@ rep_manager_data data;
 
 //FORWARD DECLARATIONS
 static int handle_fault_detector_message(client_ctx_t *conn_client_ctx);
-static int read_config_file(char *path, char *ip, char *port);
+static int read_config_file(char *path);
 static int restart_server(int replica_id);
 static int handle_current_state();
 static int handle_state(replication_manager_message fault_detector_ctx);
@@ -40,24 +40,21 @@ int main(int argc, char *argv[]) {
     int listen_fd = -1, optval = 1, accept_ret_val = -1;
     struct sockaddr_in server_addr;
 
-    char *ip, *port;
-    ip = NULL;
-    port = NULL;
-
-    if(read_config_file(argv[1], ip, port) != 0) {
+    if(read_config_file(argv[1]) != 0) {
         fprintf(stderr, "READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
 
+    data.num_replicas = 1;
+
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
-    printf("%s ip strlen %lu\n", ip, strlen(ip));
-    if (inet_pton(AF_INET, ip, &server_addr.sin_addr.s_addr) != 1) {
+    if (inet_pton(AF_INET, data.server_ip, &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_port = htons(atoi(port));
+    server_addr.sin_port = htons(atoi(data.port));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
         fprintf(stderr, "Socket creation failed. Reason: %s\n",
@@ -78,8 +75,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    free(ip);
-    free(port);
+    free(data.server_ip);
+    free(data.port);
 
     struct sockaddr client_addr;
     socklen_t client_addr_len;
@@ -145,6 +142,7 @@ int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {
         if (parse_fault_detector_kv(&fault_detector_ctx, key, value) == -1) {
             return -1;
         }
+        printf("buffer key %s, value %s\n", key, value);
         ++input_fields_counter;
     }
     return handle_state(fault_detector_ctx);
@@ -226,31 +224,28 @@ int restart_server(int replica_id) {
     return 0;
 }
 
-static int read_config_file(char *path, char *ip, char *port) {
+static int read_config_file(char *path) {
 
     int parse_ret;
 
 	cfg_opt_t opts[] = {
-		CFG_SIMPLE_STR("configuration_manager_ip", &ip),
-		CFG_SIMPLE_STR("configuration_manager_port", &port),
+		CFG_SIMPLE_STR("configuration_manager_ip", &data.server_ip),
+		CFG_SIMPLE_STR("configuration_manager_port", &data.port),
         CFG_SIMPLE_INT("configuration_manager_verbose", &verbose),
+        CFG_SIMPLE_INT("configuration_manager_num_replicas", &(data.num_replicas)),
 		CFG_END()
 	};
 	cfg_t *cfg;
     cfg = cfg_init(opts, 0);
     
-    if((parse_ret = cfg_parse(cfg, "global.conf")) != CFG_SUCCESS) {
+    if((parse_ret = cfg_parse(cfg, path)) != CFG_SUCCESS) {
         if(parse_ret == CFG_FILE_ERROR) {
-            fprintf(stderr,"FACTORY config file not found\n");
+            fprintf(stderr,"REPLICATION MANAGER config file not found\n");
         } else {
-            fprintf(stderr,"FACTORY config file parse error\n");
+            fprintf(stderr,"REPLICATION MANAGER config file parse error\n");
         }
         return -1;
     } 
-
-    //DEBUG
-    printf("replication manager IP: %s port: %s \n", ip, port);
-
     return 0;
 }
 

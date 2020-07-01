@@ -24,9 +24,10 @@
 #define FAULT_DETECTOR_PATH "local_f_detector"
 
 // Global Variables
-int verbose = 0;
+long verbose = 0;
 extern char **environ; /* Defined by libsc */
 long replica_id = -1;
+factory_data f_data;
 
 // Forward Declarations
 static int handle_replication_manager_message(client_ctx_t conn_client_ctx);
@@ -51,22 +52,20 @@ void sigchld_handler(int sig)  {
     errno = olderr;
 }
 
-static int read_config_file(char *path, char *ip, char *port) {
-
-    static cfg_bool_t verbose = cfg_false;
+static int read_config_file(char *path) {
     int parse_ret;
 
 	cfg_opt_t opts[] = {
-		CFG_SIMPLE_BOOL("factory verbose", &verbose),
-		CFG_SIMPLE_STR("factory ip", &ip),
-		CFG_SIMPLE_STR("factory port", &port),
-        CFG_SIMPLE_INT("factory replica_id", &replica_id),
+		CFG_SIMPLE_STR("factory_ip", &f_data.server_ip),
+		CFG_SIMPLE_STR("factory_port", &f_data.port),
+        CFG_SIMPLE_INT("factory_replica_id", &replica_id),
+        CFG_SIMPLE_INT("factory_verbose", &verbose),
 		CFG_END()
 	};
 	cfg_t *cfg;
     cfg = cfg_init(opts, 0);
 
-    if((parse_ret = cfg_parse(cfg, "global.conf")) != CFG_SUCCESS) {
+    if((parse_ret = cfg_parse(cfg, path)) != CFG_SUCCESS) {
         if(parse_ret == CFG_FILE_ERROR) {
             fprintf(stderr,"REPLICATION MANAGER config file not found\n");
         } else {
@@ -76,7 +75,7 @@ static int read_config_file(char *path, char *ip, char *port) {
     } 
 
     //DEBUG
-    printf("factory IP: %s port: %s \n", ip, port);
+    printf("factory IP: %s port: %s \n", f_data.server_ip, f_data.port);
 
     return 0;
 }
@@ -104,32 +103,22 @@ int factory_init(char *server_path, char *fault_detector_path) {
 }
 
 int main(int argc, char *argv[]) {
-    int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
+    int listen_fd = -1, optval = 1, accept_ret_val = -1;
     struct sockaddr_in server_addr;
 
-    if (argc < 2) {
+    if (argc < 1) {
         // print usage
-        fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <configuration file path>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    while ((opt = getopt(argc, argv, "v:")) != -1) {
-        switch (opt) {
-        case 'v':
-            verbose = atoi(optarg);
-            break;
-        }
-    }
-    if (verbose > 5 || verbose < 0) {
-        fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
-    }
 
-    char *ip, *port;
-    ip = NULL;
-    port = NULL;
-
-    if(read_config_file(argv[1], ip, port) != 0) {
+    if(read_config_file(argv[1]) != 0) {
         fprintf(stderr, "READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
+    }
+
+    if (verbose > 5 || verbose < 0) {
+        fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
     }
 
     //initialize factory and spawn server and fault detector
@@ -137,12 +126,12 @@ int main(int argc, char *argv[]) {
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
-    if (inet_pton(AF_INET, ip, &server_addr.sin_addr.s_addr) != 1) {
+    if (inet_pton(AF_INET, f_data.server_ip, &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
 
-    server_addr.sin_port = htons(atoi(port));
+    server_addr.sin_port = htons(atoi(f_data.port));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
         fprintf(stderr, "Socket creation failed. Reason: %s\n",
@@ -163,8 +152,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    free(ip);
-    free(port);
+    free(f_data.server_ip);
+    free(f_data.port);
 
     struct sockaddr client_addr;
     socklen_t client_addr_len;
@@ -243,7 +232,7 @@ int handle_rep_man_command(factory_message message) {
 
 int spawn_server(char* path) {
     //command line arguments
-    char *newargv[] = { NULL, "hello", "world", NULL };
+    char *newargv[] = { path, "127.0.0.1", "12345", NULL };
     
     //Fork server
     pid_t pid = fork();
@@ -262,7 +251,7 @@ int spawn_server(char* path) {
 
 int spawn_fault_detector(char* path) {
     //command line arguments
-    char *newargv[] = { NULL, "hello", "world", NULL };
+    char *newargv[] = { path, "127.0.0.1", "12345" ,"5" , "127.0.0.1", "12346", "1", NULL };
 
     //Fork server
     pid_t pid = fork();
