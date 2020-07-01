@@ -16,7 +16,7 @@
 #include "confuse.h"
 
 // Global Variables
-int verbose = 0;
+long verbose = 0;
 rep_manager_data data;
 
 //FORWARD DECLARATIONS
@@ -37,25 +37,8 @@ static void init_client_ctx(client_ctx_t *ctx) {
 }
 
 int main(int argc, char *argv[]) {
-    int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
+    int listen_fd = -1, optval = 1, accept_ret_val = -1;
     struct sockaddr_in server_addr;
-
-
-    if (argc < 2) {
-        // print usage
-        fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-    while ((opt = getopt(argc, argv, "v:")) != -1) {
-        switch (opt) {
-        case 'v':
-            verbose = atoi(optarg);
-            break;
-        }
-    }
-    if (verbose > 5 || verbose < 0) {
-        fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
-    }
 
     char *ip, *port;
     ip = NULL;
@@ -66,9 +49,9 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
+    printf("%s ip strlen %lu\n", ip, strlen(ip));
     if (inet_pton(AF_INET, ip, &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
@@ -245,13 +228,12 @@ int restart_server(int replica_id) {
 
 static int read_config_file(char *path, char *ip, char *port) {
 
-    static cfg_bool_t verbose = cfg_false;
     int parse_ret;
 
 	cfg_opt_t opts[] = {
-		CFG_SIMPLE_BOOL("configuration manager verbose", &verbose),
-		CFG_SIMPLE_STR("configuration manager ip", &ip),
-		CFG_SIMPLE_STR("configuration manager port", &port),
+		CFG_SIMPLE_STR("configuration_manager_ip", &ip),
+		CFG_SIMPLE_STR("configuration_manager_port", &port),
+        CFG_SIMPLE_INT("configuration_manager_verbose", &verbose),
 		CFG_END()
 	};
 	cfg_t *cfg;
