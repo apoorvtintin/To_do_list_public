@@ -414,7 +414,7 @@ int parse_input_arguments(int argc, char *argv[]) {
     int c = 0;
     char filename[1024];
 
-    memset(filename, 0, 1024);
+	memset(filename, 0, 1024);
 
     while ((c = getopt(argc, argv, "C:F:")) != -1) {
         switch (c) {
@@ -424,7 +424,7 @@ int parse_input_arguments(int argc, char *argv[]) {
         case 'F':
             memcpy(filename, optarg, strlen(optarg));
             parse_and_prepare_server_array(filename);
-            break;
+			break;
         case '?':
             printf("\nPlease check arguments passed\n");
             return -1;
