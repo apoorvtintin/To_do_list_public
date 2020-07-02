@@ -58,6 +58,9 @@ static int read_config_file(char *path) {
 	cfg_opt_t opts[] = {
 		CFG_SIMPLE_STR("factory_ip", &f_data.server_ip),
 		CFG_SIMPLE_STR("factory_port", &f_data.port),
+        CFG_SIMPLE_STR("factory_spawned_server_ip", &f_data.spawned_server_ip),
+        CFG_SIMPLE_STR("factory_spawned_server_port", &f_data.spawned_server_port),
+        //CFG_SIMPLE_STR("factory_spawned_local_f_detector_", &f_data.port),
         CFG_SIMPLE_INT("factory_replica_id", &replica_id),
         CFG_SIMPLE_INT("factory_verbose", &verbose),
 		CFG_END()
@@ -239,7 +242,7 @@ int handle_rep_man_command(factory_message message) {
 
 int spawn_server(char* path) {
     //command line arguments
-    char *newargv[] = { path, "127.0.0.1", "12345", NULL };
+    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port, NULL };
     
     //Fork server
     pid_t pid = fork();
@@ -258,7 +261,7 @@ int spawn_server(char* path) {
 
 int spawn_fault_detector(char* path) {
     //command line arguments
-    char *newargv[] = { path, "127.0.0.1", "12345" ,"5" , "127.0.0.1", "12346", "0", NULL };
+    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port ,"5" , "127.0.0.1", "12346", "0", NULL };
 
     //Fork server
     pid_t pid = fork();

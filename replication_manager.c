@@ -45,8 +45,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    data.num_replicas = 1;
-
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
     if (inet_pton(AF_INET, data.server_ip, &server_addr.sin_addr.s_addr) != 1) {
@@ -176,6 +174,7 @@ int handle_current_state() {
             } else {
                 printf("sent startup messaage\n");
                 data.node[replica_iter].state = SENT_STARTUP_REQ;
+                startup_req++;
             }
             inactive_count++;
         }
@@ -219,7 +218,7 @@ int restart_server(int replica_id) {
         close(clientfd);
         return -1;
     }
-
+    
     close(clientfd);
 
     return 0;
@@ -236,6 +235,10 @@ static int read_config_file(char *path) {
         CFG_SIMPLE_INT("configuration_manager_num_replicas", &(data.num_replicas)),
         CFG_SIMPLE_STR("factory_0_manager_ip", &data.node[0].factory_ip),
         CFG_SIMPLE_STR("factory_0_manager_port", &data.node[0].factory_port),
+        CFG_SIMPLE_STR("factory_1_manager_ip", &data.node[1].factory_ip),
+        CFG_SIMPLE_STR("factory_1_manager_port", &data.node[1].factory_port),
+        CFG_SIMPLE_STR("factory_2_manager_ip", &data.node[2].factory_ip),
+        CFG_SIMPLE_STR("factory_2_manager_port", &data.node[2].factory_port),
 		CFG_END()
 	};
     
@@ -252,6 +255,10 @@ static int read_config_file(char *path) {
     } 
     strncpy(data.node[0].factory.server_ip, data.node[0].factory_ip, 20);
     data.node[0].factory.port = atoi(data.node[0].factory_port);
+    strncpy(data.node[1].factory.server_ip, data.node[1].factory_ip, 20);
+    data.node[1].factory.port = atoi(data.node[1].factory_port);
+    strncpy(data.node[2].factory.server_ip, data.node[2].factory_ip, 20);
+    data.node[2].factory.port = atoi(data.node[2].factory_port);
     return 0;
 }
 

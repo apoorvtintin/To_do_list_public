@@ -50,6 +50,10 @@ typedef struct factory_data_t {
     int num_starts;
     char *server_ip;
     char *port;
+    char *spawned_server_ip;
+    char *spawned_server_port;
+    //char *spawned__ip;
+    //char *port;
 } factory_data;
 
 enum factory_req {
