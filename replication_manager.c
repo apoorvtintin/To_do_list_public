@@ -174,6 +174,7 @@ int handle_current_state() {
             if(restart_server(replica_iter) != 0) {
                 fprintf(stderr, "Startup req could not be sent\n");
             } else {
+                printf("sent startup messaage\n");
                 data.node[replica_iter].state = SENT_STARTUP_REQ;
             }
             inactive_count++;
@@ -203,7 +204,7 @@ int restart_server(int replica_id) {
     char buf[MAX_LENGTH];
 
     sprintf(buf,"Replica ID: %d\r\n"
-            "Factory Req: %d\r\n",
+            "Factory Req: %d\r\n\r\n",
             replica_id, STARTUP);
 
     clientfd = connect_to_server(&data.node[replica_id].factory);
@@ -233,8 +234,11 @@ static int read_config_file(char *path) {
 		CFG_SIMPLE_STR("configuration_manager_port", &data.port),
         CFG_SIMPLE_INT("configuration_manager_verbose", &verbose),
         CFG_SIMPLE_INT("configuration_manager_num_replicas", &(data.num_replicas)),
+        CFG_SIMPLE_STR("factory_0_manager_ip", &data.node[0].factory_ip),
+        CFG_SIMPLE_STR("factory_0_manager_port", &data.node[0].factory_port),
 		CFG_END()
 	};
+    
 	cfg_t *cfg;
     cfg = cfg_init(opts, 0);
     
@@ -246,6 +250,8 @@ static int read_config_file(char *path) {
         }
         return -1;
     } 
+    strncpy(data.node[0].factory.server_ip, data.node[0].factory_ip, 20);
+    data.node[0].factory.port = atoi(data.node[0].factory_port);
     return 0;
 }
 

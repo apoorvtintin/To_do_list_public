@@ -23,6 +23,8 @@ enum replica_state {
 typedef struct replica_node_t {
     int replica_id;
     enum replica_state state;
+    char *factory_ip;
+    char *factory_port;
     struct server_info factory;
 } replica_node;
 

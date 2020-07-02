@@ -194,7 +194,9 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
     memset(value, 0, MAXMSGSIZE);
     factory_message message; // replication manager stuff
 
+    printf("recieved message from replication manager\n");
     while (1) {
+        
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
         if (msg_len == 0) {
             // The client closed the connection we should to.
@@ -213,6 +215,7 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
             return -1;
         }
+        printf("buf %s\n", msg_buf);
         if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
@@ -222,10 +225,14 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
 }
 
 int handle_rep_man_command(factory_message message) {
+    printf("global replica ID %ld replica ID %d message enum %d\n",replica_id ,message.replica_id,
+        message.req);
     if(message.replica_id == replica_id) {
         if(message.req == STARTUP) {
             spawn_server(SERVER_PATH);
         }
+    } else {
+        printf("wrong replica ID\n");
     }
     return 0;
 }
@@ -251,7 +258,7 @@ int spawn_server(char* path) {
 
 int spawn_fault_detector(char* path) {
     //command line arguments
-    char *newargv[] = { path, "127.0.0.1", "12345" ,"5" , "127.0.0.1", "12346", "1", NULL };
+    char *newargv[] = { path, "127.0.0.1", "12345" ,"5" , "127.0.0.1", "12346", "0", NULL };
 
     //Fork server
     pid_t pid = fork();
