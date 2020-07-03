@@ -6,6 +6,8 @@ LLVM_PATH = /usr/local/depot/llvm-3.9.1/bin/
 CFILES = $(wildcard *.c)
 HFILES = $(wildcard *.h)
 
+BINS = server client local_f_detector factory replication_manager
+
 .PHONY: app clean client server format factory replication_manager
 
 app: server client local_f_detector factory replication_manager
@@ -43,4 +45,4 @@ format: $(CFILES) $(HFILES)
 	$(LLVM_PATH)clang-format -style=file -i $^
 
 clean:
-	rm -rf client server *.o
+	rm -rf $(BINS) *.o logs/*

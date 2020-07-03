@@ -44,6 +44,7 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
         buffer[ch] = '+';
         printf("%s\n", buffer);
         once = 1;
+		fflush(stdout);
     }
     char buffer[4096];
 
@@ -65,6 +66,7 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
     buffer[0] = '+';
     buffer[ch] = '+';
     printf("%s\n", buffer);
+	fflush(stdout);
 }
 
 void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {

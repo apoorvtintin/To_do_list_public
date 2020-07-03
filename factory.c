@@ -243,11 +243,38 @@ int handle_rep_man_command(factory_message message) {
 int spawn_server(char* path) {
     //command line arguments
     char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port, NULL };
+	int console_fd = 0;
+	char outfile[1024];
+	int status = 0;
+
+	memset(outfile, 0, 1024);
     
-    //Fork server
+	sprintf(outfile, "logs/server_%ld.console", replica_id); 
+    
+	//Fork server
     pid_t pid = fork();
     if(pid == 0) {
-        if (execve(path, newargv, environ) < 0) {
+
+		console_fd = open(outfile, O_WRONLY | O_TRUNC | O_CREAT,
+							S_IRUSR | S_IRGRP | S_IWUSR | S_IROTH);
+
+		if (console_fd < 0) {
+			fprintf(stderr, "Open failed for out file: %s", strerror(errno));
+			return -1;
+		}
+
+		status = dup2(console_fd, STDOUT_FILENO);
+		if (status < 0) {
+			return status;
+		}
+
+		// Close the output file
+		status = close(console_fd);
+		if (status < 0) {
+			return status;
+		}
+        
+		if (execve(path, newargv, environ) < 0) {
             //proccess execve error
             fprintf(stderr,"server path incorrect or binary does not exist\n");
             exit(0);
@@ -262,11 +289,37 @@ int spawn_server(char* path) {
 int spawn_fault_detector(char* path) {
     //command line arguments
     char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port ,"5" , "127.0.0.1", "12346", "0", NULL };
+	int console_fd = 0;
+	char outfile[1024];
+	int status = 0;
+
+	memset(outfile, 0, 1024);
+    
+	sprintf(outfile, "logs/f_detector_%ld.console", replica_id); 
 
     //Fork server
     pid_t pid = fork();
     if(pid == 0) {
-        if (execve(path, newargv, environ) < 0) {
+		console_fd = open(outfile, O_WRONLY | O_TRUNC | O_CREAT,
+							S_IRUSR | S_IRGRP | S_IWUSR | S_IROTH);
+
+		if (console_fd < 0) {
+			fprintf(stderr, "Open failed for out file: %s", strerror(errno));
+			return -1;
+		}
+
+		status = dup2(console_fd, STDOUT_FILENO);
+		if (status < 0) {
+			return status;
+		}
+
+		// Close the output file
+		status = close(console_fd);
+		if (status < 0) {
+			return status;
+		}
+        
+		if (execve(path, newargv, environ) < 0) {
             //proccess execve error
             fprintf(stderr,"fault detector path incorrect or binary does not exist\n");
             exit(0);
