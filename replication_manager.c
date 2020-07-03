@@ -24,6 +24,13 @@
 long verbose = 0;
 rep_manager_data data;
 
+struct membership_data {
+	int num_servers;
+	int server_status[MAX_REPLICAS];
+};
+
+struct membership_data membership;
+
 //FORWARD DECLARATIONS
 static int handle_fault_detector_message(client_ctx_t *conn_client_ctx);
 static int read_config_file(char *path);
@@ -49,6 +56,8 @@ int main(int argc, char *argv[]) {
         printf("READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
+
+	memset(&membership, 0, sizeof(struct membership_data));
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
@@ -145,10 +154,38 @@ int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {
         if (parse_fault_detector_kv(&fault_detector_ctx, key, value) == -1) {
             return -1;
         }
-        printf("buffer key %s, value %s\n", key, value);
+        //printf("buffer key %s, value %s\n", key, value);
         ++input_fields_counter;
     }
     return handle_state(fault_detector_ctx);
+}
+
+void print_current_state_info(replication_manager_message fault_detector_ctx) {
+	int id = fault_detector_ctx.replica_id;
+	int i = 0;
+
+	printf("\n***************************\n");
+
+	if ((membership.server_status[id] == 0) && (fault_detector_ctx.state == RUNNING)) {
+		membership.server_status[id] = 1;
+		membership.num_servers++;
+		printf("Server %d is up!\n", id);
+	} else if ((membership.server_status[id] == 1) && (fault_detector_ctx.state == FAULTED)) {
+		membership.server_status[id] = 0;
+		membership.num_servers--;
+		printf("Server %d is down!\n", id);
+	}
+
+	printf("\nActive Servers : %d\n", membership.num_servers);
+	for(i = 0; i < MAX_REPLICAS; i++) {
+		if (membership.server_status[i] == 0) {
+			continue;
+		} else {
+			printf("Server %d: ACTIVE\n", i);
+		}
+	}
+	printf("\n***************************\n\n");
+	fflush(stdout);
 }
 
 int handle_state(replication_manager_message fault_detector_ctx) {
@@ -157,6 +194,9 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     data.node[replica_id].state = fault_detector_ctx.state;
     // check if unstable state
     // take action based on that
+	
+	print_current_state_info(fault_detector_ctx);
+	
     handle_current_state();
     return 0;
 }
@@ -177,7 +217,7 @@ int handle_current_state() {
             if(restart_server(replica_iter) != 0) {
                 printf( "Startup req could not be sent\n");
             } else {
-                printf("sent startup messaage\n");
+                printf("Sent startup messaage to server %d\n", replica_iter);
                 data.node[replica_iter].state = SENT_STARTUP_REQ;
                 startup_req++;
             }
@@ -194,10 +234,6 @@ int handle_current_state() {
         }
     }
 
-    printf( "Number of active replicas %d, " 
-                    "Number of inactive replicas %d, "
-                    "Number of startup requests sent %d\n",
-                    active_count, inactive_count, startup_req);
     return 0;
 }
 

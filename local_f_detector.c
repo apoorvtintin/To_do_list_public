@@ -74,6 +74,7 @@ void *heartbeat_signal(void *vargp) {
     int clientfd = 0;
     int status = 0;
     int connection = 0;
+	int first_time = 1;
     char buf[MAX_LENGTH];
     struct message_response response;
 
@@ -96,9 +97,16 @@ void *heartbeat_signal(void *vargp) {
             continue;
         }
 
+		if (first_time == 1) {
+			first_time = 0;
+			printf("\nServer %d is running\n\n", rep_manager.replica_id);
+			fflush(stdout);
+            inform_rep_manager(RUNNING);
+		}
+
         if (connection == 1) {
             connection = 0;
-            printf("\nConnection to server restored\n\n");
+            printf("\nConnection to server %d restored\n\n", rep_manager.replica_id);
 			fflush(stdout);
             inform_rep_manager(RUNNING);
             //send message to replication manager
@@ -213,7 +221,7 @@ int inform_rep_manager(enum replica_state state) {
     replication_manager_message message;
     char buf[MAX_LENGTH];
 
-    printf("came %s \n", __func__);
+    //printf("came %s \n", __func__);
     message.replica_id = rep_manager.replica_id;
     message.state = state;
 
@@ -229,7 +237,7 @@ int send_rep_manager(char *buf, replication_manager_message message) {
     int clientfd = 0;
     int status = 0;
 
-    printf("came %s \n", __func__);
+    //printf("came %s \n", __func__);
     clientfd = connect_to_server(&rep_manager.rep_manager);
     if (clientfd < 0) {
         printf("connect failed: %s\n", strerror(errno));
@@ -242,7 +250,7 @@ int send_rep_manager(char *buf, replication_manager_message message) {
         close(clientfd);
         return -1;
     }
-    printf("Sent %d \n", __LINE__);
+    //printf("Sent %d \n", __LINE__);
     close(clientfd);
 	fflush(stdout);
     return 0;
