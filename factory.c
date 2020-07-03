@@ -32,6 +32,7 @@
 long verbose = 0;
 extern char **environ; /* Defined by libsc */
 factory_data f_data;
+int outfile_append = 1; //to control append to outfiles
 
 // Forward Declarations
 static int handle_replication_manager_message(client_ctx_t conn_client_ctx);
@@ -108,6 +109,7 @@ int factory_init(char *server_path, char *fault_detector_path) {
         fprintf(stderr, "Spawn error");
         return -1;
     }
+    outfile_append = 0; // next spawns will append file
     return 0;
 }
 
@@ -253,11 +255,29 @@ int spawn_server(char* path) {
     //Fork server
     pid_t pid = fork();
     if(pid == 0) {
+        
+        //open file for IO redirection
+        char filename[20];
+        int ofd;
+        int olderr = errno;
+
+        sprintf(filename, "server_replica_%ld_out", f_data.replica_id);
+        ofd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (ofd < 0) {
+            printf("could not open outfile for server\n");
+            errno = olderr;
+        } else {
+            dup2(ofd, STDOUT_FILENO);
+            dup2(ofd, STDERR_FILENO);
+        }
+
         if (execve(path, newargv, environ) < 0) {
             //proccess execve error
             fprintf(stderr,"server path incorrect or binary does not exist\n");
             exit(0);
         }
+
     } else if(pid < 0) {
         fprintf(stderr,"error occurred while forking\n");
         return -1;
@@ -276,6 +296,23 @@ int spawn_fault_detector(char* path) {
     //Fork server
     pid_t pid = fork();
     if(pid == 0) {
+
+        //open file for IO redirection
+        char filename[20];
+        int ofd;
+        int olderr = errno;
+
+        sprintf(filename, "lfd_serverid_%ld_out", f_data.replica_id);
+        ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (ofd < 0) {
+            printf("could not open outfile for lfd\n");
+            errno = olderr;
+        } else {
+            dup2(ofd, STDOUT_FILENO);
+            dup2(ofd, STDERR_FILENO);
+        }
+
         if (execve(path, newargv, environ) < 0) {
             //proccess execve error
             fprintf(stderr,"fault detector path incorrect or binary does not exist\n");

@@ -46,21 +46,21 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server_addr;
 
     if(read_config_file(argv[1]) != 0) {
-        fprintf(stderr, "READ CONFIG FILE ERR!\n");
+        printf("READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
     if (inet_pton(AF_INET, data.server_ip, &server_addr.sin_addr.s_addr) != 1) {
-        fprintf(stderr, "Entered IP Address invalid!\n");
+        printf( "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
 
     server_addr.sin_port = htons(atoi(data.port));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
-        fprintf(stderr, "Socket creation failed. Reason: %s\n",
+        printf("Socket creation failed. Reason: %s\n",
                 strerror(errno));
         exit(EXIT_FAILURE);
     }
@@ -68,13 +68,13 @@ int main(int argc, char *argv[]) {
                sizeof(int));
     if (bind(listen_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) !=
         0) {
-        fprintf(stderr, "Bind to address failed, Reason: %s\n",
+        printf( "Bind to address failed, Reason: %s\n",
                 strerror(errno));
         exit(EXIT_FAILURE);
     }
 
     if (listen(listen_fd, 50) < 0) {
-        fprintf(stderr, "listen() failed. Reason: %s\n", strerror(errno));
+        printf( "listen() failed. Reason: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
             if (errno == ECONNABORTED) {
                 continue;
             } else {
-                fprintf(stderr, "Error on accept exiting. Reason: %s\n",
+                printf( "Error on accept exiting. Reason: %s\n",
                         strerror(errno));
                 exit(EXIT_FAILURE);
             }
@@ -135,11 +135,11 @@ int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {
             break;
         }
         if (input_fields_counter >= MAX_REQ_FIELDS) {
-            fprintf(stderr, "Client sent too many input fields \n");
+            printf("Client sent too many input fields \n");
             return -1;
         }
         if (sscanf(msg_buf, "%[^:]: %[^\r\n]", key, value) != 2) {
-            fprintf(stderr, "Malformed key value received in request!!!\n");
+            printf( "Malformed key value received in request!!!\n");
             return -1;
         }
         if (parse_fault_detector_kv(&fault_detector_ctx, key, value) == -1) {
@@ -175,7 +175,7 @@ int handle_current_state() {
 
         else if (data.node[replica_iter].state == FAULTED) {
             if(restart_server(replica_iter) != 0) {
-                fprintf(stderr, "Startup req could not be sent\n");
+                printf( "Startup req could not be sent\n");
             } else {
                 printf("sent startup messaage\n");
                 data.node[replica_iter].state = SENT_STARTUP_REQ;
@@ -190,11 +190,11 @@ int handle_current_state() {
         }
 
         else {
-            fprintf(stderr, "Unhandled state :/\n");
+            printf( "Unhandled state :/\n");
         }
     }
 
-    fprintf(stdout, "Number of active replicas %d, " 
+    printf( "Number of active replicas %d, " 
                     "Number of inactive replicas %d, "
                     "Number of startup requests sent %d\n",
                     active_count, inactive_count, startup_req);
@@ -252,9 +252,9 @@ static int read_config_file(char *path) {
     
     if((parse_ret = cfg_parse(cfg, path)) != CFG_SUCCESS) {
         if(parse_ret == CFG_FILE_ERROR) {
-            fprintf(stderr,"REPLICATION MANAGER config file not found\n");
+            printf("REPLICATION MANAGER config file not found\n");
         } else {
-            fprintf(stderr,"REPLICATION MANAGER config file parse error\n");
+            printf("REPLICATION MANAGER config file parse error\n");
         }
         return -1;
     } 
@@ -273,12 +273,12 @@ static int parse_fault_detector_kv(
 {
     if (strcmp(key, "Replica ID") == 0) {
         if (str_to_int(value, &fault_detector_ctx->replica_id) != 0) {
-            fprintf(stderr, "replica_id conversion failed; Malformed req!!!\n");
+            printf( "replica_id conversion failed; Malformed req!!!\n");
             return -1;
         }
     } else if (strcmp(key, "Message Type") == 0) {
         if (str_to_int(value, (int *)&fault_detector_ctx->state) != 0) {
-            fprintf(stderr, "Msg type Conversion failed!!!\n");
+            printf("Msg type Conversion failed!!!\n");
             return -1;
         }
     }
