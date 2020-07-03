@@ -1,3 +1,8 @@
+
+/* @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
+
+/* HEADER FILES */
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <getopt.h>
@@ -26,7 +31,6 @@
 // Global Variables
 long verbose = 0;
 extern char **environ; /* Defined by libsc */
-long replica_id = -1;
 factory_data f_data;
 
 // Forward Declarations
@@ -60,8 +64,10 @@ static int read_config_file(char *path) {
 		CFG_SIMPLE_STR("factory_port", &f_data.port),
         CFG_SIMPLE_STR("factory_spawned_server_ip", &f_data.spawned_server_ip),
         CFG_SIMPLE_STR("factory_spawned_server_port", &f_data.spawned_server_port),
-        //CFG_SIMPLE_STR("factory_spawned_local_f_detector_", &f_data.port),
-        CFG_SIMPLE_INT("factory_replica_id", &replica_id),
+        CFG_SIMPLE_STR("replication_manager_ip", &f_data.replication_manager_ip),
+        CFG_SIMPLE_STR("replication_manager_port", &f_data.replication_manager_port),
+        CFG_SIMPLE_STR("lfd_heartbeat", &f_data.lfd_heartbeat),
+        CFG_SIMPLE_INT("factory_replica_id", &f_data.replica_id),
         CFG_SIMPLE_INT("factory_verbose", &verbose),
 		CFG_END()
 	};
@@ -228,9 +234,9 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
 }
 
 int handle_rep_man_command(factory_message message) {
-    printf("global replica ID %ld replica ID %d message enum %d\n",replica_id ,message.replica_id,
-        message.req);
-    if(message.replica_id == replica_id) {
+    printf("global replica ID %ld replica ID %d message enum %d\n",f_data.replica_id, 
+    message.replica_id, message.req);
+    if(message.replica_id == f_data.replica_id) {
         if(message.req == STARTUP) {
             spawn_server(SERVER_PATH);
         }
@@ -261,7 +267,11 @@ int spawn_server(char* path) {
 
 int spawn_fault_detector(char* path) {
     //command line arguments
-    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port ,"5" , "127.0.0.1", "12346", "0", NULL };
+    char replica_id[10];
+    sprintf(replica_id, "%ld",f_data.replica_id );
+    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port,
+                        f_data.lfd_heartbeat , f_data.replication_manager_ip, 
+                        f_data.replication_manager_port, replica_id, NULL };
 
     //Fork server
     pid_t pid = fork();
