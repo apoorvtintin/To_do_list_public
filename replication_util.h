@@ -1,3 +1,8 @@
+
+/* @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
+
+/* HEADER FILES */
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -47,13 +52,15 @@ typedef struct replication_manager_message_t {
 } replication_manager_message;
 
 typedef struct factory_data_t {
-    int num_starts;
+    long num_starts;
+    long replica_id;
     char *server_ip;
     char *port;
     char *spawned_server_ip;
     char *spawned_server_port;
-    //char *spawned__ip;
-    //char *port;
+    char *replication_manager_ip;
+    char *replication_manager_port;
+    char *lfd_heartbeat;
 } factory_data;
 
 enum factory_req {

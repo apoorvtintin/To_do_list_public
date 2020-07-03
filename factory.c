@@ -1,3 +1,8 @@
+
+/* @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
+
+/* HEADER FILES */
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <getopt.h>
@@ -26,8 +31,8 @@
 // Global Variables
 long verbose = 0;
 extern char **environ; /* Defined by libsc */
-long replica_id = -1;
 factory_data f_data;
+int outfile_append = 1; //to control append to outfiles
 
 // Forward Declarations
 static int handle_replication_manager_message(client_ctx_t conn_client_ctx);
@@ -60,8 +65,10 @@ static int read_config_file(char *path) {
 		CFG_SIMPLE_STR("factory_port", &f_data.port),
         CFG_SIMPLE_STR("factory_spawned_server_ip", &f_data.spawned_server_ip),
         CFG_SIMPLE_STR("factory_spawned_server_port", &f_data.spawned_server_port),
-        //CFG_SIMPLE_STR("factory_spawned_local_f_detector_", &f_data.port),
-        CFG_SIMPLE_INT("factory_replica_id", &replica_id),
+        CFG_SIMPLE_STR("replication_manager_ip", &f_data.replication_manager_ip),
+        CFG_SIMPLE_STR("replication_manager_port", &f_data.replication_manager_port),
+        CFG_SIMPLE_STR("lfd_heartbeat", &f_data.lfd_heartbeat),
+        CFG_SIMPLE_INT("factory_replica_id", &f_data.replica_id),
         CFG_SIMPLE_INT("factory_verbose", &verbose),
 		CFG_END()
 	};
@@ -102,6 +109,7 @@ int factory_init(char *server_path, char *fault_detector_path) {
         fprintf(stderr, "Spawn error");
         return -1;
     }
+    outfile_append = 0; // next spawns will append file
     return 0;
 }
 
@@ -228,9 +236,9 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
 }
 
 int handle_rep_man_command(factory_message message) {
-    printf("global replica ID %ld replica ID %d message enum %d\n",replica_id ,message.replica_id,
-        message.req);
-    if(message.replica_id == replica_id) {
+    printf("global replica ID %ld replica ID %d message enum %d\n",f_data.replica_id, 
+    message.replica_id, message.req);
+    if(message.replica_id == f_data.replica_id) {
         if(message.req == STARTUP) {
             spawn_server(SERVER_PATH);
         }
@@ -243,42 +251,35 @@ int handle_rep_man_command(factory_message message) {
 int spawn_server(char* path) {
     //command line arguments
     char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port, NULL };
-	int console_fd = 0;
-	char outfile[1024];
-	int status = 0;
+	char filename[1024];
+	int ofd;
+	int olderr = errno;
 
-	memset(outfile, 0, 1024);
-    
-	sprintf(outfile, "logs/server_%ld.console", replica_id); 
-    
+	memset(filename, 0, 1024);
+
 	//Fork server
     pid_t pid = fork();
     if(pid == 0) {
+        //open file for IO redirection
 
-		console_fd = open(outfile, O_WRONLY | O_TRUNC | O_CREAT,
-							S_IRUSR | S_IRGRP | S_IWUSR | S_IROTH);
-
-		if (console_fd < 0) {
-			fprintf(stderr, "Open failed for out file: %s", strerror(errno));
-			return -1;
-		}
-
-		status = dup2(console_fd, STDOUT_FILENO);
-		if (status < 0) {
-			return status;
-		}
-
-		// Close the output file
-		status = close(console_fd);
-		if (status < 0) {
-			return status;
-		}
+        sprintf(filename, "logs/server_replica_%ld_out", f_data.replica_id);
         
-		if (execve(path, newargv, environ) < 0) {
+		ofd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (ofd < 0) {
+            printf("could not open outfile for server\n");
+            errno = olderr;
+        } else {
+            dup2(ofd, STDOUT_FILENO);
+            dup2(ofd, STDERR_FILENO);
+        }
+
+        if (execve(path, newargv, environ) < 0) {
             //proccess execve error
             fprintf(stderr,"server path incorrect or binary does not exist\n");
             exit(0);
         }
+
     } else if(pid < 0) {
         fprintf(stderr,"error occurred while forking\n");
         return -1;
@@ -288,38 +289,34 @@ int spawn_server(char* path) {
 
 int spawn_fault_detector(char* path) {
     //command line arguments
-    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port ,"5" , "127.0.0.1", "12346", "0", NULL };
-	int console_fd = 0;
-	char outfile[1024];
-	int status = 0;
+    char replica_id[10];
+    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port,
+                        f_data.lfd_heartbeat , f_data.replication_manager_ip, 
+                        f_data.replication_manager_port, replica_id, NULL };
+	char filename[1024];
+	int ofd;
+	int olderr = errno;
 
-	memset(outfile, 0, 1024);
-    
-	sprintf(outfile, "logs/f_detector_%ld.console", replica_id); 
+	memset(filename, 0, 1024);
 
-    //Fork server
+	sprintf(filename, "logs/lfd_serverid_%ld_out", f_data.replica_id);
+	sprintf(replica_id, "%ld",f_data.replica_id );
+
+	//Fork server
     pid_t pid = fork();
     if(pid == 0) {
-		console_fd = open(outfile, O_WRONLY | O_TRUNC | O_CREAT,
-							S_IRUSR | S_IRGRP | S_IWUSR | S_IROTH);
+        //open file for IO redirection
+		ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (ofd < 0) {
+            printf("could not open outfile for lfd\n");
+            errno = olderr;
+        } else {
+            dup2(ofd, STDOUT_FILENO);
+            dup2(ofd, STDERR_FILENO);
+        }
 
-		if (console_fd < 0) {
-			fprintf(stderr, "Open failed for out file: %s", strerror(errno));
-			return -1;
-		}
-
-		status = dup2(console_fd, STDOUT_FILENO);
-		if (status < 0) {
-			return status;
-		}
-
-		// Close the output file
-		status = close(console_fd);
-		if (status < 0) {
-			return status;
-		}
-        
-		if (execve(path, newargv, environ) < 0) {
+        if (execve(path, newargv, environ) < 0) {
             //proccess execve error
             fprintf(stderr,"fault detector path incorrect or binary does not exist\n");
             exit(0);
