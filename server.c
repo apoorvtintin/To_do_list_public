@@ -310,6 +310,7 @@ int main(int argc, char *argv[]) {
     }
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
+    printf("%s ip strlen %lu\n", argv[1], strlen(argv[1]));
     if (inet_pton(AF_INET, argv[1], &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
