@@ -104,8 +104,7 @@ int factory_init(char *server_path, char *fault_detector_path) {
 
     // Handles terminated or stopped child
     signal(SIGCHLD, sigchld_handler);
-    if(spawn_server(server_path) || 
-       spawn_fault_detector(fault_detector_path)) {
+    if(spawn_fault_detector(fault_detector_path)) {
         fprintf(stderr, "Spawn error");
         return -1;
     }
