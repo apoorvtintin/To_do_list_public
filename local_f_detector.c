@@ -135,6 +135,9 @@ void *heartbeat_signal(void *vargp) {
             connection = 1;
             inform_rep_manager(FAULTED);
             // send message to replication manager
+        } else {
+            inform_rep_manager(RUNNING);
+            printf("INFORMED RUNNING\n");
         }
 
         heartbeat_received_g++;

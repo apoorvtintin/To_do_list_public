@@ -1,5 +1,5 @@
 
-/* @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
+/** @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> */
 
 /* HEADER FILES */
 
@@ -23,6 +23,7 @@
 // Global Variables
 long verbose = 0;
 rep_manager_data data;
+pthread_mutex_t *lock;
 
 struct membership_data {
 	int num_servers;
@@ -32,6 +33,8 @@ struct membership_data {
 struct membership_data membership;
 
 //FORWARD DECLARATIONS
+static void *gfd_hbt();
+static void init_gfd_hbt();
 static int handle_fault_detector_message(client_ctx_t *conn_client_ctx);
 static int read_config_file(char *path);
 static int restart_server(int replica_id);
@@ -93,6 +96,8 @@ int main(int argc, char *argv[]) {
     struct sockaddr client_addr;
     socklen_t client_addr_len;
     client_ctx_t conn_client_ctx;
+
+    init_gfd_hbt();
 
     memset(&client_addr, 0, sizeof(struct sockaddr));
     while (1) {
@@ -189,15 +194,20 @@ void print_current_state_info(replication_manager_message fault_detector_ctx) {
 }
 
 int handle_state(replication_manager_message fault_detector_ctx) {
+
+    pthread_mutex_lock(lock);
     // change internal state
     int replica_id = fault_detector_ctx.replica_id;
-    data.node[replica_id].state = fault_detector_ctx.state;
+    data.node[replica_id].state = fault_detector_ctx.state;    
+    data.node[replica_id].last_heartbeat = 1;
+    
     // check if unstable state
-    // take action based on that
-	
+    // take action based on that	
 	print_current_state_info(fault_detector_ctx);
 	
     handle_current_state();
+    pthread_mutex_unlock(lock);
+
     return 0;
 }
 
@@ -209,6 +219,8 @@ int handle_current_state() {
 
     for(replica_iter = 0; replica_iter < data.num_replicas; replica_iter++) {
         
+
+
         if(data.node[replica_iter].state == RUNNING) {
             active_count++;
         } 
@@ -280,6 +292,7 @@ static int read_config_file(char *path) {
         CFG_SIMPLE_STR("factory_1_manager_port", &data.node[1].factory_port),
         CFG_SIMPLE_STR("factory_2_manager_ip", &data.node[2].factory_ip),
         CFG_SIMPLE_STR("factory_2_manager_port", &data.node[2].factory_port),
+        CFG_SIMPLE_INT("hbt_timeout", &(data.hbt_timeout)),
 		CFG_END()
 	};
     
@@ -319,4 +332,40 @@ static int parse_fault_detector_kv(
         }
     }
     return 0;
+}
+
+static void init_gfd_hbt() {
+    int replica_iter;
+    pthread_t tid;
+
+    for(replica_iter = 0; replica_iter < data.num_replicas; replica_iter++) {
+        data.node[replica_iter].last_heartbeat  = time(NULL);
+    }
+    lock = malloc(sizeof(pthread_mutex_t));
+    if (pthread_mutex_init(lock, NULL) != 0) {
+        exit(-1);
+    }
+    pthread_create(&tid, NULL, gfd_hbt, NULL);
+    return;
+}
+
+static void *gfd_hbt(){
+
+    pthread_detach(pthread_self());
+
+    int replica_iter;
+    while(1) {
+        pthread_mutex_lock(lock);
+        for(replica_iter = 0; replica_iter < data.num_replicas; replica_iter++) {
+            if(data.node[replica_iter].last_heartbeat == 0) {
+                printf("REPLICA ID %d HEARTBEAT TIMEOUT conisdered dead\n", replica_iter);
+                membership.server_status[replica_iter] = 0;
+                //data.node[replica_iter].state  = FAULTED;
+            }
+            data.node[replica_iter].last_heartbeat = 0;
+        }
+        pthread_mutex_unlock(lock);
+        sleep(data.hbt_timeout);
+    }
+    return NULL;//should not exit
 }

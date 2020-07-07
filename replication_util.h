@@ -31,6 +31,7 @@ typedef struct replica_node_t {
     char *factory_ip;
     char *factory_port;
     struct server_info factory;
+    time_t last_heartbeat;
 } replica_node;
 
 typedef struct rep_manager_data_t {
@@ -38,6 +39,7 @@ typedef struct rep_manager_data_t {
     char *server_ip;
     char *port;
     replica_node node[MAX_REPLICAS];
+    time_t hbt_timeout;
 } rep_manager_data;
 
 
