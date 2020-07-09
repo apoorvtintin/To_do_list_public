@@ -32,16 +32,15 @@
 long verbose = 0;
 extern char **environ; /* Defined by libsc */
 factory_data f_data;
-int outfile_append = 1; //to control append to outfiles
+int outfile_append = 1; // to control append to outfiles
 
 // Forward Declarations
 static int handle_replication_manager_message(client_ctx_t conn_client_ctx);
 static int handle_rep_man_command(factory_message message);
-static int spawn_server(char* path);
-static int spawn_fault_detector(char* path);
-static int parse_rep_manager_kv (
-    factory_message *rep_manager_ctx, 
-    char *key, char *value);
+static int spawn_server(char *path);
+static int spawn_fault_detector(char *path);
+static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
+                                char *value);
 
 static void init_client_ctx(client_ctx_t *ctx) {
     ctx->fd = -1;
@@ -50,49 +49,51 @@ static void init_client_ctx(client_ctx_t *ctx) {
     return;
 }
 
-void sigchld_handler(int sig)  {
+void sigchld_handler(int sig) {
     int olderr = errno;
     int status;
-    while ((waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0);
+    while ((waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0)
+        ;
     errno = olderr;
 }
 
 static int read_config_file(char *path) {
     int parse_ret;
 
-	cfg_opt_t opts[] = {
-		CFG_SIMPLE_STR("factory_ip", &f_data.server_ip),
-		CFG_SIMPLE_STR("factory_port", &f_data.port),
+    cfg_opt_t opts[] = {
+        CFG_SIMPLE_STR("factory_ip", &f_data.server_ip),
+        CFG_SIMPLE_STR("factory_port", &f_data.port),
         CFG_SIMPLE_STR("factory_spawned_server_ip", &f_data.spawned_server_ip),
-        CFG_SIMPLE_STR("factory_spawned_server_port", &f_data.spawned_server_port),
-        CFG_SIMPLE_STR("replication_manager_ip", &f_data.replication_manager_ip),
-        CFG_SIMPLE_STR("replication_manager_port", &f_data.replication_manager_port),
+        CFG_SIMPLE_STR("factory_spawned_server_port",
+                       &f_data.spawned_server_port),
+        CFG_SIMPLE_STR("replication_manager_ip",
+                       &f_data.replication_manager_ip),
+        CFG_SIMPLE_STR("replication_manager_port",
+                       &f_data.replication_manager_port),
         CFG_SIMPLE_STR("lfd_heartbeat", &f_data.lfd_heartbeat),
         CFG_SIMPLE_INT("factory_replica_id", &f_data.replica_id),
-        CFG_SIMPLE_INT("factory_verbose", &verbose),
-		CFG_END()
-	};
-	cfg_t *cfg;
+        CFG_SIMPLE_INT("factory_verbose", &verbose), CFG_END()};
+    cfg_t *cfg;
     cfg = cfg_init(opts, 0);
 
-    if((parse_ret = cfg_parse(cfg, path)) != CFG_SUCCESS) {
-        if(parse_ret == CFG_FILE_ERROR) {
-            fprintf(stderr,"REPLICATION MANAGER config file not found\n");
+    if ((parse_ret = cfg_parse(cfg, path)) != CFG_SUCCESS) {
+        if (parse_ret == CFG_FILE_ERROR) {
+            fprintf(stderr, "REPLICATION MANAGER config file not found\n");
         } else {
-            fprintf(stderr,"REPLICATION MANAGER config file parse error\n");
+            fprintf(stderr, "REPLICATION MANAGER config file parse error\n");
         }
         return -1;
-    } 
+    }
 
-    //DEBUG
+    // DEBUG
     printf("factory IP: %s port: %s \n", f_data.server_ip, f_data.port);
 
     return 0;
 }
 
 int factory_init(char *server_path, char *fault_detector_path) {
-    if(server_path == NULL) {
-        fprintf(stderr,"servre path NULL\n");
+    if (server_path == NULL) {
+        fprintf(stderr, "servre path NULL\n");
         return -1;
     }
 
@@ -104,7 +105,7 @@ int factory_init(char *server_path, char *fault_detector_path) {
 
     // Handles terminated or stopped child
     signal(SIGCHLD, sigchld_handler);
-    if(spawn_fault_detector(fault_detector_path)) {
+    if (spawn_fault_detector(fault_detector_path)) {
         fprintf(stderr, "Spawn error");
         return -1;
     }
@@ -122,7 +123,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    if(read_config_file(argv[1]) != 0) {
+    if (read_config_file(argv[1]) != 0) {
         fprintf(stderr, "READ CONFIG FILE ERR!\n");
         exit(EXIT_FAILURE);
     }
@@ -131,12 +132,13 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
     }
 
-    //initialize factory and spawn server and fault detector
+    // initialize factory and spawn server and fault detector
     factory_init(SERVER_PATH, FAULT_DETECTOR_PATH);
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
-    if (inet_pton(AF_INET, f_data.server_ip, &server_addr.sin_addr.s_addr) != 1) {
+    if (inet_pton(AF_INET, f_data.server_ip, &server_addr.sin_addr.s_addr) !=
+        1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
@@ -185,8 +187,7 @@ int main(int argc, char *argv[]) {
         }
         init_client_ctx(&conn_client_ctx);
         conn_client_ctx.fd = accept_ret_val;
-        memcpy(&conn_client_ctx.addr, &client_addr,
-                sizeof(struct sockaddr_in));
+        memcpy(&conn_client_ctx.addr, &client_addr, sizeof(struct sockaddr_in));
         handle_replication_manager_message(conn_client_ctx);
     }
     return 0;
@@ -206,7 +207,7 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
 
     printf("recieved message from replication manager\n");
     while (1) {
-        
+
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
         if (msg_len == 0) {
             // The client closed the connection we should to.
@@ -234,10 +235,10 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
 }
 
 int handle_rep_man_command(factory_message message) {
-    printf("global replica ID %ld replica ID %d message enum %d\n",f_data.replica_id, 
-    message.replica_id, message.req);
-    if(message.replica_id == f_data.replica_id) {
-        if(message.req == STARTUP) {
+    printf("global replica ID %ld replica ID %d message enum %d\n",
+           f_data.replica_id, message.replica_id, message.req);
+    if (message.replica_id == f_data.replica_id) {
+        if (message.req == STARTUP) {
             spawn_server(SERVER_PATH);
         }
     } else {
@@ -246,24 +247,25 @@ int handle_rep_man_command(factory_message message) {
     return 0;
 }
 
-int spawn_server(char* path) {
-    //command line arguments
-    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port, NULL };
-	char filename[1024];
-	int ofd;
-	int olderr = errno;
+int spawn_server(char *path) {
+    // command line arguments
+    char *newargv[] = {path, f_data.spawned_server_ip,
+                       f_data.spawned_server_port, NULL};
+    char filename[1024];
+    int ofd;
+    int olderr = errno;
 
-	memset(filename, 0, 1024);
+    memset(filename, 0, 1024);
 
-	//Fork server
+    // Fork server
     pid_t pid = fork();
-    if(pid == 0) {
-        //open file for IO redirection
+    if (pid == 0) {
+        // open file for IO redirection
 
         sprintf(filename, "logs/server_replica_%ld_out", f_data.replica_id);
-        
-		ofd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+        ofd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,
+                   S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (ofd < 0) {
             printf("could not open outfile for server\n");
             errno = olderr;
@@ -273,39 +275,44 @@ int spawn_server(char* path) {
         }
 
         if (execve(path, newargv, environ) < 0) {
-            //proccess execve error
-            fprintf(stderr,"server path incorrect or binary does not exist\n");
+            // proccess execve error
+            fprintf(stderr, "server path incorrect or binary does not exist\n");
             exit(0);
         }
 
-    } else if(pid < 0) {
-        fprintf(stderr,"error occurred while forking\n");
+    } else if (pid < 0) {
+        fprintf(stderr, "error occurred while forking\n");
         return -1;
     }
     return 0;
 }
 
-int spawn_fault_detector(char* path) {
-    //command line arguments
+int spawn_fault_detector(char *path) {
+    // command line arguments
     char replica_id[10];
-    char *newargv[] = { path, f_data.spawned_server_ip, f_data.spawned_server_port,
-                        f_data.lfd_heartbeat , f_data.replication_manager_ip, 
-                        f_data.replication_manager_port, replica_id, NULL };
-	char filename[1024];
-	int ofd;
-	int olderr = errno;
+    char *newargv[] = {path,
+                       f_data.spawned_server_ip,
+                       f_data.spawned_server_port,
+                       f_data.lfd_heartbeat,
+                       f_data.replication_manager_ip,
+                       f_data.replication_manager_port,
+                       replica_id,
+                       NULL};
+    char filename[1024];
+    int ofd;
+    int olderr = errno;
 
-	memset(filename, 0, 1024);
+    memset(filename, 0, 1024);
 
-	sprintf(filename, "logs/lfd_serverid_%ld_out", f_data.replica_id);
-	sprintf(replica_id, "%ld",f_data.replica_id );
+    sprintf(filename, "logs/lfd_serverid_%ld_out", f_data.replica_id);
+    sprintf(replica_id, "%ld", f_data.replica_id);
 
-	//Fork server
+    // Fork server
     pid_t pid = fork();
-    if(pid == 0) {
-        //open file for IO redirection
-		ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (pid == 0) {
+        // open file for IO redirection
+        ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
+                   S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (ofd < 0) {
             printf("could not open outfile for lfd\n");
             errno = olderr;
@@ -315,22 +322,20 @@ int spawn_fault_detector(char* path) {
         }
 
         if (execve(path, newargv, environ) < 0) {
-            //proccess execve error
-            fprintf(stderr,"fault detector path incorrect or binary does not exist\n");
+            // proccess execve error
+            fprintf(stderr,
+                    "fault detector path incorrect or binary does not exist\n");
             exit(0);
         }
-    }
-    else if(pid < 0) {
-        fprintf(stderr,"error occurred while forking\n");
+    } else if (pid < 0) {
+        fprintf(stderr, "error occurred while forking\n");
         return -1;
     }
     return 0;
 }
 
-static int parse_rep_manager_kv (
-    factory_message *rep_manager_ctx, 
-    char *key, char *value) 
-{
+static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
+                                char *value) {
     if (strcmp(key, "Replica ID") == 0) {
         if (str_to_int(value, &rep_manager_ctx->replica_id) != 0) {
             fprintf(stderr, "replica_id conversion failed; Malformed req!!!\n");

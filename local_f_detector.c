@@ -1,6 +1,6 @@
 
-/** 
- *  @author Apoorv Gupta <apoorvgupta@hotmail.co.uk> 
+/**
+ *  @author Apoorv Gupta <apoorvgupta@hotmail.co.uk>
  *  @author Phani Teja
 */
 
@@ -53,7 +53,7 @@ void print_heartbeat_request_to_console() {
     printf("|  Client ID        | \t    %d      \n", client_id);
     printf("|  Message type     | \t    MSG_HEARTBEAT  \n");
     printf("---------------------------------------\n");
-	fflush(stdout);
+    fflush(stdout);
 }
 
 void print_heartbeat_response_to_console(struct message_response *response) {
@@ -67,14 +67,14 @@ void print_heartbeat_response_to_console(struct message_response *response) {
 
     printf("\nHeatbeats received: %d/%d\n", heartbeat_received_g,
            heartbeat_count_g);
-	fflush(stdout);
+    fflush(stdout);
 }
 
 void *heartbeat_signal(void *vargp) {
     int clientfd = 0;
     int status = 0;
     int connection = 0;
-	int first_time = 1;
+    int first_time = 1;
     char buf[MAX_LENGTH];
     struct message_response response;
 
@@ -90,26 +90,27 @@ void *heartbeat_signal(void *vargp) {
             printf("\nHeartbeat response not received: Server not active\n");
             printf("Heartbeat response received for %d out of %d requests\n",
                    heartbeat_received_g, heartbeat_count_g);
-			printf("Trying again in %d sec... \n\n\n", interval_g);
-			fflush(stdout);
+            printf("Trying again in %d sec... \n\n\n", interval_g);
+            fflush(stdout);
             connection = 1;
             inform_rep_manager(FAULTED);
             continue;
         }
 
-		if (first_time == 1) {
-			first_time = 0;
-			printf("\nServer %d is running\n\n", rep_manager.replica_id);
-			fflush(stdout);
+        if (first_time == 1) {
+            first_time = 0;
+            printf("\nServer %d is running\n\n", rep_manager.replica_id);
+            fflush(stdout);
             inform_rep_manager(RUNNING);
-		}
+        }
 
         if (connection == 1) {
             connection = 0;
-            printf("\nConnection to server %d restored\n\n", rep_manager.replica_id);
-			fflush(stdout);
+            printf("\nConnection to server %d restored\n\n",
+                   rep_manager.replica_id);
+            fflush(stdout);
             inform_rep_manager(RUNNING);
-            //send message to replication manager
+            // send message to replication manager
         }
 
         create_heartbeat_message_to_server(buf);
@@ -122,7 +123,7 @@ void *heartbeat_signal(void *vargp) {
         }
 
         get_response_from_server(clientfd, &response);
-        
+
         status = parse_response_from_server(&response, client_id);
         if (status < 0) {
             printf("Heartbeat response not received: Server not active\n");
@@ -130,7 +131,7 @@ void *heartbeat_signal(void *vargp) {
                    heartbeat_received_g, heartbeat_count_g);
             printf("Trying again in %d sec... \n\n\n", interval_g);
             printf(" what>??? %s \n", __func__);
-			fflush(stdout);
+            fflush(stdout);
             connection = 1;
             inform_rep_manager(FAULTED);
             // send message to replication manager
@@ -157,7 +158,7 @@ void initialize_local_fault_detector(int heartbeat_interval, int port) {
     printf("Replication Manager IP %s ", rep_manager.rep_manager.server_ip);
     printf("Replication Manager port %d ", rep_manager.rep_manager.port);
     printf("Replica ID %d ", rep_manager.replica_id);
-	fflush(stdout);
+    fflush(stdout);
 
     memset(&server, 0, sizeof(struct server_info));
 
@@ -182,15 +183,17 @@ int main(int argc, char *argv[]) {
     memset(buf, 0, MAX_LENGTH);
 
     if (argc < 7) {
-        printf("Usage: %s <port> <heartbeat interval> "  
-        "<replication manager IP> <replication manager port> <replica_id>\n", argv[0]);
+        printf("Usage: %s <port> <heartbeat interval> "
+               "<replication manager IP> <replication manager port> "
+               "<replica_id>\n",
+               argv[0]);
         exit(-1);
     }
 
     port = atoi(argv[2]);
     heartbeat_interval = atoi(argv[3]);
-	
-	memcpy(local_ip, argv[1], strlen(argv[1]));
+
+    memcpy(local_ip, argv[1], strlen(argv[1]));
     memcpy(rep_manager.rep_manager.server_ip, argv[4], strlen(argv[4]));
 
     rep_manager.rep_manager.port = atoi(argv[5]);
@@ -201,7 +204,7 @@ int main(int argc, char *argv[]) {
     printf("\nLocal fault detector started with %d interval\n",
            heartbeat_interval);
 
-	fflush(stdout);
+    fflush(stdout);
     while (1) {
         printf("\nEnter the new interval below to change it\n");
         printf("\nHeartbeat interval: ");
@@ -215,7 +218,7 @@ int main(int argc, char *argv[]) {
         }
 
         printf("Local fault detector changed to %d", interval_g);
-		fflush(stdout);
+        fflush(stdout);
     }
 }
 
@@ -223,15 +226,15 @@ int inform_rep_manager(enum replica_state state) {
     replication_manager_message message;
     char buf[MAX_LENGTH];
 
-    //printf("came %s \n", __func__);
+    // printf("came %s \n", __func__);
     message.replica_id = rep_manager.replica_id;
     message.state = state;
 
-    sprintf(buf,"Replica ID: %d\r\n"
-                "Message Type: %d\r\n\r\n",
-        message.replica_id, message.state);
+    sprintf(buf, "Replica ID: %d\r\n"
+                 "Message Type: %d\r\n\r\n",
+            message.replica_id, message.state);
 
-	fflush(stdout);
+    fflush(stdout);
     return send_rep_manager(buf, message);
 }
 
@@ -239,7 +242,7 @@ int send_rep_manager(char *buf, replication_manager_message message) {
     int clientfd = 0;
     int status = 0;
 
-    //printf("came %s \n", __func__);
+    // printf("came %s \n", __func__);
     clientfd = connect_to_server(&rep_manager.rep_manager);
     if (clientfd < 0) {
         printf("connect failed: %s\n", strerror(errno));
@@ -252,8 +255,8 @@ int send_rep_manager(char *buf, replication_manager_message message) {
         close(clientfd);
         return -1;
     }
-    //printf("Sent %d \n", __LINE__);
+    // printf("Sent %d \n", __LINE__);
     close(clientfd);
-	fflush(stdout);
+    fflush(stdout);
     return 0;
 }

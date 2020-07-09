@@ -21,5 +21,3 @@ typedef struct _client_ctx {
 } client_ctx_t;
 
 #endif
-
-

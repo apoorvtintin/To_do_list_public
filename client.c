@@ -138,14 +138,14 @@ void get_inputs_for_message_modify(struct message_modify *message) {
 int send_and_get_response(char *buf, struct message_response *response) {
     int clientfd = 0;
     int status = 0;
-	int success = 0;
+    int success = 0;
     int i = 0;
 
     for (i = 0; i < server_arr.count; i++) {
 
         clientfd = connect_to_server(&server_arr.server[i]);
         if (clientfd < 0) {
-            //printf("connect failed: %s\n", strerror(errno));
+            // printf("connect failed: %s\n", strerror(errno));
             continue;
         }
 
@@ -174,14 +174,14 @@ int send_and_get_response(char *buf, struct message_response *response) {
             continue;
         }
 
-		success = 1;
+        success = 1;
     }
 
-	if (success == 1) {
-		return 0;
-	} else {
-		return -1;
-	}
+    if (success == 1) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 void print_task_details(char *task, char *date, enum t_status status,
@@ -421,7 +421,7 @@ int parse_input_arguments(int argc, char *argv[]) {
     int c = 0;
     char filename[1024];
 
-	memset(filename, 0, 1024);
+    memset(filename, 0, 1024);
 
     while ((c = getopt(argc, argv, "C:F:")) != -1) {
         switch (c) {
@@ -431,7 +431,7 @@ int parse_input_arguments(int argc, char *argv[]) {
         case 'F':
             memcpy(filename, optarg, strlen(optarg));
             parse_and_prepare_server_array(filename);
-			break;
+            break;
         case '?':
             printf("\nPlease check arguments passed\n");
             return -1;
