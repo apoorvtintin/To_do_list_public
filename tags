@@ -1,0 +1,429 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BINS	Makefile	/^BINS = server client local_f_detector factory replication_manager$/;"	m
+CC	Makefile	/^CC = gcc$/;"	m
+CFGF_COMMENTS	confuse.h	100;"	d
+CFGF_DEFINIT	confuse.h	96;"	d
+CFGF_DEPRECATED	confuse.h	98;"	d
+CFGF_DROP	confuse.h	99;"	d
+CFGF_IGNORE_UNKNOWN	confuse.h	97;"	d
+CFGF_KEYSTRVAL	confuse.h	102;"	d
+CFGF_LIST	confuse.h	88;"	d
+CFGF_MODIFIED	confuse.h	101;"	d
+CFGF_MULTI	confuse.h	87;"	d
+CFGF_NOCASE	confuse.h	89;"	d
+CFGF_NODEFAULT	confuse.h	91;"	d
+CFGF_NONE	confuse.h	86;"	d
+CFGF_NO_TITLE_DUPES	confuse.h	92;"	d
+CFGF_RESET	confuse.h	95;"	d
+CFGF_TITLE	confuse.h	90;"	d
+CFGT_BOOL	confuse.h	/^	CFGT_BOOL,   \/**< boolean value *\/$/;"	e	enum:cfg_type_t
+CFGT_COMMENT	confuse.h	/^	CFGT_COMMENT \/**< comment\/annotation *\/$/;"	e	enum:cfg_type_t
+CFGT_FLOAT	confuse.h	/^	CFGT_FLOAT,  \/**< floating point number *\/$/;"	e	enum:cfg_type_t
+CFGT_FUNC	confuse.h	/^	CFGT_FUNC,   \/**< function *\/$/;"	e	enum:cfg_type_t
+CFGT_INT	confuse.h	/^	CFGT_INT,    \/**< integer *\/$/;"	e	enum:cfg_type_t
+CFGT_NONE	confuse.h	/^	CFGT_NONE,$/;"	e	enum:cfg_type_t
+CFGT_PTR	confuse.h	/^	CFGT_PTR,    \/**< pointer to user-defined value *\/$/;"	e	enum:cfg_type_t
+CFGT_SEC	confuse.h	/^	CFGT_SEC,    \/**< section *\/$/;"	e	enum:cfg_type_t
+CFGT_STR	confuse.h	/^	CFGT_STR,    \/**< string *\/$/;"	e	enum:cfg_type_t
+CFG_BOOL	confuse.h	490;"	d
+CFG_BOOL_CB	confuse.h	500;"	d
+CFG_BOOL_LIST	confuse.h	495;"	d
+CFG_BOOL_LIST_CB	confuse.h	505;"	d
+CFG_END	confuse.h	574;"	d
+CFG_FAIL	confuse.h	106;"	d
+CFG_FILE_ERROR	confuse.h	107;"	d
+CFG_FLOAT	confuse.h	457;"	d
+CFG_FLOAT_CB	confuse.h	467;"	d
+CFG_FLOAT_LIST	confuse.h	462;"	d
+CFG_FLOAT_LIST_CB	confuse.h	472;"	d
+CFG_FUNC	confuse.h	538;"	d
+CFG_INT	confuse.h	421;"	d
+CFG_INT_CB	confuse.h	431;"	d
+CFG_INT_LIST	confuse.h	426;"	d
+CFG_INT_LIST_CB	confuse.h	436;"	d
+CFG_PARSE_ERROR	confuse.h	108;"	d
+CFG_PTR_CB	confuse.h	559;"	d
+CFG_PTR_LIST_CB	confuse.h	564;"	d
+CFG_SEC	confuse.h	527;"	d
+CFG_SIMPLE_BOOL	confuse.h	511;"	d
+CFG_SIMPLE_FLOAT	confuse.h	478;"	d
+CFG_SIMPLE_INT	confuse.h	445;"	d
+CFG_SIMPLE_STR	confuse.h	410;"	d
+CFG_STR	confuse.h	340;"	d
+CFG_STR_CB	confuse.h	350;"	d
+CFG_STR_LIST	confuse.h	345;"	d
+CFG_STR_LIST_CB	confuse.h	355;"	d
+CFG_SUCCESS	confuse.h	105;"	d
+CFILES	Makefile	/^CFILES = $(wildcard *.c)$/;"	m
+CFLAGS	Makefile	/^CFLAGS  = -pthread -Wall -Werror -g -DM_THRD_LQ$/;"	m
+CONFUSE_H_	confuse.h	37;"	d
+CONTROL	log.h	/^    CONTROL$/;"	e	enum:_log_msg_type
+CTRL_Q_LIMIT	log.h	/^    size_t CTRL_Q_LIMIT;$/;"	m	struct:_server_log
+DATE_LENGTH	c_s_iface.h	23;"	d
+DLLIMPORT	confuse.h	55;"	d
+DLLIMPORT	confuse.h	58;"	d
+DLLIMPORT	confuse.h	60;"	d
+DLLIMPORT	confuse.h	64;"	d
+FAULTED	replication_util.h	/^    FAULTED = 1,$/;"	e	enum:replica_state
+FAULT_DETECTOR_PATH	factory.c	29;"	d	file:
+HFILES	Makefile	/^HFILES = $(wildcard *.h)$/;"	m
+INVALID	c_s_iface.h	/^    INVALID,$/;"	e	enum:_msg_type
+INVALID_LOG	log.h	/^    INVALID_LOG,$/;"	e	enum:_log_msg_type
+LLVM_PATH	Makefile	/^LLVM_PATH = \/usr\/local\/depot\/llvm-3.9.1\/bin\/$/;"	m
+MAXMSGSIZE	c_s_iface.h	69;"	d
+MAX_DATA_LEN	db.h	13;"	d
+MAX_LENGTH	c_s_iface.h	18;"	d
+MAX_LENGTH_STR	c_s_iface.h	20;"	d
+MAX_REPLICAS	replication_util.h	19;"	d
+MAX_REQ_FIELDS	c_s_iface.h	17;"	d
+MOD_FLAGS_DATE_MODIFIED	c_s_iface.h	14;"	d
+MOD_FLAGS_STATUS_MODIFIED	c_s_iface.h	15;"	d
+MOD_FLAGS_TASK_STRING_MODIFIED	c_s_iface.h	13;"	d
+MSG_ADD	c_s_iface.h	/^    MSG_ADD,$/;"	e	enum:_msg_type
+MSG_GET_ALL	c_s_iface.h	/^    MSG_GET_ALL,$/;"	e	enum:_msg_type
+MSG_HEARTBEAT	c_s_iface.h	/^    MSG_HEARTBEAT$/;"	e	enum:_msg_type
+MSG_MODIFY	c_s_iface.h	/^    MSG_MODIFY,$/;"	e	enum:_msg_type
+MSG_REMOVE	c_s_iface.h	/^    MSG_REMOVE,$/;"	e	enum:_msg_type
+NORMAL	log.h	/^    NORMAL,$/;"	e	enum:_log_msg_type
+NO_ACTION	replication_util.h	/^    NO_ACTION= 1,$/;"	e	enum:factory_req
+NRL_Q_LIMIT	log.h	/^    size_t NRL_Q_LIMIT;$/;"	m	struct:_server_log
+RUNNING	replication_util.h	/^    RUNNING = 0,$/;"	e	enum:replica_state
+SA	c_s_iface.h	/^typedef struct sockaddr SA;$/;"	t	typeref:struct:sockaddr
+SENT_STARTUP_REQ	replication_util.h	/^    SENT_STARTUP_REQ = 2$/;"	e	enum:replica_state
+SERVER_PATH	factory.c	28;"	d	file:
+SHA_40_len	db.h	10;"	d
+STARTUP	replication_util.h	/^    STARTUP = 0,$/;"	e	enum:factory_req
+TASK_DONE	c_s_iface.h	/^    TASK_DONE = 1,$/;"	e	enum:t_status
+TASK_LENGTH	c_s_iface.h	22;"	d
+TASK_NOT_DONE	c_s_iface.h	/^    TASK_NOT_DONE = 0,$/;"	e	enum:t_status
+_C_S_IFACE_H	c_s_iface.h	6;"	d
+_LOG_H_	log.h	8;"	d
+_SERVER_H_	server.h	9;"	d
+_WORKER_H_	worker.h	8;"	d
+__CFG_BOOL	confuse.h	483;"	d
+__CFG_BOOL_LIST	confuse.h	485;"	d
+__CFG_FLOAT	confuse.h	450;"	d
+__CFG_FLOAT_LIST	confuse.h	452;"	d
+__CFG_INT	confuse.h	414;"	d
+__CFG_INT_LIST	confuse.h	416;"	d
+__CFG_PTR	confuse.h	542;"	d
+__CFG_PTR_LIST	confuse.h	544;"	d
+__CFG_STR	confuse.h	333;"	d
+__CFG_STR_LIST	confuse.h	335;"	d
+__UTIL__H	util.h	11;"	d
+__export	confuse.h	68;"	d
+_client_ctx	server.h	/^typedef struct _client_ctx {$/;"	s
+_client_request	c_s_iface.h	/^typedef struct _client_request {$/;"	s
+_log_msg_type	log.h	/^typedef enum _log_msg_type$/;"	g
+_log_node	log.h	/^typedef struct _log_node$/;"	s
+_msg_type	c_s_iface.h	/^typedef enum _msg_type {$/;"	g
+_server_ctx	server.h	/^typedef struct _server_ctx {$/;"	s
+_server_log	log.h	/^typedef struct _server_log$/;"	s
+addr	server.h	/^    struct sockaddr_in addr;$/;"	m	struct:_client_ctx	typeref:struct:_client_ctx::sockaddr_in
+addr	server.h	/^    struct sockaddr_in addr;$/;"	m	struct:_server_ctx	typeref:struct:_server_ctx::sockaddr_in
+all_servers	client.c	/^struct all_servers {$/;"	s	file:
+boolean	confuse.h	/^	cfg_bool_t *boolean;$/;"	m	union:cfg_simple_t
+boolean	confuse.h	/^	cfg_bool_t boolean;	\/**< boolean value *\/$/;"	m	union:cfg_value_t
+boolean	confuse.h	/^	cfg_bool_t boolean;	\/**< default boolean value *\/$/;"	m	struct:cfg_defvalue_t
+buf	util.h	/^    char buf[8192];$/;"	m	struct:buf_fd
+buf_fd	util.h	/^typedef struct buf_fd {$/;"	s
+buf_ptr	util.h	/^    char *buf_ptr;$/;"	m	struct:buf_fd
+bytes_pend	util.h	/^    size_t bytes_pend;$/;"	m	struct:buf_fd
+cfg_bool_t	confuse.h	/^typedef enum { cfg_false, cfg_true } cfg_bool_t;$/;"	t	typeref:enum:__anon1
+cfg_callback_t	confuse.h	/^typedef int (*cfg_callback_t)(cfg_t *cfg, cfg_opt_t *opt, const char *value, void *result);$/;"	t
+cfg_defvalue_t	confuse.h	/^struct cfg_defvalue_t {$/;"	s
+cfg_defvalue_t	confuse.h	/^typedef struct cfg_defvalue_t cfg_defvalue_t;$/;"	t	typeref:struct:cfg_defvalue_t
+cfg_errfunc_t	confuse.h	/^typedef void (*cfg_errfunc_t)(cfg_t *cfg, const char *fmt, va_list ap);$/;"	t
+cfg_false	confuse.h	/^typedef enum { cfg_false, cfg_true } cfg_bool_t;$/;"	e	enum:__anon1
+cfg_flag_t	confuse.h	/^typedef int cfg_flag_t;$/;"	t
+cfg_free_func_t	confuse.h	/^typedef void (*cfg_free_func_t)(void *value);$/;"	t
+cfg_func_t	confuse.h	/^typedef int (*cfg_func_t)(cfg_t *cfg, cfg_opt_t *opt, int argc, const char **argv);$/;"	t
+cfg_opt_t	confuse.h	/^struct cfg_opt_t {$/;"	s
+cfg_opt_t	confuse.h	/^typedef struct cfg_opt_t cfg_opt_t;$/;"	t	typeref:struct:cfg_opt_t
+cfg_print_filter_func_t	confuse.h	/^typedef int (*cfg_print_filter_func_t)(cfg_t *cfg, cfg_opt_t *opt);$/;"	t
+cfg_print_func_t	confuse.h	/^typedef void (*cfg_print_func_t)(cfg_opt_t *opt, unsigned int index, FILE *fp);$/;"	t
+cfg_searchpath_t	confuse.h	/^typedef struct cfg_searchpath_t cfg_searchpath_t;$/;"	t	typeref:struct:cfg_searchpath_t
+cfg_simple_t	confuse.h	/^typedef union cfg_simple_t cfg_simple_t;$/;"	t	typeref:union:cfg_simple_t
+cfg_simple_t	confuse.h	/^union cfg_simple_t {$/;"	u
+cfg_t	confuse.h	/^struct cfg_t {$/;"	s
+cfg_t	confuse.h	/^typedef struct cfg_t cfg_t;$/;"	t	typeref:struct:cfg_t
+cfg_true	confuse.h	/^typedef enum { cfg_false, cfg_true } cfg_bool_t;$/;"	e	enum:__anon1
+cfg_type_t	confuse.h	/^enum cfg_type_t {$/;"	g
+cfg_type_t	confuse.h	/^typedef enum cfg_type_t cfg_type_t;$/;"	t	typeref:enum:cfg_type_t
+cfg_validate_callback2_t	confuse.h	/^typedef int (*cfg_validate_callback2_t)(cfg_t *cfg, cfg_opt_t *opt, void *value);$/;"	t
+cfg_validate_callback_t	confuse.h	/^typedef int (*cfg_validate_callback_t)(cfg_t *cfg, cfg_opt_t *opt);$/;"	t
+cfg_value_t	confuse.h	/^typedef union cfg_value_t cfg_value_t;$/;"	t	typeref:union:cfg_value_t
+cfg_value_t	confuse.h	/^union cfg_value_t {$/;"	u
+client_ctx_t	server.h	/^} client_ctx_t;$/;"	t	typeref:struct:_client_ctx
+client_id	c_s_iface.h	/^    int client_id;$/;"	m	struct:message_response
+client_id	client.c	/^int client_id = 0;$/;"	v
+client_id	local_f_detector.c	/^int client_id = 0;$/;"	v
+client_id	server.h	/^    int client_id;$/;"	m	struct:_client_ctx
+client_request_t	c_s_iface.h	/^} client_request_t;$/;"	t	typeref:struct:_client_request
+comment	confuse.h	/^	char *comment;	        \/**< Optional annotation\/comment *\/$/;"	m	struct:cfg_t
+comment	confuse.h	/^	char *comment;	        \/**< Optional comment\/annotation *\/$/;"	m	struct:cfg_opt_t
+connect_to_server	util.c	/^int connect_to_server(struct server_info *server) {$/;"	f
+count	client.c	/^    int count;$/;"	m	struct:all_servers	file:
+create_add_message_to_server	client.c	/^void create_add_message_to_server(char *buf, struct message_add *message,$/;"	f
+create_heartbeat_message_to_server	local_f_detector.c	/^void create_heartbeat_message_to_server(char *buf) {$/;"	f
+create_modify_message_to_server	client.c	/^void create_modify_message_to_server(char *buf, struct message_modify *message,$/;"	f
+create_remove_message_to_server	client.c	/^void create_remove_message_to_server(char *buf, struct message_remove *message,$/;"	f
+ctrl_count	log.h	/^    size_t ctrl_count;$/;"	m	struct:_server_log
+ctrl_head	log.h	/^    log_node_t *ctrl_head;$/;"	m	struct:_server_log
+ctrl_tail	log.h	/^    log_node_t *ctrl_tail;$/;"	m	struct:_server_log
+data	db.h	/^    data_point *data[hash_table_len];$/;"	m	struct:hash_table_
+data	replication_manager.c	/^rep_manager_data data;$/;"	v
+data_len	db.h	/^    uint64_t data_len;$/;"	m	struct:data_point_
+data_point	db.h	/^} data_point;$/;"	t	typeref:struct:data_point_
+data_point_	db.h	/^typedef struct data_point_ {$/;"	s
+data_size	db.h	/^    uint64_t data_size;$/;"	m	struct:hash_table_
+date	c_s_iface.h	/^    char date[32];$/;"	m	struct:_client_request
+def	confuse.h	/^	cfg_defvalue_t def;	\/**< Default value *\/$/;"	m	struct:cfg_opt_t
+dequeue	log.c	/^log_node_t * dequeue(server_log_t *svr, log_msg_type m_type)$/;"	f
+display_initial_text	client.c	/^void display_initial_text() {$/;"	f
+dummy_for_now	c_s_iface.h	/^    char dummy_for_now;$/;"	m	struct:message_get_all
+enqueue	log.c	/^int enqueue(server_log_t *svr, log_node_t *node, log_msg_type m_type)$/;"	f
+enqueue_client_req	server.c	/^int enqueue_client_req(server_log_t *svr,$/;"	f
+errfunc	confuse.h	/^	cfg_errfunc_t errfunc;	\/**< This function (if set with$/;"	m	struct:cfg_t
+execute_msg	server.c	/^void* execute_msg(void *arg)$/;"	f
+f_data	factory.c	/^factory_data f_data;$/;"	v
+factory	replication_util.h	/^    struct server_info factory;$/;"	m	struct:replica_node_t	typeref:struct:replica_node_t::server_info
+factory_data	replication_util.h	/^} factory_data;$/;"	t	typeref:struct:factory_data_t
+factory_data_t	replication_util.h	/^typedef struct factory_data_t {$/;"	s
+factory_init	factory.c	/^int factory_init(char *server_path, char *fault_detector_path) {$/;"	f
+factory_ip	replication_util.h	/^    char *factory_ip;$/;"	m	struct:replica_node_t
+factory_message	replication_util.h	/^} factory_message;/;"	t	typeref:struct:factory_message_t
+factory_message_t	replication_util.h	/^typedef struct factory_message_t {$/;"	s
+factory_port	replication_util.h	/^    char *factory_port;$/;"	m	struct:replica_node_t
+factory_req	replication_util.h	/^enum factory_req {$/;"	g
+fd	server.h	/^    int fd;$/;"	m	struct:_client_ctx
+fd	server.h	/^    int fd;$/;"	m	struct:_server_ctx
+fd	util.h	/^    int fd;$/;"	m	struct:buf_fd
+filename	confuse.h	/^	char *filename;		\/**< Name of the file being parsed *\/$/;"	m	struct:cfg_t
+fileno	confuse.h	48;"	d
+flags	confuse.h	/^	cfg_flag_t flags;	\/**< Any flags passed to cfg_init() *\/$/;"	m	struct:cfg_t
+flags	confuse.h	/^	cfg_flag_t flags;	\/**< Flags *\/$/;"	m	struct:cfg_opt_t
+fpnumber	confuse.h	/^	double *fpnumber;$/;"	m	union:cfg_simple_t
+fpnumber	confuse.h	/^	double fpnumber;	\/**< default floating point value *\/$/;"	m	struct:cfg_defvalue_t
+fpnumber	confuse.h	/^	double fpnumber;	\/**< floating point value *\/$/;"	m	union:cfg_value_t
+freecb	confuse.h	/^	cfg_free_func_t freecb;	\/***< user-defined memory release function *\/$/;"	m	struct:cfg_opt_t
+func	confuse.h	/^	cfg_func_t func;	\/**< Function callback for CFGT_FUNC options *\/$/;"	m	struct:cfg_opt_t
+generate_key	storage.c	/^static uint64_t generate_key(uint8_t *raw_data, int client_id,$/;"	f	file:
+get_count	log.c	/^size_t get_count(server_log_t* svr, log_msg_type m_type)$/;"	f
+get_inputs_for_message_add	client.c	/^void get_inputs_for_message_add(struct message_add *message) {$/;"	f
+get_inputs_for_message_modify	client.c	/^void get_inputs_for_message_modify(struct message_modify *message) {$/;"	f
+get_inputs_for_message_remove	client.c	/^void get_inputs_for_message_remove(struct message_remove *message) {$/;"	f
+get_msg_type_str	util.c	/^char *get_msg_type_str(msg_type_t msg_type) {$/;"	f
+get_response_from_server	util.c	/^void get_response_from_server(int clientfd, struct message_response *response) {$/;"	f
+get_task_status_str	util.c	/^char *get_task_status_str(enum t_status stat) {$/;"	f
+gs_server_log	worker.c	/^static server_log_t *gs_server_log = NULL;$/;"	v	file:
+handle_connection	server.c	/^void *handle_connection(void *arg) {$/;"	f
+handle_current_state	replication_manager.c	/^int handle_current_state() {$/;"	f
+handle_fault_detector_message	replication_manager.c	/^int handle_fault_detector_message(client_ctx_t *conn_client_ctx) {$/;"	f
+handle_mod_task	client.c	/^void handle_mod_task() {$/;"	f
+handle_new_task	client.c	/^void handle_new_task() {$/;"	f
+handle_remove_task	client.c	/^void handle_remove_task() {$/;"	f
+handle_rep_man_command	factory.c	/^int handle_rep_man_command(factory_message message) {$/;"	f
+handle_replication_manager_message	factory.c	/^int handle_replication_manager_message(client_ctx_t conn_client_ctx) {$/;"	f
+handle_state	replication_manager.c	/^int handle_state(replication_manager_message fault_detector_ctx) {$/;"	f
+handle_storage	storage.c	/^int handle_storage(client_ctx_t *client_ctx) {$/;"	f
+hash	storage.c	/^    char hash[8];$/;"	m	union:hashstr2key	file:
+hash_func	db.c	/^static uint32_t hash_func(uint64_t val) { return val % hash_table_len; }$/;"	f	file:
+hash_key	c_s_iface.h	/^    uint64_t hash_key;$/;"	m	struct:_client_request
+hash_key	c_s_iface.h	/^    uint64_t hash_key;$/;"	m	struct:message_response
+hash_table	db.h	/^} hash_table;$/;"	t	typeref:struct:hash_table_
+hash_table_	db.h	/^typedef struct hash_table_ {$/;"	s
+hash_table_deinit	db.c	/^void hash_table_deinit() {$/;"	f
+hash_table_delete	db.c	/^int hash_table_delete(uint64_t key) {$/;"	f
+hash_table_get	db.c	/^int hash_table_get(uint64_t key, uint8_t *buffer) {$/;"	f
+hash_table_get_all	db.c	/^int hash_table_get_all(uint8_t *buffer) {$/;"	f
+hash_table_get_dat_size	db.c	/^int hash_table_get_dat_size() { return htable->data_size; }$/;"	f
+hash_table_init	db.c	/^int hash_table_init() {$/;"	f
+hash_table_insert	db.c	/^int hash_table_insert(uint64_t key, uint8_t *data, uint64_t len) {$/;"	f
+hash_table_len	db.h	11;"	d
+hash_table_modify	db.c	/^int hash_table_modify(uint64_t key, enum t_status task_status) {$/;"	f
+hashstr2key	storage.c	/^union hashstr2key {$/;"	u	file:
+hdl_ctrl	worker.c	/^static hdl_ctrl_t hdl_ctrl;$/;"	v	file:
+hdl_ctrl_t	worker.h	/^typedef void * (*hdl_ctrl_t)(void *);$/;"	t
+hdl_nrl	worker.c	/^static hdl_nrl_t hdl_nrl;$/;"	v	file:
+hdl_nrl_t	worker.h	/^typedef void * (*hdl_nrl_t)(void *);$/;"	t
+heartbeat_count_g	local_f_detector.c	/^int heartbeat_count_g = 0;$/;"	v
+heartbeat_received_g	local_f_detector.c	/^int heartbeat_received_g = 0;$/;"	v
+heartbeat_signal	local_f_detector.c	/^void *heartbeat_signal(void *vargp) {$/;"	f
+htable	db.c	/^hash_table *htable;$/;"	v
+inform_rep_manager	local_f_detector.c	/^int inform_rep_manager(enum replica_state state) {$/;"	f
+init_buf_fd	util.c	/^void init_buf_fd(sock_buf_read *ptr, int fd) {$/;"	f
+init_client_ctx	factory.c	/^static void init_client_ctx(client_ctx_t *ctx) {$/;"	f	file:
+init_client_ctx	replication_manager.c	/^static void init_client_ctx(client_ctx_t *ctx) {$/;"	f	file:
+init_client_ctx	server.c	/^void init_client_ctx(client_ctx_t *ctx) {$/;"	f
+init_log_queue	log.c	/^void init_log_queue(server_log_t *svr, size_t nrl_limit, size_t ctrl_limit)$/;"	f
+init_server_ctx	server.c	/^void init_server_ctx(server_ctx_t *ctx) {$/;"	f
+initialize_local_fault_detector	local_f_detector.c	/^void initialize_local_fault_detector(int heartbeat_interval, int port) {$/;"	f
+insert_data_point	db.c	/^static int insert_data_point(uint32_t hash, data_point *new) {$/;"	f	file:
+interval_g	local_f_detector.c	/^int interval_g = 0;$/;"	v
+isatty	confuse.h	52;"	d
+key	db.h	/^    uint64_t key;$/;"	m	struct:data_point_
+key	storage.c	/^    uint64_t key;$/;"	m	union:hashstr2key	file:
+lfd_heartbeat	replication_util.h	/^    char *lfd_heartbeat;$/;"	m	struct:factory_data_t
+line	confuse.h	/^	int line;		\/**< Line number in the config file *\/$/;"	m	struct:cfg_t
+local_ip	local_f_detector.c	/^char local_ip[MAX_LENGTH];$/;"	v
+log_msg_type	log.h	/^} log_msg_type;$/;"	t	typeref:enum:_log_msg_type
+log_node_t	log.h	/^typedef struct _log_node log_node_t;$/;"	t	typeref:struct:_log_node
+log_node_t	log.h	/^} log_node_t;$/;"	t	typeref:struct:_log_node
+main	client.c	/^int main(int argc, char *argv[]) {$/;"	f
+main	factory.c	/^int main(int argc, char *argv[]) {$/;"	f
+main	local_f_detector.c	/^int main(int argc, char *argv[]) {$/;"	f
+main	replication_manager.c	/^int main(int argc, char *argv[]) {$/;"	f
+main	server.c	/^int main(int argc, char *argv[]) {$/;"	f
+message_add	c_s_iface.h	/^struct message_add {$/;"	s
+message_get_all	c_s_iface.h	/^struct message_get_all {$/;"	s
+message_modify	c_s_iface.h	/^struct message_modify {$/;"	s
+message_remove	c_s_iface.h	/^struct message_remove {$/;"	s
+message_response	c_s_iface.h	/^struct message_response {$/;"	s
+mod_flags	c_s_iface.h	/^    int mod_flags; \/\/ This flag tells us which fields are to be modified$/;"	m	struct:message_modify
+mod_flags	c_s_iface.h	/^    int mod_flags;$/;"	m	struct:_client_request
+msg_type	c_s_iface.h	/^    msg_type_t msg_type;$/;"	m	struct:_client_request
+msg_type_t	c_s_iface.h	/^} msg_type_t;$/;"	t	typeref:enum:_msg_type
+name	confuse.h	/^	char *name;		\/**< The name of this section, the root$/;"	m	struct:cfg_t
+name	confuse.h	/^	const char *name;	\/**< The name of the option *\/$/;"	m	struct:cfg_opt_t
+new_date	c_s_iface.h	/^    char new_date[DATE_LENGTH];$/;"	m	struct:message_modify
+new_task	c_s_iface.h	/^    char new_task[TASK_LENGTH];$/;"	m	struct:message_modify
+new_task_status	c_s_iface.h	/^    enum t_status new_task_status;$/;"	m	struct:message_modify	typeref:enum:message_modify::t_status
+next	db.h	/^    struct data_point_ *next;$/;"	m	struct:data_point_	typeref:struct:data_point_::data_point_
+next	log.h	/^    log_node_t *next;$/;"	m	struct:_log_node
+node	replication_util.h	/^    replica_node node[MAX_REPLICAS];$/;"	m	struct:rep_manager_data_t
+nrl_count	log.h	/^    size_t nrl_count;$/;"	m	struct:_server_log
+nrl_head	log.h	/^    log_node_t *nrl_head;$/;"	m	struct:_server_log
+nrl_tail	log.h	/^    log_node_t *nrl_tail;$/;"	m	struct:_server_log
+num_replicas	replication_util.h	/^    long num_replicas;$/;"	m	struct:rep_manager_data_t
+num_starts	replication_util.h	/^    long num_starts;$/;"	m	struct:factory_data_t
+number	confuse.h	/^	long int *number;$/;"	m	union:cfg_simple_t
+number	confuse.h	/^	long int number;	\/**< integer value *\/$/;"	m	union:cfg_value_t
+number	confuse.h	/^	long int number; 	\/**< default integer value *\/$/;"	m	struct:cfg_defvalue_t
+nvalues	confuse.h	/^	unsigned int nvalues;	\/**< Number of values parsed *\/$/;"	m	struct:cfg_opt_t
+opts	confuse.h	/^	cfg_opt_t *opts;        \/**< Array of options *\/$/;"	m	struct:cfg_t
+outfile_append	factory.c	/^int outfile_append = 1; \/\/to control append to outfiles$/;"	v
+parse_and_prepare_server_array	client.c	/^void parse_and_prepare_server_array(char *file) {$/;"	f
+parse_fault_detector_kv	replication_manager.c	/^static int parse_fault_detector_kv($/;"	f	file:
+parse_input_arguments	client.c	/^int parse_input_arguments(int argc, char *argv[]) {$/;"	f
+parse_kv	server.c	/^int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {$/;"	f
+parse_rep_manager_kv	factory.c	/^static int parse_rep_manager_kv ($/;"	f	file:
+parse_response_from_server	util.c	/^int parse_response_from_server(struct message_response *response,$/;"	f
+parsecb	confuse.h	/^	cfg_callback_t parsecb;	\/**< Value parsing callback function *\/$/;"	m	struct:cfg_opt_t
+parsed	confuse.h	/^	char *parsed;		\/**< default value that is parsed by$/;"	m	struct:cfg_defvalue_t
+path	confuse.h	/^	cfg_searchpath_t *path;	\/**< Linked list of directories to search *\/$/;"	m	struct:cfg_t
+pf	confuse.h	/^	cfg_print_func_t pf;	\/**< print callback function *\/$/;"	m	struct:cfg_opt_t
+pff	confuse.h	/^	cfg_print_filter_func_t pff; \/**< Printing filter function *\/$/;"	m	struct:cfg_t
+port	replication_util.h	/^    char *port;$/;"	m	struct:factory_data_t
+port	replication_util.h	/^    char *port;$/;"	m	struct:rep_manager_data_t
+port	util.h	/^    int port;$/;"	m	struct:server_info
+prev	log.h	/^    log_node_t *prev;$/;"	m	struct:_log_node
+print_add_request_to_console	client.c	/^void print_add_request_to_console(struct message_add *message) {$/;"	f
+print_add_response_to_console	client.c	/^void print_add_response_to_console(struct message_response *response) {$/;"	f
+print_heartbeat_request_to_console	local_f_detector.c	/^void print_heartbeat_request_to_console() {$/;"	f
+print_heartbeat_response_to_console	local_f_detector.c	/^void print_heartbeat_response_to_console(struct message_response *response) {$/;"	f
+print_htable	db.c	/^void print_htable() {$/;"	f
+print_modify_request_to_console	client.c	/^void print_modify_request_to_console(struct message_modify *message) {$/;"	f
+print_modify_response_to_console	client.c	/^void print_modify_response_to_console(struct message_response *response) {$/;"	f
+print_remove_request_to_console	client.c	/^void print_remove_request_to_console(struct message_remove *message) {$/;"	f
+print_remove_response_to_console	client.c	/^void print_remove_response_to_console(struct message_response *response) {$/;"	f
+print_task_details	client.c	/^void print_task_details(char *task, char *date, enum t_status status,$/;"	f
+print_user_req	server.c	/^void print_user_req(client_ctx_t *client_ctx, char *dir) {$/;"	f
+ptr	confuse.h	/^	void **ptr;$/;"	m	union:cfg_simple_t
+ptr	confuse.h	/^	void *ptr;		\/**< user-defined value *\/$/;"	m	union:cfg_value_t
+q_mutex	log.h	/^    pthread_mutex_t q_mutex;$/;"	m	struct:_server_log
+raw_data	db.h	/^    uint8_t raw_data[MAX_DATA_LEN];$/;"	m	struct:data_point_
+read_config_file	factory.c	/^static int read_config_file(char *path) {$/;"	f	file:
+read_config_file	replication_manager.c	/^static int read_config_file(char *path) {$/;"	f	file:
+release_lq_lock	log.c	/^void release_lq_lock(server_log_t *svr)$/;"	f
+rep_manager	local_f_detector.c	/^replication_manager rep_manager;$/;"	v
+rep_manager	replication_util.h	/^    struct server_info rep_manager;$/;"	m	struct:replication_manager_t	typeref:struct:replication_manager_t::server_info
+rep_manager_data	replication_util.h	/^} rep_manager_data;$/;"	t	typeref:struct:rep_manager_data_t
+rep_manager_data_t	replication_util.h	/^typedef struct rep_manager_data_t {$/;"	s
+replica_id	replication_util.h	/^    int replica_id;$/;"	m	struct:factory_message_t
+replica_id	replication_util.h	/^    int replica_id;$/;"	m	struct:replica_node_t
+replica_id	replication_util.h	/^    int replica_id;$/;"	m	struct:replication_manager_message_t
+replica_id	replication_util.h	/^    int replica_id;$/;"	m	struct:replication_manager_t
+replica_id	replication_util.h	/^    long replica_id;$/;"	m	struct:factory_data_t
+replica_node	replication_util.h	/^} replica_node;$/;"	t	typeref:struct:replica_node_t
+replica_node_t	replication_util.h	/^typedef struct replica_node_t {$/;"	s
+replica_state	replication_util.h	/^enum replica_state {$/;"	g
+replication_manager	replication_util.h	/^} replication_manager;$/;"	t	typeref:struct:replication_manager_t
+replication_manager_ip	replication_util.h	/^    char *replication_manager_ip;$/;"	m	struct:factory_data_t
+replication_manager_message	replication_util.h	/^} replication_manager_message;$/;"	t	typeref:struct:replication_manager_message_t
+replication_manager_message_t	replication_util.h	/^typedef struct replication_manager_message_t {$/;"	s
+replication_manager_port	replication_util.h	/^    char *replication_manager_port;$/;"	m	struct:factory_data_t
+replication_manager_t	replication_util.h	/^typedef struct replication_manager_t{$/;"	s
+req	replication_util.h	/^    enum factory_req req;$/;"	m	struct:factory_message_t	typeref:enum:factory_message_t::factory_req
+req	server.h	/^    client_request_t req;$/;"	m	struct:_client_ctx
+req_no	c_s_iface.h	/^    int req_no;$/;"	m	struct:message_remove
+req_no	c_s_iface.h	/^    int req_no;$/;"	m	struct:message_response
+req_no	c_s_iface.h	/^    uint64_t req_no;$/;"	m	struct:_client_request
+request_no_g	client.c	/^int request_no_g = 0;$/;"	v
+response_no_g	client.c	/^int response_no_g = 0;$/;"	v
+restart_server	replication_manager.c	/^int restart_server(int replica_id) {$/;"	f
+run	worker.c	/^void *run(void *argp)$/;"	f
+search_list	db.c	/^static data_point *search_list(uint32_t hash, uint64_t key) {$/;"	f	file:
+section	confuse.h	/^	cfg_t *section;		\/**< section value *\/$/;"	m	union:cfg_value_t
+send_and_get_response	client.c	/^int send_and_get_response(char *buf, struct message_response *response) {$/;"	f
+send_rep_manager	local_f_detector.c	/^int send_rep_manager(char *buf, replication_manager_message message) {$/;"	f
+server	client.c	/^    struct server_info server[3];$/;"	m	struct:all_servers	typeref:struct:all_servers::server_info	file:
+server	local_f_detector.c	/^struct server_info server;$/;"	v	typeref:struct:server_info
+server_arr	client.c	/^struct all_servers server_arr;$/;"	v	typeref:struct:all_servers
+server_ctx_t	server.h	/^} server_ctx_t;$/;"	t	typeref:struct:_server_ctx
+server_info	util.h	/^struct server_info {$/;"	s
+server_ip	replication_util.h	/^    char *server_ip;$/;"	m	struct:factory_data_t
+server_ip	replication_util.h	/^    char *server_ip;$/;"	m	struct:rep_manager_data_t
+server_ip	util.h	/^    char server_ip[1024];$/;"	m	struct:server_info
+server_log_t	log.h	/^} server_log_t;$/;"	t	typeref:struct:_server_log
+sigchld_handler	factory.c	/^void sigchld_handler(int sig)  {$/;"	f
+simple_value	confuse.h	/^	cfg_simple_t simple_value;	\/**< Pointer to user-specified variable to$/;"	m	struct:cfg_opt_t
+sock_buf_read	util.h	/^} sock_buf_read;$/;"	t	typeref:struct:buf_fd
+sock_read	util.c	/^ssize_t sock_read(sock_buf_read *ptr, void *buf, size_t n) {$/;"	f
+sock_readline	util.c	/^ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n) {$/;"	f
+sock_readn	util.c	/^ssize_t sock_readn(int fd, void *buf, size_t n) {$/;"	f
+sock_writen	util.c	/^ssize_t sock_writen(int fd, const void *buf, size_t n) {$/;"	f
+spawn_fault_detector	factory.c	/^int spawn_fault_detector(char* path) {$/;"	f
+spawn_server	factory.c	/^int spawn_server(char* path) {$/;"	f
+spawned_server_ip	replication_util.h	/^    char *spawned_server_ip;$/;"	m	struct:factory_data_t
+spawned_server_port	replication_util.h	/^    char *spawned_server_port;$/;"	m	struct:factory_data_t
+start_worker_threads	worker.c	/^int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, $/;"	f
+state	replication_util.h	/^    enum replica_state state;$/;"	m	struct:replica_node_t	typeref:enum:replica_node_t::replica_state
+state	replication_util.h	/^    enum replica_state state;$/;"	m	struct:replication_manager_message_t	typeref:enum:replication_manager_message_t::replica_state
+status	c_s_iface.h	/^    char status[TASK_LENGTH];$/;"	m	struct:message_response
+storage_deinit	storage.c	/^void storage_deinit() { hash_table_deinit(); }$/;"	f
+storage_init	storage.c	/^int storage_init() { return hash_table_init(); }$/;"	f
+storage_lock	server.c	/^static pthread_mutex_t storage_lock;$/;"	v	file:
+str_to_int	util.c	/^int str_to_int(char *str, int *res) {$/;"	f
+string	confuse.h	/^	char **string;$/;"	m	union:cfg_simple_t
+string	confuse.h	/^	char *string;		\/**< string value *\/$/;"	m	union:cfg_value_t
+string	confuse.h	/^	const char *string;	\/**< default string value *\/$/;"	m	struct:cfg_defvalue_t
+subopts	confuse.h	/^	cfg_opt_t *subopts;	\/**< Suboptions (only applies to sections) *\/$/;"	m	struct:cfg_opt_t
+svr_log	server.c	/^server_log_t svr_log;$/;"	v
+t_status	c_s_iface.h	/^enum t_status {$/;"	g
+take_lq_lock	log.c	/^void take_lq_lock(server_log_t *svr)$/;"	f
+task	c_s_iface.h	/^    char task[1024];$/;"	m	struct:_client_request
+task	c_s_iface.h	/^    char task[TASK_LENGTH];$/;"	m	struct:message_add
+task	c_s_iface.h	/^    char task[TASK_LENGTH];$/;"	m	struct:message_modify
+task	c_s_iface.h	/^    char task[TASK_LENGTH];$/;"	m	struct:message_remove
+task_date	c_s_iface.h	/^    char task_date[DATE_LENGTH];$/;"	m	struct:message_add
+task_len	c_s_iface.h	/^    uint64_t task_len;$/;"	m	struct:_client_request
+task_status	c_s_iface.h	/^    enum t_status task_status;$/;"	m	struct:_client_request	typeref:enum:_client_request::t_status
+task_status	c_s_iface.h	/^    enum t_status task_status;$/;"	m	struct:message_add	typeref:enum:message_add::t_status
+task_status	db.h	/^    enum t_status task_status;$/;"	m	struct:data_point_	typeref:enum:data_point_::t_status
+title	confuse.h	/^	char *title;	        \/**< Optional title for this section, only$/;"	m	struct:cfg_t
+type	confuse.h	/^	cfg_type_t type;	\/**< Type of option *\/$/;"	m	struct:cfg_opt_t
+val	log.h	/^    void *val;$/;"	m	struct:_log_node
+validate_input_from_user	client.c	/^int validate_input_from_user(int choice) {$/;"	f
+validcb	confuse.h	/^	cfg_validate_callback_t  validcb;  \/**< Value validating parsing callback function *\/$/;"	m	struct:cfg_opt_t
+validcb2	confuse.h	/^	cfg_validate_callback2_t validcb2; \/**< Value validating set callback function *\/$/;"	m	struct:cfg_opt_t
+values	confuse.h	/^	cfg_value_t **values;	\/**< Array of found values *\/$/;"	m	struct:cfg_opt_t
+verbose	factory.c	/^long verbose = 0;$/;"	v
+verbose	replication_manager.c	/^long verbose = 0;$/;"	v
+verbose	server.c	/^int verbose = 0;$/;"	v
+write_client_responce	server.c	/^void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {$/;"	f
