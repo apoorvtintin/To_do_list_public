@@ -123,7 +123,6 @@ void *heartbeat_signal(void *vargp) {
 
         get_response_from_server(clientfd, &response);
         
-
         status = parse_response_from_server(&response, client_id);
         if (status < 0) {
             printf("Heartbeat response not received: Server not active\n");

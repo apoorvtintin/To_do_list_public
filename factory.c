@@ -225,7 +225,6 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
             fprintf(stderr, "Malformed key value received in request!!!\n");
             return -1;
         }
-        printf("buf %s\n", msg_buf);
         if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
