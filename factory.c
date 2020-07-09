@@ -108,6 +108,10 @@ int factory_init(char *server_path, char *fault_detector_path) {
         fprintf(stderr, "Spawn error");
         return -1;
     }
+    if(spawn_server(server_path)) {
+        fprintf(stderr, "Spawn error");
+        return -1;
+    }
     outfile_append = 0; // next spawns will append file
     return 0;
 }
