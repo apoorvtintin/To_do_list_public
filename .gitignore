@@ -5,3 +5,4 @@ client
 local_f_detector
 factory
 replication_manager
+tmp/*

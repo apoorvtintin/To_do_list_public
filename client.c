@@ -399,7 +399,7 @@ void parse_and_prepare_server_array(char *file) {
             i++;
             memset(line, 0, 1024);
             memset(temp, 0, 1024);
-            server_arr.count = i + 1;
+            server_arr.count = i;
             continue;
         }
 

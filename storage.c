@@ -47,12 +47,24 @@ int storage_init() { return hash_table_init(); }
 
 void storage_deinit() { hash_table_deinit(); }
 
+void export_db(char *file) {
+	export_db_internal(file);
+	return;
+}
+
+void import_db(char *file) {
+	import_db_internal(file);
+	printf("Import DB\n");
+	return;
+}
+
 int handle_storage(client_ctx_t *client_ctx) {
     client_request_t *req = &client_ctx->req;
     msg_type_t msg_type = req->msg_type;
     int ret = 0;
     uint8_t *buffer;
     uint64_t old_key;
+
     switch (msg_type) {
     case MSG_ADD:
         req->hash_key =
@@ -79,5 +91,6 @@ int handle_storage(client_ctx_t *client_ctx) {
     default:
         ret = -1;
     }
+	printf("handle storage return\n");
     return ret;
 }

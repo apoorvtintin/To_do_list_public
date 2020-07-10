@@ -45,4 +45,8 @@ int hash_table_init();
 
 void hash_table_deinit();
 
+void export_db_internal(char *file);
+
+void import_db_internal(char *file);
+
 /* EOF */
