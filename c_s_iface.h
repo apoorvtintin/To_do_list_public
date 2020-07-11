@@ -33,7 +33,8 @@ typedef enum _msg_type {
     MSG_MODIFY,
     MSG_GET_ALL,
     MSG_REMOVE,
-    MSG_HEARTBEAT
+    MSG_HEARTBEAT,
+    MSG_CHK_PT
 } msg_type_t;
 
 struct message_add {
@@ -68,6 +69,12 @@ struct message_response {
 
 #define MAXMSGSIZE sizeof(struct message_modify)
 
+typedef struct _payload
+{
+    char *data;
+    int64_t size;
+} payload_t;
+
 typedef struct _client_request {
     msg_type_t msg_type;
     char task[1024];
@@ -77,5 +84,7 @@ typedef struct _client_request {
     uint64_t task_len;
     uint64_t hash_key;
     uint64_t req_no;
+    payload_t payload;
+    char filename[1024];
 } client_request_t;
 #endif

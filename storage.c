@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "c_s_iface.h"
 #include "db.h"
@@ -52,10 +55,9 @@ void export_db(char *file) {
 	return;
 }
 
-void import_db(char *file) {
-	import_db_internal(file);
+int import_db(char *file) {
 	printf("Import DB\n");
-	return;
+	return import_db_internal(file);
 }
 
 int handle_storage(client_ctx_t *client_ctx) {
@@ -88,6 +90,11 @@ int handle_storage(client_ctx_t *client_ctx) {
     case MSG_HEARTBEAT:
         ret = 0;
         break;
+    case MSG_CHK_PT:
+        {
+            ret = import_db(client_ctx->req.filename);
+            //remove(client_ctx->req.filename);
+        }
     default:
         ret = -1;
     }

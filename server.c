@@ -8,6 +8,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+ #include <signal.h>
 
 #include "c_s_iface.h"
 #include "local_f_detector.h"
@@ -19,7 +23,12 @@
 
 // Global variables
 int verbose = 0;
+int is_primary = 0;
 server_log_t svr_log;
+bsvr_ctx bckup_svr[2];
+int server_id;
+uint64_t chk_point_num;
+int msg_count = 0;
 
 static pthread_mutex_t storage_lock;
 
@@ -151,6 +160,14 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
             fprintf(stderr, "Req No Conversion failed!!!\n");
             return -1;
         }
+    } else if(strcmp(key, "Data Length") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.payload.size) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!!\n");
+            return -1;
+        }
+        
     }
 
     return 0;
@@ -161,6 +178,11 @@ int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
     node->val = client_ctx;
     log_msg_type m_type =
         (client_ctx->req.msg_type == MSG_HEARTBEAT) ? CONTROL : NORMAL;
+    if(client_ctx->req.msg_type == MSG_CHK_PT)
+    {
+        // if checkpoint enquequ into both control and normal queues
+        enqueue(svr, node, CONTROL);
+    }
     return enqueue(svr, node, m_type);
 }
 void *handle_connection(void *arg) {
@@ -204,26 +226,44 @@ void *handle_connection(void *arg) {
         }
         ++input_fields_counter;
     }
-// TODO: put a check to see if all the required fields are present.
-// Handle strorage in database
-#if 0
-    pthread_mutex_lock(&storage_lock);
-    print_user_req(client_ctx, "Req");
-
-    if (handle_storage(client_ctx) != 0) {
-        printf("ERROR: handle storage failed\n");
-        write_client_responce(client_ctx, "FAIL", "Check inputs");
-    } else {
-        // printf("handle storage success\n");
+    client_ctx->req.payload.data = malloc(client_ctx->req.payload.size);
+    if(client_ctx->req.payload.data < 0)
+    {
+        fprintf(stderr, "run out of mem !!!\n");
+        goto _EXIT;
     }
-    print_user_req(client_ctx, "Res");
-
-    pthread_mutex_unlock(&storage_lock);
-
-    //
-    // send responce.
-    write_client_responce(client_ctx, "OK", "Success");
-#endif
+    if(client_ctx->req.payload.size != 0)
+    {
+        int n = 0; 
+        int toread = client_ctx->req.payload.size;
+        int nread = 0;
+        while((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) >= 0)
+        {
+             memcpy(client_ctx->req.payload.data + nread, msg_buf, 
+                     (toread < n ? toread: n));
+             nread += n;
+             toread -= n;     
+             if(toread == 0)
+               break;  
+        }
+    }
+    if(client_ctx->req.payload.size != 0)
+    {
+        char filename[64];
+        snprintf(filename, sizeof(filename), "tmp-%d", rand());
+        int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU  | S_IRUSR  
+                | S_IWUSR 
+                | S_IXUSR | S_IRWXG | S_IRGRP | S_IWGRP | S_IXGRP | S_IRWXO 
+                | S_IROTH | S_IWOTH | S_IXOTH);
+        write(fd, client_ctx->req.payload.data, client_ctx->req.payload.size);
+        close(fd);
+        memset(client_ctx->req.filename,0, sizeof(client_ctx->req.filename));
+        strncpy(client_ctx->req.filename, filename, 
+                sizeof(client_ctx->req.filename));
+    }
+        //import_db(client_ctx->req.filename);
+// TODO: put a check to see if all the required fields are present.
+//
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
         fprintf(stderr, "Enqueue failed !!!\n");
         goto _EXIT;
@@ -254,7 +294,7 @@ void *execute_msg(void *arg) {
         // printf("handle storage success\n");
     }
     print_user_req(client_ctx, "Res");
-
+    msg_count++;
     pthread_mutex_unlock(&storage_lock);
 
     //
@@ -264,6 +304,10 @@ void *execute_msg(void *arg) {
     if (client_ctx->fd >= 0) {
         close(client_ctx->fd);
         client_ctx->fd = -1;
+    }
+    if(client_ctx->req.payload.size > 0)
+    {
+        free(client_ctx->req.payload.data);
     }
     if (client_ctx) {
         free(client_ctx);
@@ -284,9 +328,97 @@ void init_client_ctx(client_ctx_t *ctx) {
     memset(&ctx->req, 0, sizeof(ctx->req));
     return;
 }
+void open_ports_secondary()
+{
+    init_bsvr_ctx(&bckup_svr[0]);
+    init_bsvr_ctx(&bckup_svr[1]);
+    // Hard coded for now;
+    // take this info dynamically from somewhere else later
+    memcpy(bckup_svr[0].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
+    bckup_svr[0].info.port = 15213; 
+    if( (bckup_svr[0].fd = connect_to_server(&bckup_svr[0].info))
+            < 0)
+    {
+        fprintf(stderr, "failed open channel to backup server!!\n");
+        exit(0);
+    }
 
+    memcpy(bckup_svr[1].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
+    bckup_svr[1].info.port = 15214; 
+    if( (bckup_svr[1].fd = connect_to_server(&bckup_svr[1].info))
+            < 0)
+    {
+        fprintf(stderr, "failed open channel to backup server!!\n");
+        exit(0);
+    }
+}
+int write_check_point(bsvr_ctx *ctx, char *chk_file_name)
+{
+    char buffer[MAX_LENGTH];
+        int fd = -1, n;
+    fd = open(chk_file_name, O_RDONLY);
+    if(fd < 0)
+    {
+        fprintf(stderr, "open of check point failed.\n");
+        return -1;
+    }
+    char resp_buf[MAX_LENGTH];
+    int resp_len =
+        snprintf(resp_buf, sizeof(resp_buf), 
+                "Client ID: %d\r\n"
+                "Request No: %lu\r\n"
+                "Message Type: %d\r\n"
+                "Data Length: %lu\r\n"
+                "\r\n",
+                server_id, chk_point_num, MSG_CHK_PT,
+                get_file_size(chk_file_name));
+    if(write(ctx->fd, resp_buf, resp_len) < 0)
+    {
+            fprintf(stderr, "failed writing checkpoint\n");
+        goto _END;
+    }
+    while((n = read(fd, buffer, MAX_LENGTH)) > 0)
+    {
+        if(write(ctx->fd, buffer, n) < 0)
+        {
+            fprintf(stderr, "failed writing checkpoint\n");
+            goto _END; 
+        }
+    }
+_END:
+    close(fd);
+    return 0;
+
+
+}
+void * send_checkpoint(void *argvp)
+{
+    while(1)
+    {
+        if(msg_count < 2)
+        {
+            sleep(1);
+            continue;
+        }
+        msg_count = 0;
+        open_ports_secondary();
+
+        // Add code to get the checkpoint
+        pthread_mutex_lock(&storage_lock);
+        char checkpoint_file_name[MAX_LENGTH];
+        export_db(checkpoint_file_name);
+        pthread_mutex_unlock(&storage_lock);
+        for(unsigned int i = 0; i < sizeof(bckup_svr)/sizeof(bsvr_ctx); i++)
+        {
+            write_check_point(&bckup_svr[i], checkpoint_file_name); 
+            close(bckup_svr[i].fd);
+        }
+    }
+    return (void *)0;
+}
 int main(int argc, char *argv[]) {
-    int listen_fd = -1, optval = 1, accept_ret_val = -1, opt;
+    signal(SIGPIPE, SIG_IGN);
+    int listen_fd = -1, optval = 1, accept_ret_val = -1;
     struct sockaddr_in server_addr;
 
     if (argc < 3) {
@@ -294,19 +426,13 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    while ((opt = getopt(argc, argv, "v:")) != -1) {
-        switch (opt) {
-        case 'v':
-            verbose = atoi(optarg);
-            break;
-        }
-    }
+    is_primary = atoi(argv[3]);
+    server_id = atoi(argv[4]);
     if (verbose > 5 || verbose < 0) {
         fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
     }
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
-    printf("%s ip strlen %lu\n", argv[1], strlen(argv[1]));
     if (inet_pton(AF_INET, argv[1], &server_addr.sin_addr.s_addr) != 1) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
@@ -332,7 +458,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "listen() failed. Reason: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
-
+    if(is_primary)
+    {
+        pthread_t id;
+        pthread_create(&id, NULL, send_checkpoint, NULL);
+    }
     struct sockaddr client_addr;
     socklen_t client_addr_len;
     pthread_t th_id;
@@ -340,7 +470,8 @@ int main(int argc, char *argv[]) {
 
     init_log_queue(&svr_log, 50, 50);
 
-    if (start_worker_threads(&svr_log, execute_msg, execute_msg) != 0) {
+    if (start_worker_threads(&svr_log, execute_msg, execute_msg, !is_primary) 
+            != 0) {
         fprintf(stderr, "Failed to start the worker thread\n");
         exit(-1);
     }

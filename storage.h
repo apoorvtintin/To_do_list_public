@@ -17,4 +17,4 @@ int handle_storage(client_ctx_t *client_ctx);
 
 void export_db(char *file);
 
-void import_db(char *file);
+int import_db(char *file);

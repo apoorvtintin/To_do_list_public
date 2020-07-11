@@ -221,6 +221,28 @@ char *get_msg_type_str(msg_type_t msg_type) {
         return "MSG_REMOVE";
     case MSG_HEARTBEAT:
         return "MSG_HEARTBEAT";
+    case MSG_CHK_PT:
+        return "MSG_CHK_PT";
     };
     return "NA_NA";
+}
+ void init_bsvr_ctx(bsvr_ctx *obj)
+{
+    return 0;
+    obj->fd = -1;
+    memset(&obj->info, 0, sizeof(obj->info));
+}
+
+unsigned long get_file_size(char *filename) 
+{
+   FILE* fp = fopen(filename, "r"); 
+   if (fp == NULL)
+   {
+      fprintf(stderr, "File Not Found!\n");
+      return -1;
+   }
+   fseek(fp, 0L, SEEK_END);
+   unsigned long res = ftell(fp); //counting the size of the file
+   fclose(fp); //closing the file
+   return res;
 }

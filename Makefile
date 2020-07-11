@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS  = -pthread -Wall -Werror -g -DM_THRD_LQ
+CFLAGS  = -pthread -Wall -Werror -g -DM_THRD_LQ -std=c99
 LLVM_PATH = /usr/local/depot/llvm-3.9.1/bin/
 #LLVM_PATH = /Users/phani/code/llvm-project/build/bin/
 

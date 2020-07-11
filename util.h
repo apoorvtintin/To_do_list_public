@@ -21,6 +21,12 @@ struct server_info {
     int port;
 };
 
+typedef struct _bsvr_ctx
+{
+    int fd;
+    struct server_info info;
+} bsvr_ctx;
+
 // Socket Read and write funnctions which account for
 // short counts.
 // reference: CSAPP:3e
@@ -36,5 +42,8 @@ int parse_response_from_server(struct message_response *response,
                                int client_id);
 char *get_task_status_str(enum t_status stat);
 char *get_msg_type_str(msg_type_t msg_type);
+
+unsigned long get_file_size(char *filename); 
+void init_bsvr_ctx(bsvr_ctx *obj);
 
 #endif

@@ -15,6 +15,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdlib.h>
 
 #include "c_s_iface.h"
 #include "local_f_detector.h"
@@ -96,12 +99,13 @@ int factory_init(char *server_path, char *fault_detector_path) {
         fprintf(stderr, "servre path NULL\n");
         return -1;
     }
-
+#if 0
     // Create environment variable
     if (putenv("MY_ENV=42") < 0) {
         perror("putenv error");
         exit(1);
     }
+#endif
 
     // Handles terminated or stopped child
     signal(SIGCHLD, sigchld_handler);

@@ -196,12 +196,12 @@ void export_db_internal(char *file) {
 	fclose(fptr);
 	file_counter++;
 
-	memcpy(file, filename, 1024);
+	memcpy(file, filename, 100);
 
 	return;
 }
 
-void import_db_internal(char *file) {
+int import_db_internal(char *file) {
 	uint64_t key = 0;
 	uint8_t data[1024];
 	uint64_t len = 0;
@@ -260,7 +260,7 @@ void import_db_internal(char *file) {
 	}
 
 	fclose(fptr);
-	return;
+	return 0;
 }
 
 /* EOF */

@@ -7,7 +7,16 @@
 
 #ifndef _SERVER_H_
 #define _SERVER_H_
-
+#include <arpa/inet.h>
+#include <errno.h>
+#include <getopt.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 typedef struct _server_ctx {
     int fd;
     struct sockaddr_in addr;
