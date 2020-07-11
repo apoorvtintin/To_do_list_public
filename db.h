@@ -49,4 +49,6 @@ void export_db_internal(char *file);
 
 int import_db_internal(char *file);
 
+void print_state_internal();
+
 /* EOF */

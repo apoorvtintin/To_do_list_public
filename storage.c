@@ -60,6 +60,11 @@ int import_db(char *file) {
 	return import_db_internal(file);
 }
 
+void print_state() {
+	print_state_internal();
+	return;
+}
+
 int handle_storage(client_ctx_t *client_ctx) {
     client_request_t *req = &client_ctx->req;
     msg_type_t msg_type = req->msg_type;
