@@ -89,7 +89,10 @@ ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n) {
     size_t nleft = n;
     char *out_buffer = buf;
     while (nleft > 0) {
-        sock_read(ptr, &c, 1);
+        if(sock_read(ptr, &c, 1)== 0)
+        {
+            return n - nleft;
+        }
         out_buffer[n - nleft] = c;
         nleft -= 1;
         if (c == '\n') {
@@ -145,7 +148,7 @@ int get_response_from_server(int clientfd, struct message_response *response) {
 
     // printf("\n**********\n");
 
-    while ((readn = sock_readline(&client_fd, resp_buf, MAX_LENGTH)) > 0) {
+    while ((readn = sock_readline(&client_fd, resp_buf, MAX_LENGTH)) >= 0) {
 		if (readn == 0) {
 			return -1;
 		}
@@ -232,7 +235,6 @@ char *get_msg_type_str(msg_type_t msg_type) {
 }
  void init_bsvr_ctx(bsvr_ctx *obj)
 {
-    return 0;
     obj->fd = -1;
     memset(&obj->info, 0, sizeof(obj->info));
 }

@@ -35,13 +35,13 @@ void *run(void *argp) {
     server_log_t *svr = (server_log_t *)gs_server_log;
     int prio = (int)argp;
     while (1) {
-        size_t n_count = (prio == NORMAL) ? get_count(svr, NORMAL) : 0,
-               c_count = (prio == CONTROL) ? get_count(svr, CONTROL) : 0;
         if(is_passive && (prio == NORMAL))
         {
             sleep(1);
             continue;
         }
+        size_t n_count = (prio == NORMAL) ? get_count(svr, NORMAL) : 0,
+               c_count = (prio == CONTROL) ? get_count(svr, CONTROL) : 0;
         if ((n_count == 0) && (c_count == 0)) {
             // sleep for 1 sec;
             sleep(1);
@@ -66,6 +66,7 @@ void *run(void *argp) {
                             {
                                 hdl_nrl(node->val);
                                 free(node1);
+                                break;
                             }
 
                         }
@@ -100,10 +101,11 @@ void *run(void *argp) {
 
 
 int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2, 
-        int is_passive) {
+        int p_is_passive) {
     if (svr == NULL) {
         return -1;
     }
+    is_passive = p_is_passive;
     gs_server_log = svr;
     hdl_nrl = f1;
     hdl_ctrl = f2;

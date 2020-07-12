@@ -181,7 +181,10 @@ int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
     if(client_ctx->req.msg_type == MSG_CHK_PT)
     {
         // if checkpoint enquequ into both control and normal queues
-        enqueue(svr, node, CONTROL);
+        log_node_t *node1 = malloc(sizeof(log_node_t));
+        node1->val = client_ctx;
+        fprintf(stderr, "enqueue into ctrl queue\n");
+        enqueue(svr, node1, CONTROL);
     }
     return enqueue(svr, node, m_type);
 }
@@ -202,6 +205,7 @@ void *handle_connection(void *arg) {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
         if (msg_len == 0) {
             // The client closed the connection we should to.
+            fprintf(stderr, "Client close connection!!\n");
             goto _EXIT;
         }
 
@@ -237,7 +241,7 @@ void *handle_connection(void *arg) {
         int n = 0; 
         int toread = client_ctx->req.payload.size;
         int nread = 0;
-        while((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) >= 0)
+        while((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) > 0)
         {
              memcpy(client_ctx->req.payload.data + nread, msg_buf, 
                      (toread < n ? toread: n));
@@ -268,6 +272,10 @@ void *handle_connection(void *arg) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
+    if(!is_primary)
+    {
+        close(client_ctx->fd);
+    }
     return (void *)0;
 _EXIT:
     if (client_ctx->fd >= 0) {
@@ -282,6 +290,7 @@ _EXIT:
 }
 
 void *execute_msg(void *arg) {
+    fprintf(stderr, "Exec_msg called \n");
     client_ctx_t *client_ctx = arg;
 
     pthread_mutex_lock(&storage_lock);
@@ -294,7 +303,7 @@ void *execute_msg(void *arg) {
         // printf("handle storage success\n");
     }
     print_user_req(client_ctx, "Res");
-    if(client_ctx->req.msg_type != MSG_HEARTBEAT)
+    //if(client_ctx->req.msg_type != MSG_HEARTBEAT)
     msg_count++;
     pthread_mutex_unlock(&storage_lock);
 
