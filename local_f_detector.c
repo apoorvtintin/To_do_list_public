@@ -205,7 +205,10 @@ int main(int argc, char *argv[]) {
            heartbeat_interval);
 
     fflush(stdout);
-    while (1) {
+    
+	while (1) {
+		sleep(1);
+#if 0
         printf("\nEnter the new interval below to change it\n");
         printf("\nHeartbeat interval: ");
 
@@ -219,6 +222,7 @@ int main(int argc, char *argv[]) {
 
         printf("Local fault detector changed to %d", interval_g);
         fflush(stdout);
+#endif
     }
 }
 
