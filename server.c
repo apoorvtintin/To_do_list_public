@@ -250,7 +250,7 @@ void *handle_connection(void *arg) {
     if(client_ctx->req.payload.size != 0)
     {
         char filename[64];
-        snprintf(filename, sizeof(filename), "tmp-%d", rand());
+        snprintf(filename, sizeof(filename), "tmp-%d", (rand()*server_id));
         int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU  | S_IRUSR  
                 | S_IWUSR 
                 | S_IXUSR | S_IRWXG | S_IRGRP | S_IWGRP | S_IXGRP | S_IRWXO 
@@ -265,7 +265,7 @@ void *handle_connection(void *arg) {
 // TODO: put a check to see if all the required fields are present.
 //
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
-        fprintf(stderr, "Enqueue failed !!!\n");
+        fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
     return (void *)0;
@@ -413,6 +413,7 @@ void * send_checkpoint(void *argvp)
             write_check_point(&bckup_svr[i], checkpoint_file_name); 
             close(bckup_svr[i].fd);
         }
+        chk_point_num++;
     }
     return (void *)0;
 }
