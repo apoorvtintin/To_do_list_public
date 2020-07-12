@@ -263,4 +263,23 @@ int import_db_internal(char *file) {
 	return 0;
 }
 
+void print_state_internal() {
+	data_point *temp;
+    int index;
+
+	printf("\n---------------  Current State -----------------\n");
+
+    for (index = 0; index < hash_table_len; index++) {
+        temp = htable->data[index];
+        while (temp != NULL) {
+			printf("Key: %lu \t Task: %s \t Status %s\n",
+					temp->key, temp->raw_data,
+					get_task_status_str(temp->task_status));
+            temp = temp->next;
+        }
+    }
+
+	printf("\n-------------------------------------------------\n");
+}
+
 /* EOF */
