@@ -271,7 +271,7 @@ void *handle_connection(void *arg) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
-    if(!is_primary)
+    if(!is_primary && (client_ctx->req.msg_type != MSG_HEARTBEAT))
     {
         close(client_ctx->fd);
     }
@@ -302,7 +302,7 @@ void *execute_msg(void *arg) {
         // printf("handle storage success\n");
     }
     print_user_req(client_ctx, "Res");
-    //if(client_ctx->req.msg_type != MSG_HEARTBEAT)
+    if(client_ctx->req.msg_type != MSG_HEARTBEAT)
     msg_count++;
     pthread_mutex_unlock(&storage_lock);
 
