@@ -131,7 +131,7 @@ int connect_to_server(struct server_info *server) {
     return sockfd;
 }
 
-void get_response_from_server(int clientfd, struct message_response *response) {
+int get_response_from_server(int clientfd, struct message_response *response) {
 
     char resp_buf[MAX_LENGTH];
     char temp[TASK_LENGTH];
@@ -146,6 +146,10 @@ void get_response_from_server(int clientfd, struct message_response *response) {
     // printf("\n**********\n");
 
     while ((readn = sock_readline(&client_fd, resp_buf, MAX_LENGTH)) > 0) {
+		if (readn == 0) {
+			return -1;
+		}
+
         if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
             break;
         }
@@ -177,7 +181,7 @@ void get_response_from_server(int clientfd, struct message_response *response) {
         readn = 0;
     }
 
-    return;
+    return 0;
 }
 
 int parse_response_from_server(struct message_response *response,

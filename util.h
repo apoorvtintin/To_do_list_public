@@ -37,7 +37,7 @@ int str_to_int(char *str, int *res);
 void init_buf_fd(sock_buf_read *ptr, int fd);
 
 int connect_to_server(struct server_info *server);
-void get_response_from_server(int clientfd, struct message_response *response);
+int get_response_from_server(int clientfd, struct message_response *response);
 int parse_response_from_server(struct message_response *response,
                                int client_id);
 char *get_task_status_str(enum t_status stat);
