@@ -294,6 +294,7 @@ void *execute_msg(void *arg) {
         // printf("handle storage success\n");
     }
     print_user_req(client_ctx, "Res");
+    if(client_ctx->req.msg_type != MSG_HEARTBEAT)
     msg_count++;
     pthread_mutex_unlock(&storage_lock);
 
@@ -335,7 +336,7 @@ void open_ports_secondary()
     // Hard coded for now;
     // take this info dynamically from somewhere else later
     memcpy(bckup_svr[0].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
-    bckup_svr[0].info.port = 15213; 
+    bckup_svr[0].info.port = 23457; 
     if( (bckup_svr[0].fd = connect_to_server(&bckup_svr[0].info))
             < 0)
     {
@@ -344,7 +345,7 @@ void open_ports_secondary()
     }
 
     memcpy(bckup_svr[1].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
-    bckup_svr[1].info.port = 15214; 
+    bckup_svr[1].info.port = 23458; 
     if( (bckup_svr[1].fd = connect_to_server(&bckup_svr[1].info))
             < 0)
     {

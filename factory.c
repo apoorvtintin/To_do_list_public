@@ -253,8 +253,10 @@ int handle_rep_man_command(factory_message message) {
 
 int spawn_server(char *path) {
     // command line arguments
+    char buf[10];
+    snprintf(buf, 10, "%lu", f_data.replica_id);
     char *newargv[] = {path, f_data.spawned_server_ip,
-                       f_data.spawned_server_port, NULL};
+                       f_data.spawned_server_port, (f_data.replica_id == 0)?"1":"0", buf, NULL};
     char filename[1024];
     int ofd;
     int olderr = errno;

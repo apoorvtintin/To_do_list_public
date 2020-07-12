@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
         memcpy(&conn_client_ctx.addr, &client_addr, sizeof(struct sockaddr_in));
 
         handle_fault_detector_message(&conn_client_ctx);
+        close(accept_ret_val);
     }
     return 0;
 }
