@@ -78,9 +78,10 @@ ssize_t sock_read(sock_buf_read *ptr, void *buf, size_t n) {
     if (ptr->bytes_pend != 0) {
         memcpy(buf, ptr->buf_ptr,
                ((n < ptr->bytes_pend) ? n : ptr->bytes_pend));
+        size_t ret_val = ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
         ptr->bytes_pend -= ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
         ptr->buf_ptr += ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
-        return ((n < ptr->bytes_pend) ? n : ptr->bytes_pend);
+        return ret_val;
     }
     return 0;
 }

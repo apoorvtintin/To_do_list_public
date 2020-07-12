@@ -181,10 +181,9 @@ int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
     if(client_ctx->req.msg_type == MSG_CHK_PT)
     {
         // if checkpoint enquequ into both control and normal queues
-        log_node_t *node1 = malloc(sizeof(log_node_t));
-        node1->val = client_ctx;
-        fprintf(stderr, "enqueue into ctrl queue\n");
-        enqueue(svr, node1, CONTROL);
+        //log_node_t *node1 = malloc(sizeof(log_node_t));
+        //node1->val = client_ctx;
+        enqueue(svr, node, CONTROL);
     }
     return enqueue(svr, node, m_type);
 }
@@ -241,12 +240,13 @@ void *handle_connection(void *arg) {
         int n = 0; 
         int toread = client_ctx->req.payload.size;
         int nread = 0;
-        while((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) > 0)
+
+        while((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) >= 0)
         {
              memcpy(client_ctx->req.payload.data + nread, msg_buf, 
                      (toread < n ? toread: n));
              nread += n;
-             toread -= n;     
+             toread -= (toread < n ? toread: n);     
              if(toread == 0)
                break;  
         }
@@ -254,7 +254,7 @@ void *handle_connection(void *arg) {
     if(client_ctx->req.payload.size != 0)
     {
         char filename[64];
-        snprintf(filename, sizeof(filename), "tmp-%d", (rand()*server_id));
+        snprintf(filename, sizeof(filename), "tmp-%u", (rand()*server_id));
         int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU  | S_IRUSR  
                 | S_IWUSR 
                 | S_IXUSR | S_IRWXG | S_IRGRP | S_IWGRP | S_IXGRP | S_IRWXO 
@@ -265,7 +265,6 @@ void *handle_connection(void *arg) {
         strncpy(client_ctx->req.filename, filename, 
                 sizeof(client_ctx->req.filename));
     }
-        //import_db(client_ctx->req.filename);
 // TODO: put a check to see if all the required fields are present.
 //
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
@@ -387,8 +386,10 @@ int write_check_point(bsvr_ctx *ctx, char *chk_file_name)
             fprintf(stderr, "failed writing checkpoint\n");
         goto _END;
     }
+    int sent = 0;
     while((n = read(fd, buffer, MAX_LENGTH)) > 0)
     {
+        sent += n;
         if(write(ctx->fd, buffer, n) < 0)
         {
             fprintf(stderr, "failed writing checkpoint\n");
