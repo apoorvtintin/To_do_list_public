@@ -218,6 +218,11 @@ int import_db_internal(char *file) {
 	memset(data, 0, 1024);
 	memset(temp_1, 0, 1024);
 
+	// Clean up the DB
+	
+	hash_table_deinit();
+	hash_table_init();
+
 	fptr = fopen(file, "r");
 	if (fptr < 0) {
 		printf("File not opened: %s",strerr(errno));
