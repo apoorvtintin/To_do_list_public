@@ -129,7 +129,7 @@ int hash_table_get_all(uint8_t *buffer) {
 
 int hash_table_init() {
     int index;
-    htable = malloc(sizeof(htable));
+    htable = (hash_table *)malloc(sizeof(hash_table));
     htable->data_size = 0;
     for (index = 0; index < hash_table_len; index++) {
         htable->data[index] = NULL;
@@ -147,7 +147,8 @@ void hash_table_deinit() {
             free(cur);
         }
     }
-    free(htable);
+    
+	free(htable);
 }
 
 int hash_table_get_dat_size() { return htable->data_size; }
@@ -192,6 +193,7 @@ void export_db_internal(char *file) {
 			temp = temp->next;
 		}
 	}
+	fprintf(fptr, "FILE_END\n");
 
 	fclose(fptr);
 	file_counter++;
@@ -202,6 +204,7 @@ void export_db_internal(char *file) {
 }
 
 int import_db_internal(char *file) {
+	FILE *file_ptr;
 	uint64_t key = 0;
 	uint8_t data[1024];
 	uint64_t len = 0;
@@ -211,7 +214,6 @@ int import_db_internal(char *file) {
 	char *endptr;
 	int base = 10;
 	int status;
-	FILE *fptr;
 
 	memset(line, 0, 1024);
 	memset(temp, 0, 1024);
@@ -219,17 +221,17 @@ int import_db_internal(char *file) {
 	memset(temp_1, 0, 1024);
 
 	// Clean up the DB
-	
 	hash_table_deinit();
 	hash_table_init();
 
-	fptr = fopen(file, "r");
-	if (fptr < 0) {
+	file_ptr = fopen(file, "r");
+	if (file_ptr < 0) {
 		printf("File not opened: %s",strerr(errno));
 		return;
 	}
+	printf("File opened %s\n", file);
 
-	while(fgets(line, 1024, fptr)) {
+	while(fgets(line, 1024, file_ptr)) {
 		if (!strncmp(line, "DATA_END", strlen("DATA_END"))) {
 			key = strtoull(temp_1, &endptr, base);
 			status = hash_table_insert(key, data, len);
@@ -264,7 +266,7 @@ int import_db_internal(char *file) {
 		memset(temp, 0, 1024);
 	}
 
-	fclose(fptr);
+	fclose(file_ptr);
 	return 0;
 }
 
