@@ -183,6 +183,8 @@ int main(int argc, char *argv[]) {
         if (accept_ret_val < 0) {
             if (errno == ECONNABORTED) {
                 continue;
+			} else if (errno == EINTR) {
+				continue;
             } else {
                 fprintf(stderr, "Error on accept exiting. Reason: %s\n",
                         strerror(errno));
@@ -193,6 +195,7 @@ int main(int argc, char *argv[]) {
         conn_client_ctx.fd = accept_ret_val;
         memcpy(&conn_client_ctx.addr, &client_addr, sizeof(struct sockaddr_in));
         handle_replication_manager_message(conn_client_ctx);
+		close(accept_ret_val);
     }
     return 0;
 }
