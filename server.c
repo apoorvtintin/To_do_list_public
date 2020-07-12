@@ -289,7 +289,6 @@ _EXIT:
 }
 
 void *execute_msg(void *arg) {
-    fprintf(stderr, "Exec_msg called \n");
     client_ctx_t *client_ctx = arg;
 
     pthread_mutex_lock(&storage_lock);
@@ -345,6 +344,7 @@ void open_ports_secondary()
     // take this info dynamically from somewhere else later
     memcpy(bckup_svr[0].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
     bckup_svr[0].info.port = 23457; 
+    bckup_svr[0].server_id = 1; 
     if( (bckup_svr[0].fd = connect_to_server(&bckup_svr[0].info))
             < 0)
     {
@@ -354,6 +354,7 @@ void open_ports_secondary()
 
     memcpy(bckup_svr[1].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
     bckup_svr[1].info.port = 23458; 
+    bckup_svr[1].server_id = 2; 
     if( (bckup_svr[1].fd = connect_to_server(&bckup_svr[1].info))
             < 0)
     {
@@ -381,6 +382,11 @@ int write_check_point(bsvr_ctx *ctx, char *chk_file_name)
                 "\r\n",
                 server_id, chk_point_num, MSG_CHK_PT,
                 get_file_size(chk_file_name));
+    fprintf(stderr, "sending checkpint to replica %d\n", ctx->server_id);
+    fprintf(stderr, "\n-------------------------------------------------\n");
+    write(2, resp_buf, resp_len);
+    print_state();
+    fprintf(stderr, "\n-------------------------------------------------\n");
     if(write(ctx->fd, resp_buf, resp_len) < 0)
     {
             fprintf(stderr, "failed writing checkpoint\n");

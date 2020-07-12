@@ -99,12 +99,12 @@ int handle_storage(client_ctx_t *client_ctx) {
     case MSG_CHK_PT:
         {
             ret = import_db(client_ctx->req.filename);
+            ret = 0;
             remove(client_ctx->req.filename);
             print_state();
         }
     default:
         ret = -1;
     }
-	printf("handle storage return\n");
     return ret;
 }

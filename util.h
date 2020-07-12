@@ -25,6 +25,7 @@ typedef struct _bsvr_ctx
 {
     int fd;
     struct server_info info;
+    unsigned int server_id;
 } bsvr_ctx;
 
 // Socket Read and write funnctions which account for
