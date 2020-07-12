@@ -98,7 +98,8 @@ int handle_storage(client_ctx_t *client_ctx) {
     case MSG_CHK_PT:
         {
             ret = import_db(client_ctx->req.filename);
-            //remove(client_ctx->req.filename);
+            remove(client_ctx->req.filename);
+            print_state();
         }
     default:
         ret = -1;
