@@ -72,16 +72,12 @@ int handle_storage(client_ctx_t *client_ctx) {
     int ret = 0;
     uint8_t *buffer;
     uint64_t old_key;
-	char filename[1024] = "tmp/db_export_1";
-	char filename_1[1024] = "tmp/db_export_1024";
 
     switch (msg_type) {
     case MSG_ADD:
         req->hash_key =
             generate_key(req->task, client_ctx->client_id, req->task_len);
         ret = hash_table_insert(req->hash_key, req->task, req->task_len);
-		print_state();
-		export_db(filename_1);
         print_htable();
         break;
     case MSG_MODIFY:
@@ -89,10 +85,8 @@ int handle_storage(client_ctx_t *client_ctx) {
         print_htable();
         break;
     case MSG_REMOVE:
-        //ret = hash_table_delete(req->hash_key);
-        //print_htable();
-		import_db(filename);
-		print_state();
+        ret = hash_table_delete(req->hash_key);
+        print_htable();
         break;
     case MSG_GET_ALL:
         buffer = calloc(hash_table_get_dat_size(), sizeof(uint8_t));
