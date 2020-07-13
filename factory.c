@@ -109,6 +109,10 @@ int factory_init(char *server_path, char *fault_detector_path) {
 
     // Handles terminated or stopped child
     signal(SIGCHLD, sigchld_handler);
+    if (spawn_server(server_path)) {
+        fprintf(stderr, "Spawn error");
+        return -1;
+    }
     if (spawn_fault_detector(fault_detector_path)) {
         fprintf(stderr, "Spawn error");
         return -1;
@@ -278,6 +282,7 @@ int spawn_server(char *path) {
         if (ofd < 0) {
             printf("could not open outfile for server\n");
             errno = olderr;
+            exit(0);
         } else {
             dup2(ofd, STDOUT_FILENO);
             dup2(ofd, STDERR_FILENO);
