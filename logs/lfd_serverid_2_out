@@ -1,0 +1,2476 @@
+Interval 5
+Port 23458
+Replication Manager IP 127.0.0.1 Replication Manager port 12346 Replica ID 2 
+Local fault detector started with 5 interval
+
+Enter the new interval below to change it
+
+Heartbeat interval: 
+Heartbeat response not received: Server not active
+Heartbeat response received for 0 out of 1 requests
+Trying again in 5 sec... 
+
+
+connect failed: Connection refused
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 0 out of 2 requests
+Trying again in 5 sec... 
+
+
+connect failed: Connection refused
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 0 out of 3 requests
+Trying again in 5 sec... 
+
+
+connect failed: Connection refused
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 0 out of 4 requests
+Trying again in 5 sec... 
+
+
+
+Server 2 is running
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    5       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    5       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 1/5
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    6       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    6       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 2/6
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    7       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    7       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 3/7
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    8       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    8       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 4/8
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    9       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    9       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 5/9
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    10       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    10       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 6/10
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    11       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    11       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 7/11
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    12       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    12       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 8/12
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    13       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    13       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 9/13
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    14       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    14       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 10/14
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    15       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    15       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 11/15
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    16       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    16       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 12/16
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    17       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    17       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 13/17
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    18       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    18       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 14/18
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    19       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    19       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 15/19
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    20       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    20       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 16/20
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    21       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    21       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 17/21
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    22       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    22       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 18/22
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    23       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    22       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 19/23
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 19 out of 24 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    25       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    25       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 20/25
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    26       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    26       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 21/26
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 21 out of 27 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    28       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    28       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 22/28
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    29       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    29       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 23/29
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    30       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    30       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 24/30
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    31       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    31       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 25/31
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    32       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    32       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 26/32
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    33       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    33       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 27/33
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 27 out of 34 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    35       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    35       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 28/35
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    36       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    36       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 29/36
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    37       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    37       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 30/37
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 30 out of 38 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    39       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    39       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 31/39
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    40       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    40       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 32/40
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    41       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    41       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 33/41
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    42       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    42       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 34/42
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    43       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    43       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 35/43
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    44       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    44       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 36/44
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    45       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    45       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 37/45
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    46       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    46       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 38/46
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 38 out of 47 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    48       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    48       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 39/48
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    49       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    49       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 40/49
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 40 out of 50 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    51       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    51       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 41/51
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    52       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    52       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 42/52
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    53       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    53       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 43/53
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 43 out of 54 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    55       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    55       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 44/55
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    56       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    56       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 45/56
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 45 out of 57 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    58       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    58       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 46/58
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    59       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    59       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 47/59
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    60       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    60       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 48/60
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    61       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    61       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 49/61
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    62       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    62       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 50/62
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    63       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    63       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 51/63
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    64       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    64       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 52/64
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    65       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    65       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 53/65
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    66       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    66       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 54/66
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    67       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    67       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 55/67
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    68       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    68       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 56/68
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    69       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    69       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 57/69
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 57 out of 70 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    71       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    71       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 58/71
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    72       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    72       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 59/72
+
+Heartbeat response not received: Server not active
+Heartbeat response received for 59 out of 73 requests
+Trying again in 5 sec... 
+
+
+
+Connection to server 2 restored
+
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    74       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    74       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 60/74
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    75       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    75       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 61/75
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    76       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    76       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 62/76
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    77       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    77       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 63/77
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    78       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    78       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 64/78
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    79       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    79       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 65/79
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    80       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    80       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 66/80
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    81       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    81       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 67/81
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    82       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    82       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 68/82
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    83       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    83       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 69/83
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    84       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    84       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 70/84
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    85       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    85       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 71/85
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    86       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    86       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 72/86
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    87       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    87       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 73/87
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    88       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    88       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 74/88
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    89       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    89       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 75/89
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    90       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    90       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 76/90
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    91       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    91       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 77/91
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    92       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    92       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 78/92
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    93       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    93       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 79/93
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    94       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    94       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 80/94
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    95       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    95       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 81/95
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    96       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    96       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 82/96
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    97       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    97       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 83/97
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    98       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    98       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 84/98
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    99       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    99       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 85/99
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    100       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    100       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 86/100
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    101       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    101       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 87/101
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    102       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    102       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 88/102
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    103       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    103       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 89/103
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    104       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    104       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 90/104
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    105       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    105       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 91/105
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    106       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    106       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 92/106
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    107       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    107       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 93/107
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    108       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    108       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 94/108
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    109       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    109       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 95/109
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    110       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    110       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 96/110
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    111       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    111       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 97/111
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    112       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    112       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 98/112
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    113       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    113       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 99/113
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    114       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    114       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 100/114
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    115       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    115       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 101/115
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    116       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    116       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 102/116
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    117       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    117       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 103/117
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    118       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    118       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 104/118
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    119       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    119       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 105/119
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    120       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    120       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 106/120
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    121       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    121       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 107/121
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    122       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    122       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 108/122
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    123       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    123       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 109/123
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    124       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    124       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 110/124
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    125       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    125       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 111/125
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    126       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    126       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 112/126
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    127       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    127       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 113/127
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    128       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    128       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 114/128
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    129       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    129       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 115/129
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    130       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    130       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 116/130
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    131       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    131       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 117/131
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    132       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    132       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 118/132
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    133       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    133       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 119/133
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    134       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    134       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 120/134
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    135       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    135       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 121/135
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    136       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    136       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 122/136
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    137       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    137       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 123/137
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    138       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    138       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 124/138
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    139       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    139       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 125/139
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    140       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    140       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 126/140
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    141       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    141       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 127/141
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    142       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    142       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 128/142
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    143       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    143       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 129/143
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    144       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    144       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 130/144
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    145       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    145       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 131/145
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    146       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    146       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 132/146
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    147       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    147       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 133/147
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    148       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    148       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 134/148
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    149       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    149       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 135/149
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    150       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    150       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 136/150
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    151       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    151       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 137/151
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    152       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    152       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 138/152
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    153       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    153       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 139/153
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    154       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    154       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 140/154
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    155       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    155       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 141/155
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    156       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    156       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 142/156
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    157       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    157       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 143/157
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    158       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    158       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 144/158
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    159       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    159       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 145/159
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    160       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    160       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 146/160
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    161       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    161       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 147/161
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    162       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    162       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 148/162
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    163       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    163       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 149/163
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    164       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    164       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 150/164
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    165       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    165       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 151/165
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    166       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    166       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 152/166
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    167       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    167       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 153/167
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    168       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    168       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 154/168
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    169       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    169       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 155/169
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    170       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
+INFORMED RUNNING
+---------------------------------------
+|  Direction        | 	    Reply    
+|  Request No       | 	    170       
+|  Client ID        | 	    0      
+|  Status           | 	    OK      
+---------------------------------------
+
+Heatbeats received: 156/170
+---------------------------------------
+|  Direction        | 	    Request    
+|  Request No       | 	    171       
+|  Client ID        | 	    0      
+|  Message type     | 	    MSG_HEARTBEAT  
+---------------------------------------
