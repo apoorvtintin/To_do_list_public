@@ -263,7 +263,7 @@ int send_change_state_message(factory_message message) {
 	if (message.server_state == PASSIVE_PRIMARY) {
 		sprintf(buf, "Client ID: %d\r\n"
 					 "Request No: %d\r\n"
-					 "Message type: %d\r\n"
+					 "Message Type: %d\r\n"
 					 "REP MODE: %d\r\n"
 					 "Server State: %d\r\n"
 					 "Replica 1 ID: %d\r\n"
@@ -272,20 +272,22 @@ int send_change_state_message(factory_message message) {
 					 "Replica 2 ID: %d\r\n"
 					 "Replica 2 IP: %s\r\n"
 					 "Replica 2 Port: %d\r\n\r\n",
-					 0, 0, MSG_REP, message.mode_rep,
+					 0, 0, MSG_REP_MGR, message.mode_rep,
 					 message.server_state, 1, message.server_arr[0].server_ip,
 					 message.server_arr[0].port, 2, message.server_arr[1].server_ip,
 					 message.server_arr[1].port);
 	} else {
 		sprintf(buf, "Client ID: %d\r\n"
 					 "Request No: %d\r\n"
-					 "Message type: %d\r\n"
+					 "Message Type: %d\r\n"
 					 "REP MODE: %d\r\n"
 					 "Server State: %d\r\n\r\n",
-					 0, 0, MSG_REP, message.mode_rep,
+					 0, 0, MSG_REP_MGR, message.mode_rep,
 					 message.server_state);
 			
 	}
+
+	printf("\n\nSending message to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);

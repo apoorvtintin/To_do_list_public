@@ -234,7 +234,8 @@ int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
     log_node_t *node = malloc(sizeof(log_node_t));
     node->val = client_ctx;
     log_msg_type m_type =
-        (client_ctx->req.msg_type == MSG_HEARTBEAT) ? CONTROL : NORMAL;
+        ((client_ctx->req.msg_type == MSG_HEARTBEAT) || 
+			(client_ctx->req.msg_type == MSG_REP_MGR)) ? CONTROL : NORMAL;
     if ((client_ctx->req.msg_type == MSG_CHK_PT) && (client_ctx->is_backlog)) {
         set_worker_prune();
     }
@@ -280,6 +281,8 @@ void *handle_connection(void *arg) {
         if (parse_kv(client_ctx, key, value) == -1) {
             goto _EXIT;
         }
+		printf("%s\n", msg_buf);
+		memset(msg_buf, 0, MAXMSGSIZE);
         ++input_fields_counter;
     }
     client_ctx->req.payload.data = malloc(client_ctx->req.payload.size);
@@ -351,6 +354,7 @@ void *execute_msg_ctrl(void *arg) {
 
     switch (client_ctx->req.msg_type) {
     case MSG_REP_MGR:
+		printf("Received message from REP MGR\n\n");
         handle_rep_msg(client_ctx);
         break;
     case MSG_HEARTBEAT:

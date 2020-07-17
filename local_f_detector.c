@@ -83,8 +83,8 @@ void *heartbeat_signal(void *vargp) {
 
     while (1) {
         sleep(interval_g);
-
-        heartbeat_count_g++;
+        
+		heartbeat_count_g++;
         clientfd = connect_to_server(&server);
         if (clientfd < 0) {
             printf("\nHeartbeat response not received: Server not active\n");
