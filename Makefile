@@ -29,14 +29,18 @@ db.o: db.c
 storage.o: storage.c
 	gcc -O -g -c storage.c
 util.o:	util.c
-	gcc -O -g -c util.c
+	gcc -O $(CFLAGS) -c util.c
 log.o:	log.c
-	gcc -O -g -c log.c
+	gcc -O $(CFLAGS) -c log.c
 worker.o:	worker.c
-	gcc -O -g -c worker.c
+	gcc -O $(CFLAGS) -c worker.c
+state.o:	state.c
+	gcc -O $(CFLAGS) -c state.c
+chkpt.o:	chkpt.c
+	gcc -O $(CFLAGS) -c chkpt.c
 libutil.a:	util.o log.o worker.o
 	ar rcs libutil.a util.o log.o worker.o
-server: server.c libutil.a storage.o db.o
+server: server.c libutil.a storage.o db.o state.o chkpt.o
 	$(CC) $(CFLAGS) $^ -o server -lcrypto
 
 

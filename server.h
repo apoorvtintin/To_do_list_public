@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdbool.h>
 typedef struct _server_ctx {
     int fd;
     struct sockaddr_in addr;
@@ -27,6 +28,7 @@ typedef struct _client_ctx {
     int client_id;
     struct sockaddr_in addr;
     client_request_t req;
+    bool is_backlog;
 } client_ctx_t;
 
 #endif

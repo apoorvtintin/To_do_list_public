@@ -12,13 +12,29 @@
 #include "worker.h"
 #include "c_s_iface.h"
 #include "server.h"
+#include "state.h"
 
 // Global Static Data
 static server_log_t *gs_server_log = NULL;
-static int is_prune = 0;
+static volatile int is_prune = 0;
 static int is_passive;
 static hdl_nrl_t hdl_nrl;
 static hdl_ctrl_t hdl_ctrl;
+
+void set_worker_prune()
+{
+    is_prune = 1;
+}
+
+bool should_nrl_thrd_sleep()
+{
+    if((get_mode() == PASSIVE_REP) && (
+                get_state() == PASSIVE_BACKUP))
+    {
+        return true;
+    }
+    return false; 
+}
 void free_msg(client_ctx_t *client_ctx)
 {
     if (client_ctx->fd >= 0) {
@@ -33,9 +49,31 @@ void free_msg(client_ctx_t *client_ctx)
 void *run(void *argp) {
     pthread_detach(pthread_self());
     server_log_t *svr = (server_log_t *)gs_server_log;
-    int prio = (int)argp;
+    int prio;
+    int64_t prio1 = (int64_t)argp;
+    prio = (int) prio1;
     while (1) {
-        if(is_passive && (prio == NORMAL))
+        if((prio == NORMAL) && (is_prune == 1))
+        {
+            log_node_t *node1;
+            while((node1 = dequeue(svr, NORMAL)) != NULL)
+            {
+                client_ctx_t *ctx = node1->val;
+                if(ctx->req.msg_type != MSG_CHK_PT)
+                {
+                    free_msg(ctx);
+                    free(node1);
+                }
+                else
+                {
+                    is_prune = 0;
+                    hdl_nrl(node1->val);
+                    free(node1);
+                    continue;
+                }
+            }
+        }
+        if((!is_prune && should_nrl_thrd_sleep()) && (prio == NORMAL))
         {
             sleep(1);
             continue;
@@ -51,27 +89,6 @@ void *run(void *argp) {
                 // handle control message.
                 log_node_t *node = dequeue(svr, CONTROL);
                 if ((node != NULL) && (node->val != NULL)) {
-                    if(((client_ctx_t *)node->val)->req.msg_type == MSG_CHK_PT)
-                    {
-                        log_node_t *node1;
-                        while((node1 = dequeue(svr, NORMAL)))
-                        {
-                            client_ctx_t *ctx = node1->val;
-                            if(ctx->req.msg_type != MSG_CHK_PT)
-                            {
-                                free_msg(ctx);
-                                free(node1);
-                            }
-                            else
-                            {
-                                hdl_nrl(node->val);
-                                free(node1);
-                                break;
-                            }
-
-                        }
-                        continue;
-                    }
                     hdl_ctrl(node->val);
                 } else {
                     fprintf(stderr, "ctrl dequeue error\n");
@@ -118,7 +135,7 @@ int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2,
         fprintf(stderr, "NORMAL worker theread creation failed!!!");
         exit(0);
     }
-    fprintf(stderr, "Started worker thread with TH_ID = %x, %x\n", th_id[0],
-            th_id[1]);
+    fprintf(stderr, "Started worker thread with TH_ID = %x, %x\n", (uint32_t)th_id[0],
+            (uint32_t)th_id[1]);
     return 0;
 }

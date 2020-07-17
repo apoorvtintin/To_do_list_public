@@ -1,3 +1,10 @@
+
+/*
+ * @file server.c
+ * @author Mohammed Sameer <sameer.2897@gmail.com>
+ * @brief this file has the implementation for server functionality for
+ * 18749 RDS class project.
+ */
 #include <arpa/inet.h>
 #include <errno.h>
 #include <getopt.h>
@@ -20,17 +27,16 @@
 #include "util.h"
 #include "log.h"
 #include "worker.h"
+#include "state.h"
 
 // Global variables
-int verbose = 0;
 int is_primary = 0;
 server_log_t svr_log;
-bsvr_ctx bckup_svr[2];
 int server_id;
-uint64_t chk_point_num;
 int msg_count = 0;
+uint64_t chk_point_num;
 
-static pthread_mutex_t storage_lock;
+pthread_mutex_t storage_lock;
 
 // Local help functions
 
@@ -174,16 +180,15 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
 }
 
 int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
+    client_ctx->is_backlog = ((get_mode() == (rep_mode_t)PASSIVE_REP) && 
+            (get_state() == (server_states_t)PASSIVE_BACKUP));
     log_node_t *node = malloc(sizeof(log_node_t));
     node->val = client_ctx;
     log_msg_type m_type =
         (client_ctx->req.msg_type == MSG_HEARTBEAT) ? CONTROL : NORMAL;
-    if(client_ctx->req.msg_type == MSG_CHK_PT)
+    if((client_ctx->req.msg_type == MSG_CHK_PT) && (client_ctx->is_backlog))
     {
-        // if checkpoint enquequ into both control and normal queues
-        //log_node_t *node1 = malloc(sizeof(log_node_t));
-        //node1->val = client_ctx;
-        enqueue(svr, node, CONTROL);
+        set_worker_prune();
     }
     return enqueue(svr, node, m_type);
 }
@@ -292,6 +297,13 @@ void *execute_msg(void *arg) {
     client_ctx_t *client_ctx = arg;
 
     pthread_mutex_lock(&storage_lock);
+    if(get_mode() == PASSIVE_REP && get_state() == PASSIVE_RECOVER)
+    {
+        if(client_ctx->is_backlog == 0)
+        {
+            set_state(PASSIVE_PRIMARY);
+        }
+    }
     print_user_req(client_ctx, "Req");
 
     if (handle_storage(client_ctx) != 0) {
@@ -336,104 +348,7 @@ void init_client_ctx(client_ctx_t *ctx) {
     memset(&ctx->req, 0, sizeof(ctx->req));
     return;
 }
-void open_ports_secondary()
-{
-    init_bsvr_ctx(&bckup_svr[0]);
-    init_bsvr_ctx(&bckup_svr[1]);
-    // Hard coded for now;
-    // take this info dynamically from somewhere else later
-    memcpy(bckup_svr[0].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
-    bckup_svr[0].info.port = 23457; 
-    bckup_svr[0].server_id = 1; 
-    if( (bckup_svr[0].fd = connect_to_server(&bckup_svr[0].info))
-            < 0)
-    {
-        fprintf(stderr, "failed open channel to backup server!!\n");
-        exit(0);
-    }
 
-    memcpy(bckup_svr[1].info.server_ip, "127.0.0.1", strlen("127.0.0.1")+1);
-    bckup_svr[1].info.port = 23458; 
-    bckup_svr[1].server_id = 2; 
-    if( (bckup_svr[1].fd = connect_to_server(&bckup_svr[1].info))
-            < 0)
-    {
-        fprintf(stderr, "failed open channel to backup server!!\n");
-        exit(0);
-    }
-}
-int write_check_point(bsvr_ctx *ctx, char *chk_file_name)
-{
-    char buffer[MAX_LENGTH];
-        int fd = -1, n;
-    fd = open(chk_file_name, O_RDONLY);
-    if(fd < 0)
-    {
-        fprintf(stderr, "open of check point failed.\n");
-        return -1;
-    }
-    char resp_buf[MAX_LENGTH];
-    int resp_len =
-        snprintf(resp_buf, sizeof(resp_buf), 
-                "Client ID: %d\r\n"
-                "Request No: %lu\r\n"
-                "Message Type: %d\r\n"
-                "Data Length: %lu\r\n"
-                "\r\n",
-                server_id, chk_point_num, MSG_CHK_PT,
-                get_file_size(chk_file_name));
-    fprintf(stderr, "sending checkpint to replica %d\n", ctx->server_id);
-    fprintf(stderr, "\n-------------------------------------------------\n");
-    write(2, resp_buf, resp_len);
-    print_state();
-    fprintf(stderr, "\n-------------------------------------------------\n");
-    if(write(ctx->fd, resp_buf, resp_len) < 0)
-    {
-            fprintf(stderr, "failed writing checkpoint\n");
-        goto _END;
-    }
-    int sent = 0;
-    while((n = read(fd, buffer, MAX_LENGTH)) > 0)
-    {
-        sent += n;
-        if(write(ctx->fd, buffer, n) < 0)
-        {
-            fprintf(stderr, "failed writing checkpoint\n");
-            goto _END; 
-        }
-    }
-_END:
-    close(fd);
-    return 0;
-
-
-}
-void * send_checkpoint(void *argvp)
-{
-    while(1)
-    {
-        if(msg_count < 2)
-        {
-            sleep(1);
-            continue;
-        }
-        msg_count = 0;
-        open_ports_secondary();
-
-        // Add code to get the checkpoint
-        pthread_mutex_lock(&storage_lock);
-        char checkpoint_file_name[MAX_LENGTH];
-        export_db(checkpoint_file_name);
-        pthread_mutex_unlock(&storage_lock);
-        for(unsigned int i = 0; i < sizeof(bckup_svr)/sizeof(bsvr_ctx); i++)
-        {
-            write_check_point(&bckup_svr[i], checkpoint_file_name); 
-            close(bckup_svr[i].fd);
-        }
-        chk_point_num++;
-    }
-    return (void *)0;
-}
 int main(int argc, char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
     int listen_fd = -1, optval = 1, accept_ret_val = -1;
@@ -444,11 +359,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <ip_address> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    is_primary = atoi(argv[3]);
-    server_id = atoi(argv[4]);
-    if (verbose > 5 || verbose < 0) {
-        fprintf(stderr, "Warning: illegal verbose value ignoring it.\n");
-    }
+    server_id = atoi(argv[3]);
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
     server_addr.sin_family = AF_INET;
     if (inet_pton(AF_INET, argv[1], &server_addr.sin_addr.s_addr) != 1) {
@@ -476,11 +387,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "listen() failed. Reason: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
-    if(is_primary)
-    {
-        pthread_t id;
-        pthread_create(&id, NULL, send_checkpoint, NULL);
-    }
+
     struct sockaddr client_addr;
     socklen_t client_addr_len;
     pthread_t th_id;
@@ -500,9 +407,6 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         accept_ret_val = accept(listen_fd, &client_addr, &client_addr_len);
-        if (verbose >= 3) {
-            printf("Connection accepted !!!\n");
-        }
         if (accept_ret_val < 0) {
             if (errno == ECONNABORTED) {
                 continue;
@@ -519,9 +423,6 @@ int main(int argc, char *argv[]) {
                sizeof(struct sockaddr_in));
         if (pthread_create(&th_id, NULL, handle_connection,
                            (void *)conn_client_ctx) != 0)
-#if 0
-        if(enqueue_client_req(&svr_log,conn_client_ctx) != 0)
-#endif
         {
             fprintf(stderr, "!!!!!!!! Pthread Create Failed !!!!!!!");
             if (conn_client_ctx->fd != -1) {
