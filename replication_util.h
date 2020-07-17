@@ -32,7 +32,10 @@ typedef struct replica_node_t {
     enum replica_state state;
     char *factory_ip;
     char *factory_port;
+	char *server_ip;
+	char *server_port;
     struct server_info factory;
+	struct server_info server;
     time_t last_heartbeat;
 } replica_node;
 

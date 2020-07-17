@@ -242,16 +242,16 @@ void fill_message_for_primary_election(char *buf, int replica_id) {
 			"Server State: %d\r\n"
 			"Replica 1 ID: %d\r\n"
 			"Replica 1 IP: %s\r\n"
-			"Replica 1 Port: %s\r\n"
+			"Replica 1 Port: %d\r\n"
 			"Replica 2 ID: %d\r\n"
 			"Replica 2 IP: %s\r\n"
-			"Replica 2 Port: %s\r\n\r\n",
+			"Replica 2 Port: %d\r\n\r\n",
 			replica_id, CHANGE_STATE,
 			mode_rep, PASSIVE_PRIMARY,
-			replica_id_1, data.node[replica_id_1].factory_ip,
-			data.node[replica_id_1].factory_port, replica_id_2,
-			data.node[replica_id_2].factory_ip,
-			data.node[replica_id_2].factory_port);
+			replica_id_1, data.node[replica_id_1].server.server_ip,
+			data.node[replica_id_1].server.port, replica_id_2,
+			data.node[replica_id_2].server.server_ip,
+			data.node[replica_id_2].server.port);
 
 	return;
 }
@@ -455,8 +455,13 @@ int restart_server(int replica_id) {
     char buf[MAX_LENGTH];
 
     sprintf(buf, "Replica ID: %d\r\n"
-                 "Factory Req: %d\r\n\r\n",
-            replica_id, STARTUP);
+                 "Factory Req: %d\r\n"
+				 "Server IP: %s\r\n"
+				 "Server Port: %d\r\n\r\n",
+            replica_id, STARTUP, data.node[replica_id].server.server_ip,
+			data.node[replica_id].server.port);
+
+	printf("Starting server %d Buf %s", replica_id, buf);
 
     clientfd = connect_to_server(&data.node[replica_id].factory);
     if (clientfd < 0) {
@@ -493,6 +498,12 @@ static int read_config_file(char *path) {
         CFG_SIMPLE_STR("factory_1_manager_port", &data.node[1].factory_port),
         CFG_SIMPLE_STR("factory_2_manager_ip", &data.node[2].factory_ip),
         CFG_SIMPLE_STR("factory_2_manager_port", &data.node[2].factory_port),
+        CFG_SIMPLE_STR("server_0_ip", &data.node[0].server_ip),
+        CFG_SIMPLE_STR("server_0_port", &data.node[0].server_port),
+        CFG_SIMPLE_STR("server_1_ip", &data.node[1].server_ip),
+        CFG_SIMPLE_STR("server_1_port", &data.node[1].server_port),
+        CFG_SIMPLE_STR("server_2_ip", &data.node[2].server_ip),
+        CFG_SIMPLE_STR("server_2_port", &data.node[2].server_port),
         CFG_SIMPLE_INT("hbt_timeout", &(data.hbt_timeout)), CFG_END()};
 
     cfg_t *cfg;
@@ -512,6 +523,15 @@ static int read_config_file(char *path) {
     data.node[1].factory.port = atoi(data.node[1].factory_port);
     strncpy(data.node[2].factory.server_ip, data.node[2].factory_ip, 20);
     data.node[2].factory.port = atoi(data.node[2].factory_port);
+	strncpy(data.node[0].server.server_ip,
+				data.node[0].server_ip, 20);
+	data.node[0].server.port = atoi(data.node[0].server_port);
+	strncpy(data.node[1].server.server_ip,
+				data.node[1].server_ip, 20);
+	data.node[1].server.port = atoi(data.node[1].server_port);
+	strncpy(data.node[2].server.server_ip,
+				data.node[2].server_ip, 20);
+	data.node[2].server.port = atoi(data.node[2].server_port);
 
 	if (!strncmp(data.mode_str, "passive", strlen("passive"))) {
 		printf("\nReplication mode: Passive\n\n");

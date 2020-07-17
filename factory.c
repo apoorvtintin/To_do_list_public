@@ -68,13 +68,13 @@ static int read_config_file(char *path) {
     cfg_opt_t opts[] = {
         CFG_SIMPLE_STR("factory_ip", &f_data.server_ip),
         CFG_SIMPLE_STR("factory_port", &f_data.port),
-        CFG_SIMPLE_STR("factory_spawned_server_ip", &f_data.spawned_server_ip),
-        CFG_SIMPLE_STR("factory_spawned_server_port",
-                       &f_data.spawned_server_port),
         CFG_SIMPLE_STR("replication_manager_ip",
                        &f_data.replication_manager_ip),
         CFG_SIMPLE_STR("replication_manager_port",
-                       &f_data.replication_manager_port),
+				&f_data.replication_manager_port),
+		CFG_SIMPLE_STR("factory_spawned_server_ip", &f_data.spawned_server_ip),
+		CFG_SIMPLE_STR("factory_spawned_server_port",
+				&f_data.spawned_server_port),
         CFG_SIMPLE_STR("lfd_heartbeat", &f_data.lfd_heartbeat),
         CFG_SIMPLE_INT("factory_replica_id", &f_data.replica_id),
         CFG_SIMPLE_INT("factory_verbose", &verbose), CFG_END()};
@@ -436,6 +436,12 @@ static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
             fprintf(stderr, "Msg type Conversion failed!!!\n");
             return -1;
         }
+#if 0
+    } else if (strcmp(key, "Server IP") == 0) {
+		memcpy(f_data.spawned_server_ip, value, 1024);
+    } else if (strcmp(key, "Server Port") == 0) {
+		memcpy(f_data.spawned_server_port, value, 1024);
+#endif
     } else if (strcmp(key, "REP MODE") == 0) {
 		if (str_to_int(value, (int *)&rep_manager_ctx->mode_rep) != 0) {
             fprintf(stderr, "Mode Conversion failed!!!\n");
