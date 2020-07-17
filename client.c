@@ -157,11 +157,11 @@ int send_and_get_response(char *buf, struct message_response *response) {
             continue;
         }
 
-		status = get_response_from_server(clientfd, response);
-		if (status < 0) {
-			close(clientfd);
-			continue;
-		}
+        status = get_response_from_server(clientfd, response);
+        if (status < 0) {
+            close(clientfd);
+            continue;
+        }
 
         close(clientfd);
 

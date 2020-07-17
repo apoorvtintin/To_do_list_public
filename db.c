@@ -147,8 +147,8 @@ void hash_table_deinit() {
             free(cur);
         }
     }
-    
-	free(htable);
+
+    free(htable);
 }
 
 int hash_table_get_dat_size() { return htable->data_size; }
@@ -167,126 +167,125 @@ void print_htable() {
 }
 
 void export_db_internal(char *file) {
-	data_point *temp;
-	int index;
-	char buf[MAX_LENGTH];
-	char filename[1024];
-	FILE *fptr;
-
-	sprintf(filename, "tmp/db_export_%d", file_counter);
-	
-	fptr = fopen(filename, "w");
-
-	printf("\nWriting to a file: %s\n", filename);
-
-	for (index = 0; index < hash_table_len; index++) {
-		temp = htable->data[index];
-		while (temp != NULL) {
-			fprintf(fptr, "Key: %lu\r\n"
-						  "Data: %s\r\n"
-						  "data_len: %lu\r\n"
-						  "Status: %d\r\n"
-						  "DATA_END\r\n",
-						  temp->key, temp->raw_data, 
-						  temp->data_len, get_task_status_str(temp->task_status));
-
-			temp = temp->next;
-		}
-	}
-	fprintf(fptr, "FILE_END\n");
-
-	fclose(fptr);
-	file_counter++;
-
-	memcpy(file, filename, 100);
-
-	return;
-}
-
-int import_db_internal(char *file) {
-	FILE *file_ptr;
-	uint64_t key = 0;
-	uint8_t data[1024];
-	uint64_t len = 0;
-	char line[1024];
-	char temp[1024];
-	char temp_1[1024];
-	char *endptr;
-	int base = 10;
-	int status;
-
-	memset(line, 0, 1024);
-	memset(temp, 0, 1024);
-	memset(data, 0, 1024);
-	memset(temp_1, 0, 1024);
-
-	// Clean up the DB
-	hash_table_deinit();
-	hash_table_init();
-
-	file_ptr = fopen(file, "r");
-	if (file_ptr < 0) {
-		printf("File not opened: %s",strerr(errno));
-		return;
-	}
-	printf("File opened %s\n", file);
-
-	while(fgets(line, 1024, file_ptr)) {
-		if (!strncmp(line, "DATA_END", strlen("DATA_END"))) {
-			key = strtoull(temp_1, &endptr, base);
-			status = hash_table_insert(key, data, len);
-			memset(data, 0, 1024);
-			key = 0;
-			len = 0;
-			continue;
-		}
-
-		if (!strncmp(line, "FILE_END", strlen("FILE_END"))) {
-			break;
-		}
-
-		if (!strncmp(line, "Key", strlen("Key"))) {
-			sscanf(line, "Key: %s", temp_1);
-		}
-		
-		if (!strncmp(line, "Data", strlen("Data"))) {
-			sscanf(line, "Data: %" MAX_LENGTH_STR "[^\n]%*c", temp);
-			memcpy(data, temp, 1024);
-		}
-		
-		if (!strncmp(line, "data_len", strlen("data_len"))) {
-			sscanf(line, "data_len: %lu", &len);
-		}
-		
-		if (!strncmp(line, "Status", strlen("Status"))) {
-			sscanf(line, "Status: %s", temp);
-		}
-		
-		memset(line, 0, 1024);
-		memset(temp, 0, 1024);
-	}
-
-	fclose(file_ptr);
-	return 0;
-}
-
-void print_state_internal() {
-	data_point *temp;
+    data_point *temp;
     int index;
+    char buf[MAX_LENGTH];
+    char filename[1024];
+    FILE *fptr;
 
-	printf("\n---------------  Current State -----------------\n");
+    sprintf(filename, "tmp/db_export_%d", file_counter);
+
+    fptr = fopen(filename, "w");
+
+    printf("\nWriting to a file: %s\n", filename);
 
     for (index = 0; index < hash_table_len; index++) {
         temp = htable->data[index];
         while (temp != NULL) {
-			printf("Key: %lu \t Task: %s \t Status %s\n",
-					temp->key, temp->raw_data,
-					get_task_status_str(temp->task_status));
+            fprintf(fptr, "Key: %lu\r\n"
+                          "Data: %s\r\n"
+                          "data_len: %lu\r\n"
+                          "Status: %d\r\n"
+                          "DATA_END\r\n",
+                    temp->key, temp->raw_data, temp->data_len,
+                    get_task_status_str(temp->task_status));
+
+            temp = temp->next;
+        }
+    }
+    fprintf(fptr, "FILE_END\n");
+
+    fclose(fptr);
+    file_counter++;
+
+    memcpy(file, filename, 100);
+
+    return;
+}
+
+int import_db_internal(char *file) {
+    FILE *file_ptr;
+    uint64_t key = 0;
+    uint8_t data[1024];
+    uint64_t len = 0;
+    char line[1024];
+    char temp[1024];
+    char temp_1[1024];
+    char *endptr;
+    int base = 10;
+    int status;
+
+    memset(line, 0, 1024);
+    memset(temp, 0, 1024);
+    memset(data, 0, 1024);
+    memset(temp_1, 0, 1024);
+
+    // Clean up the DB
+    hash_table_deinit();
+    hash_table_init();
+
+    file_ptr = fopen(file, "r");
+    if (file_ptr < 0) {
+        printf("File not opened: %s", strerr(errno));
+        return;
+    }
+    printf("File opened %s\n", file);
+
+    while (fgets(line, 1024, file_ptr)) {
+        if (!strncmp(line, "DATA_END", strlen("DATA_END"))) {
+            key = strtoull(temp_1, &endptr, base);
+            status = hash_table_insert(key, data, len);
+            memset(data, 0, 1024);
+            key = 0;
+            len = 0;
+            continue;
+        }
+
+        if (!strncmp(line, "FILE_END", strlen("FILE_END"))) {
+            break;
+        }
+
+        if (!strncmp(line, "Key", strlen("Key"))) {
+            sscanf(line, "Key: %s", temp_1);
+        }
+
+        if (!strncmp(line, "Data", strlen("Data"))) {
+            sscanf(line, "Data: %" MAX_LENGTH_STR "[^\n]%*c", temp);
+            memcpy(data, temp, 1024);
+        }
+
+        if (!strncmp(line, "data_len", strlen("data_len"))) {
+            sscanf(line, "data_len: %lu", &len);
+        }
+
+        if (!strncmp(line, "Status", strlen("Status"))) {
+            sscanf(line, "Status: %s", temp);
+        }
+
+        memset(line, 0, 1024);
+        memset(temp, 0, 1024);
+    }
+
+    fclose(file_ptr);
+    return 0;
+}
+
+void print_state_internal() {
+    data_point *temp;
+    int index;
+
+    printf("\n---------------  Current State -----------------\n");
+
+    for (index = 0; index < hash_table_len; index++) {
+        temp = htable->data[index];
+        while (temp != NULL) {
+            printf("Key: %lu \t Task: %s \t Status %s\n", temp->key,
+                   temp->raw_data, get_task_status_str(temp->task_status));
             temp = temp->next;
         }
     }
 
-	printf("\n-------------------------------------------------\n");
+    printf("\n-------------------------------------------------\n");
 }
 
 /* EOF */

@@ -62,7 +62,7 @@ typedef struct factory_data_t {
 
 enum factory_req {
     STARTUP = 0,
-	MAKE_PRIMARY = 1,
+    MAKE_PRIMARY = 1,
     NO_ACTION = 2,
 };
 

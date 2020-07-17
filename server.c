@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
- #include <signal.h>
+#include <signal.h>
 
 #include "c_s_iface.h"
 #include "local_f_detector.h"
@@ -166,66 +166,59 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
             fprintf(stderr, "Req No Conversion failed!!!\n");
             return -1;
         }
-    } else if(strcmp(key, "Data Length") == 0)
-    {
+    } else if (strcmp(key, "Data Length") == 0) {
         if (str_to_int(value, (int *)&client_ctx->req.payload.size) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!!\n");
             return -1;
         }
-        
-    }
-    else if(strcmp(key, "REP MODE") == 0)
-    {
-        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.rep_mode) != 0) {
+
+    } else if (strcmp(key, "REP MODE") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.rep_mode) !=
+            0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
         }
-    }
-    else if(strcmp(key, "Server State") == 0)
-    {
-        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.server_state) != 0) {
+    } else if (strcmp(key, "Server State") == 0) {
+        if (str_to_int(value,
+                       (int *)&client_ctx->req.rep_mgr_msg.server_state) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
         }
-    }
-    else if(strcmp(key, "Replica 1 ID") == 0)
-    {
-        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[0].server_id) != 0) {
+    } else if (strcmp(key, "Replica 1 ID") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[0]
+                                  .server_id) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
         }
-    }
-    else if (strcmp(key, "Replica 1 IP") == 0) 
-    {
-        strncpy(client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip, value, sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip));
-    } 
-    else if(strcmp(key, "Replica 1 Port") == 0)
-    {
-        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[0].info.port) != 0) {
+    } else if (strcmp(key, "Replica 1 IP") == 0) {
+        strncpy(
+            client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip, value,
+            sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip));
+    } else if (strcmp(key, "Replica 1 Port") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[0]
+                                  .info.port) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
         }
-    }
-    else if(strcmp(key, "Replica 2 ID") == 0)
-    {
-        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[1].server_id) != 0) {
+    } else if (strcmp(key, "Replica 2 ID") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[1]
+                                  .server_id) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
         }
-    }
-    else if (strcmp(key, "Replica 2 IP") == 0) 
-    {
-        strncpy(client_ctx->req.rep_mgr_msg.bckup_svr[1].info.server_ip, value, sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[1].info.server_ip));
-    } 
-    else if(strcmp(key, "Replica 2 Port") == 0)
-    {
-        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[1].info.port) != 0) {
+    } else if (strcmp(key, "Replica 2 IP") == 0) {
+        strncpy(
+            client_ctx->req.rep_mgr_msg.bckup_svr[1].info.server_ip, value,
+            sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[1].info.server_ip));
+    } else if (strcmp(key, "Replica 2 Port") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[1]
+                                  .info.port) != 0) {
             write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
@@ -236,14 +229,13 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
 }
 
 int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
-    client_ctx->is_backlog = ((get_mode() == (rep_mode_t)PASSIVE_REP) && 
-            (get_state() == (server_states_t)PASSIVE_BACKUP));
+    client_ctx->is_backlog = ((get_mode() == (rep_mode_t)PASSIVE_REP) &&
+                              (get_state() == (server_states_t)PASSIVE_BACKUP));
     log_node_t *node = malloc(sizeof(log_node_t));
     node->val = client_ctx;
     log_msg_type m_type =
         (client_ctx->req.msg_type == MSG_HEARTBEAT) ? CONTROL : NORMAL;
-    if((client_ctx->req.msg_type == MSG_CHK_PT) && (client_ctx->is_backlog))
-    {
+    if ((client_ctx->req.msg_type == MSG_CHK_PT) && (client_ctx->is_backlog)) {
         set_worker_prune();
     }
     return enqueue(svr, node, m_type);
@@ -291,51 +283,46 @@ void *handle_connection(void *arg) {
         ++input_fields_counter;
     }
     client_ctx->req.payload.data = malloc(client_ctx->req.payload.size);
-    if(client_ctx->req.payload.data < 0)
-    {
+    if (client_ctx->req.payload.data < 0) {
         fprintf(stderr, "run out of mem !!!\n");
         goto _EXIT;
     }
-    if(client_ctx->req.payload.size != 0)
-    {
-        int n = 0; 
+    if (client_ctx->req.payload.size != 0) {
+        int n = 0;
         int toread = client_ctx->req.payload.size;
         int nread = 0;
 
-        while((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) >= 0)
-        {
-             memcpy(client_ctx->req.payload.data + nread, msg_buf, 
-                     (toread < n ? toread: n));
-             nread += n;
-             toread -= (toread < n ? toread: n);     
-             if(toread == 0)
-               break;  
+        while ((n = sock_readline(&client_fd, msg_buf, MAXMSGSIZE)) >= 0) {
+            memcpy(client_ctx->req.payload.data + nread, msg_buf,
+                   (toread < n ? toread : n));
+            nread += n;
+            toread -= (toread < n ? toread : n);
+            if (toread == 0)
+                break;
         }
     }
-    if(client_ctx->req.payload.size != 0)
-    {
+    if (client_ctx->req.payload.size != 0) {
         char filename[64];
-        snprintf(filename, sizeof(filename), "tmp-%u", (rand()*server_id));
-        int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU  | S_IRUSR  
-                | S_IWUSR 
-                | S_IXUSR | S_IRWXG | S_IRGRP | S_IWGRP | S_IXGRP | S_IRWXO 
-                | S_IROTH | S_IWOTH | S_IXOTH);
+        snprintf(filename, sizeof(filename), "tmp-%u", (rand() * server_id));
+        int fd =
+            open(filename, O_WRONLY | O_CREAT | O_TRUNC,
+                 S_IRWXU | S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRGRP |
+                     S_IWGRP | S_IXGRP | S_IRWXO | S_IROTH | S_IWOTH | S_IXOTH);
         write(fd, client_ctx->req.payload.data, client_ctx->req.payload.size);
         close(fd);
-        memset(client_ctx->req.filename,0, sizeof(client_ctx->req.filename));
-        strncpy(client_ctx->req.filename, filename, 
+        memset(client_ctx->req.filename, 0, sizeof(client_ctx->req.filename));
+        strncpy(client_ctx->req.filename, filename,
                 sizeof(client_ctx->req.filename));
     }
-// TODO: put a check to see if all the required fields are present.
-//
+    // TODO: put a check to see if all the required fields are present.
+    //
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
-    if((get_mode() == PASSIVE_REP && get_state() == PASSIVE_BACKUP) 
-            && (client_ctx->req.msg_type != MSG_HEARTBEAT) 
-            && (client_ctx->req.msg_type != MSG_REP_MGR))
-    {
+    if ((get_mode() == PASSIVE_REP && get_state() == PASSIVE_BACKUP) &&
+        (client_ctx->req.msg_type != MSG_HEARTBEAT) &&
+        (client_ctx->req.msg_type != MSG_REP_MGR)) {
         close(client_ctx->fd);
     }
     return (void *)0;
@@ -351,29 +338,25 @@ _EXIT:
     return (void *)-1;
 }
 
-void handle_rep_msg(client_ctx_t *client_ctx)
-{
+void handle_rep_msg(client_ctx_t *client_ctx) {
     rep_mgr_msg_t *rep_mgr_msg = &client_ctx->req.rep_mgr_msg;
     set_mode(rep_mgr_msg->rep_mode);
     kill_chkpt_thrd_if_running();
     set_state(rep_mgr_msg->server_state);
-
 }
 
-void *execute_msg_ctrl(void *arg)
-{
+void *execute_msg_ctrl(void *arg) {
     client_ctx_t *client_ctx = arg;
     print_user_req(client_ctx, "Req");
 
-    switch(client_ctx->req.msg_type)
-    {
-        case MSG_REP_MGR:
-            handle_rep_msg(client_ctx);
-            break;
-        case MSG_HEARTBEAT:
-            break;
-        default:
-            fprintf(stderr, "Unknown/Unhandled MSG \n");
+    switch (client_ctx->req.msg_type) {
+    case MSG_REP_MGR:
+        handle_rep_msg(client_ctx);
+        break;
+    case MSG_HEARTBEAT:
+        break;
+    default:
+        fprintf(stderr, "Unknown/Unhandled MSG \n");
     }
     print_user_req(client_ctx, "Res");
 
@@ -383,8 +366,7 @@ void *execute_msg_ctrl(void *arg)
         close(client_ctx->fd);
         client_ctx->fd = -1;
     }
-    if(client_ctx->req.payload.size > 0)
-    {
+    if (client_ctx->req.payload.size > 0) {
         free(client_ctx->req.payload.data);
     }
     if (client_ctx) {
@@ -397,10 +379,8 @@ void *execute_msg(void *arg) {
     client_ctx_t *client_ctx = arg;
 
     pthread_mutex_lock(&storage_lock);
-    if(get_mode() == PASSIVE_REP && get_state() == PASSIVE_RECOVER)
-    {
-        if(client_ctx->is_backlog == 0)
-        {
+    if (get_mode() == PASSIVE_REP && get_state() == PASSIVE_RECOVER) {
+        if (client_ctx->is_backlog == 0) {
             set_state(PASSIVE_PRIMARY);
         }
     }
@@ -413,8 +393,8 @@ void *execute_msg(void *arg) {
         // printf("handle storage success\n");
     }
     print_user_req(client_ctx, "Res");
-    if(client_ctx->req.msg_type != MSG_HEARTBEAT)
-    msg_count++;
+    if (client_ctx->req.msg_type != MSG_HEARTBEAT)
+        msg_count++;
     pthread_mutex_unlock(&storage_lock);
 
     //
@@ -425,8 +405,7 @@ void *execute_msg(void *arg) {
         close(client_ctx->fd);
         client_ctx->fd = -1;
     }
-    if(client_ctx->req.payload.size > 0)
-    {
+    if (client_ctx->req.payload.size > 0) {
         free(client_ctx->req.payload.data);
     }
     if (client_ctx) {
@@ -498,8 +477,7 @@ int main(int argc, char *argv[]) {
 
     init_log_queue(&svr_log, 50, 50);
 
-    if (start_worker_threads(&svr_log, execute_msg, execute_msg_ctrl) 
-            != 0) {
+    if (start_worker_threads(&svr_log, execute_msg, execute_msg_ctrl) != 0) {
         fprintf(stderr, "Failed to start the worker thread\n");
         exit(-1);
     }
@@ -525,8 +503,7 @@ int main(int argc, char *argv[]) {
         memcpy(&conn_client_ctx->addr, &client_addr,
                sizeof(struct sockaddr_in));
         if (pthread_create(&th_id, NULL, handle_connection,
-                           (void *)conn_client_ctx) != 0)
-        {
+                           (void *)conn_client_ctx) != 0) {
             fprintf(stderr, "!!!!!!!! Pthread Create Failed !!!!!!!");
             if (conn_client_ctx->fd != -1) {
                 close(conn_client_ctx->fd);

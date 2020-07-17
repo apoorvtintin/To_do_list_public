@@ -37,7 +37,7 @@ typedef enum _msg_type {
     MSG_REMOVE,
     MSG_HEARTBEAT,
     MSG_CHK_PT,
-	MSG_REP_MGR
+    MSG_REP_MGR
 } msg_type_t;
 
 struct message_add {
@@ -71,37 +71,37 @@ struct message_response {
 };
 
 #define MAXMSGSIZE sizeof(struct message_modify)
-typedef struct _payload
-{
+typedef struct _payload {
     char *data;
     int64_t size;
 } payload_t;
-#define PAYLOAD_INITIALISER {NULL,0}
-
-
+#define PAYLOAD_INITIALISER                                                    \
+    { NULL, 0 }
 
 struct server_info {
     char server_ip[1024];
     int port;
 };
-#define SERVER_INFO_INITIALISER {{0}, 0}
+#define SERVER_INFO_INITIALISER                                                \
+    { {0}, 0 }
 
-typedef struct _bsvr_ctx
-{
+typedef struct _bsvr_ctx {
     int fd;
     struct server_info info;
     unsigned int server_id;
 } bsvr_ctx;
-#define BSVR_CTX_INITIALISER {-1, SERVER_INFO_INITIALISER, -1}
+#define BSVR_CTX_INITIALISER                                                   \
+    { -1, SERVER_INFO_INITIALISER, -1 }
 
-typedef struct _rep_mgr_msg
-{
+typedef struct _rep_mgr_msg {
     rep_mode_t rep_mode;
     server_states_t server_state;
     bsvr_ctx bckup_svr[2];
 } rep_mgr_msg_t;
-#define REP_MGR_MSG_INITIALISER {0,0,{BSVR_CTX_INITIALISER}}
-
+#define REP_MGR_MSG_INITIALISER                                                \
+    {                                                                          \
+        0, 0, { BSVR_CTX_INITIALISER }                                         \
+    }
 
 typedef struct _client_request {
     msg_type_t msg_type;
@@ -116,6 +116,10 @@ typedef struct _client_request {
     char filename[1024];
     rep_mgr_msg_t rep_mgr_msg;
 } client_request_t;
-#define CLIENT_REQUEST_INITIALISER {0,{0}, {0},0,0,0,0,0,PAYLOAD_INITIALISER,{0}, REP_MGR_MSG_INITIALISER}
+#define CLIENT_REQUEST_INITIALISER                                             \
+    {                                                                          \
+        0, {0}, {0}, 0, 0, 0, 0, 0, PAYLOAD_INITIALISER, {0},                  \
+            REP_MGR_MSG_INITIALISER                                            \
+    }
 
 #endif

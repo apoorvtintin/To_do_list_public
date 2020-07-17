@@ -189,8 +189,8 @@ int main(int argc, char *argv[]) {
         if (accept_ret_val < 0) {
             if (errno == ECONNABORTED) {
                 continue;
-			} else if (errno == EINTR) {
-				continue;
+            } else if (errno == EINTR) {
+                continue;
             } else {
                 fprintf(stderr, "Error on accept exiting. Reason: %s\n",
                         strerror(errno));
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
         conn_client_ctx.fd = accept_ret_val;
         memcpy(&conn_client_ctx.addr, &client_addr, sizeof(struct sockaddr_in));
         handle_replication_manager_message(conn_client_ctx);
-		close(accept_ret_val);
+        close(accept_ret_val);
     }
     return 0;
 }
@@ -242,61 +242,61 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
         if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
-		printf("%s\n", msg_buf);
+        printf("%s\n", msg_buf);
         ++input_fields_counter;
     }
     return handle_rep_man_command(message);
 }
 
 int make_server_primary() {
-	struct server_info server;
-	int client_fd = 0;
-	int status = 0;
-	char buf[MAX_LENGTH];
-	
-	memset(&server, 0, sizeof(struct server_info));
-	memset(buf, 0, MAX_LENGTH);
+    struct server_info server;
+    int client_fd = 0;
+    int status = 0;
+    char buf[MAX_LENGTH];
 
-	sprintf(buf, "Client ID: %d\r\n"
-			"Request No: %d\r\n"
-			"Message Type: %d\r\n\r\n",
-			0, 0, MSG_REP_MGR);
+    memset(&server, 0, sizeof(struct server_info));
+    memset(buf, 0, MAX_LENGTH);
 
-	server.port = atoi(f_data.spawned_server_port);
-	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
+    sprintf(buf, "Client ID: %d\r\n"
+                 "Request No: %d\r\n"
+                 "Message Type: %d\r\n\r\n",
+            0, 0, MSG_REP_MGR);
 
-	client_fd = connect_to_server(&server);
-	if (client_fd < 0) {
-		printf("Connecting to server failed: %s\n", strerror(errno));
-		return -1;
-	}
+    server.port = atoi(f_data.spawned_server_port);
+    memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
 
-	status = write(client_fd, buf, MAX_LENGTH);
-	if (status < 0) {
-		printf("Write failed: %s\n", strerror(errno));
-		close(client_fd);
-		return -1;
-	}
+    client_fd = connect_to_server(&server);
+    if (client_fd < 0) {
+        printf("Connecting to server failed: %s\n", strerror(errno));
+        return -1;
+    }
 
-	close(client_fd);
+    status = write(client_fd, buf, MAX_LENGTH);
+    if (status < 0) {
+        printf("Write failed: %s\n", strerror(errno));
+        close(client_fd);
+        return -1;
+    }
 
-	return 0;
+    close(client_fd);
+
+    return 0;
 }
 
 int handle_rep_man_command(factory_message message) {
-	int status = 0;
-	
+    int status = 0;
+
     printf("global replica ID %ld replica ID %d message enum %d\n",
            f_data.replica_id, message.replica_id, message.req);
     if (message.replica_id == f_data.replica_id) {
         if (message.req == STARTUP) {
             spawn_server(SERVER_PATH);
         } else if (message.req == MAKE_PRIMARY) {
-			status = make_server_primary();
-			if (status < 0) {
-				printf("Making server %d primary failed\n", message.replica_id);
-			}
-		}
+            status = make_server_primary();
+            if (status < 0) {
+                printf("Making server %d primary failed\n", message.replica_id);
+            }
+        }
     } else {
         printf("wrong replica ID\n");
     }
@@ -307,25 +307,25 @@ int spawn_server(char *path) {
     // command line arguments
     char buf[10];
     snprintf(buf, 10, "%lu", f_data.replica_id);
-	char *newargv[6];
-	newargv[0] = path;
-	newargv[1] = f_data.spawned_server_ip;
-	newargv[2] = f_data.spawned_server_port;
-	newargv[4] = buf;
-	newargv[5] = NULL;
-	
-	if (mode == 0) {
-		if (first_time == 0) {
-			newargv[3] = (f_data.replica_id == 0) ? "1" : "0";
-			first_time = 1;
-		} else if (first_time == 1) {
-			newargv[3] = "0";
-		}
-	} else {
-		newargv[3] = (f_data.replica_id == 0) ? "1" : "0";
-	}
+    char *newargv[6];
+    newargv[0] = path;
+    newargv[1] = f_data.spawned_server_ip;
+    newargv[2] = f_data.spawned_server_port;
+    newargv[4] = buf;
+    newargv[5] = NULL;
 
-	char filename[1024];
+    if (mode == 0) {
+        if (first_time == 0) {
+            newargv[3] = (f_data.replica_id == 0) ? "1" : "0";
+            first_time = 1;
+        } else if (first_time == 1) {
+            newargv[3] = "0";
+        }
+    } else {
+        newargv[3] = (f_data.replica_id == 0) ? "1" : "0";
+    }
+
+    char filename[1024];
     int ofd;
     int olderr = errno;
 

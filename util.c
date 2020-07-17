@@ -90,8 +90,7 @@ ssize_t sock_readline(sock_buf_read *ptr, void *buf, size_t n) {
     size_t nleft = n;
     char *out_buffer = buf;
     while (nleft > 0) {
-        if(sock_read(ptr, &c, 1)== 0)
-        {
+        if (sock_read(ptr, &c, 1) == 0) {
             return n - nleft;
         }
         out_buffer[n - nleft] = c;
@@ -150,9 +149,9 @@ int get_response_from_server(int clientfd, struct message_response *response) {
     // printf("\n**********\n");
 
     while ((readn = sock_readline(&client_fd, resp_buf, MAX_LENGTH)) >= 0) {
-		if (readn == 0) {
-			return -1;
-		}
+        if (readn == 0) {
+            return -1;
+        }
 
         if (!strncmp(resp_buf, "\r\n", strlen("\r\n"))) {
             break;
@@ -236,22 +235,19 @@ char *get_msg_type_str(msg_type_t msg_type) {
     };
     return "NA_NA";
 }
- void init_bsvr_ctx(bsvr_ctx *obj)
-{
+void init_bsvr_ctx(bsvr_ctx *obj) {
     obj->fd = -1;
     memset(&obj->info, 0, sizeof(obj->info));
 }
 
-unsigned long get_file_size(char *filename) 
-{
-   FILE* fp = fopen(filename, "r"); 
-   if (fp == NULL)
-   {
-      fprintf(stderr, "File Not Found!\n");
-      return -1;
-   }
-   fseek(fp, 0L, SEEK_END);
-   unsigned long res = ftell(fp); //counting the size of the file
-   fclose(fp); //closing the file
-   return res;
+unsigned long get_file_size(char *filename) {
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "File Not Found!\n");
+        return -1;
+    }
+    fseek(fp, 0L, SEEK_END);
+    unsigned long res = ftell(fp); // counting the size of the file
+    fclose(fp);                    // closing the file
+    return res;
 }

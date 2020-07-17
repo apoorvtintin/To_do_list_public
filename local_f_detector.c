@@ -205,9 +205,9 @@ int main(int argc, char *argv[]) {
            heartbeat_interval);
 
     fflush(stdout);
-    
-	while (1) {
-		sleep(1);
+
+    while (1) {
+        sleep(1);
 #if 0
         printf("\nEnter the new interval below to change it\n");
         printf("\nHeartbeat interval: ");

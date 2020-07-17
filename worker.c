@@ -7,7 +7,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <semaphore.h> 
+#include <semaphore.h>
 #include "log.h"
 #include "worker.h"
 #include "c_s_iface.h"
@@ -20,22 +20,15 @@ static volatile int is_prune = 0;
 static hdl_nrl_t hdl_nrl;
 static hdl_ctrl_t hdl_ctrl;
 
-void set_worker_prune()
-{
-    is_prune = 1;
-}
+void set_worker_prune() { is_prune = 1; }
 
-bool should_nrl_thrd_sleep()
-{
-    if((get_mode() == PASSIVE_REP) && (
-                get_state() == PASSIVE_BACKUP))
-    {
+bool should_nrl_thrd_sleep() {
+    if ((get_mode() == PASSIVE_REP) && (get_state() == PASSIVE_BACKUP)) {
         return true;
     }
-    return false; 
+    return false;
 }
-void free_msg(client_ctx_t *client_ctx)
-{
+void free_msg(client_ctx_t *client_ctx) {
     if (client_ctx->fd >= 0) {
         close(client_ctx->fd);
         client_ctx->fd = -1;
@@ -50,21 +43,16 @@ void *run(void *argp) {
     server_log_t *svr = (server_log_t *)gs_server_log;
     int prio;
     int64_t prio1 = (int64_t)argp;
-    prio = (int) prio1;
+    prio = (int)prio1;
     while (1) {
-        if((prio == NORMAL) && (is_prune == 1))
-        {
+        if ((prio == NORMAL) && (is_prune == 1)) {
             log_node_t *node1;
-            while((node1 = dequeue(svr, NORMAL)) != NULL)
-            {
+            while ((node1 = dequeue(svr, NORMAL)) != NULL) {
                 client_ctx_t *ctx = node1->val;
-                if(ctx->req.msg_type != MSG_CHK_PT)
-                {
+                if (ctx->req.msg_type != MSG_CHK_PT) {
                     free_msg(ctx);
                     free(node1);
-                }
-                else
-                {
+                } else {
                     is_prune = 0;
                     hdl_nrl(node1->val);
                     free(node1);
@@ -72,15 +60,14 @@ void *run(void *argp) {
                 }
             }
         }
-        if((!is_prune && should_nrl_thrd_sleep()) && (prio == NORMAL))
-        {
+        if ((!is_prune && should_nrl_thrd_sleep()) && (prio == NORMAL)) {
             sleep(1);
             continue;
         }
         size_t n_count = (prio == NORMAL) ? get_count(svr, NORMAL) : 0,
                c_count = (prio == CONTROL) ? get_count(svr, CONTROL) : 0;
-        if((prio == NORMAL) && (get_mode() == PASSIVE_REP) && (get_state() == PASSIVE_RECOVER) && (n_count == 0))
-        {
+        if ((prio == NORMAL) && (get_mode() == PASSIVE_REP) &&
+            (get_state() == PASSIVE_RECOVER) && (n_count == 0)) {
             set_state(PASSIVE_PRIMARY);
         }
         if ((n_count == 0) && (c_count == 0)) {
@@ -119,7 +106,6 @@ void *run(void *argp) {
     }
 }
 
-
 int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2) {
     if (svr == NULL) {
         return -1;
@@ -136,7 +122,7 @@ int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2) {
         fprintf(stderr, "NORMAL worker theread creation failed!!!");
         exit(0);
     }
-    fprintf(stderr, "Started worker thread with TH_ID = %x, %x\n", (uint32_t)th_id[0],
-            (uint32_t)th_id[1]);
+    fprintf(stderr, "Started worker thread with TH_ID = %x, %x\n",
+            (uint32_t)th_id[0], (uint32_t)th_id[1]);
     return 0;
 }

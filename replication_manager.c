@@ -214,34 +214,34 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 }
 
 int elect_new_primary() {
-	int replica_id = (primary_replica_id + 1) % MAX_REPLICAS;
-	int clientfd = 0;
-	int status = 0;
-	char buf[MAX_LENGTH];
+    int replica_id = (primary_replica_id + 1) % MAX_REPLICAS;
+    int clientfd = 0;
+    int status = 0;
+    char buf[MAX_LENGTH];
 
-	memset(buf, 0, MAX_LENGTH);
+    memset(buf, 0, MAX_LENGTH);
 
-	sprintf(buf, "Replica ID: %d\r\n"
-				 "Factory Req: %d\r\n\r\n",
-				 replica_id, MAKE_PRIMARY);
-	
-	clientfd = connect_to_server(&data.node[replica_id].factory);
-	if (clientfd < 0) {
-		printf("Connect failed: %s\n", strerror(errno));
-		return -1;
-	}
+    sprintf(buf, "Replica ID: %d\r\n"
+                 "Factory Req: %d\r\n\r\n",
+            replica_id, MAKE_PRIMARY);
 
-	status = write(clientfd, buf, MAX_LENGTH);
-	if (status < 0) {
-		printf("Write failed: %s\n", strerror(errno));
-		close(clientfd);
-		return -1;
-	}
+    clientfd = connect_to_server(&data.node[replica_id].factory);
+    if (clientfd < 0) {
+        printf("Connect failed: %s\n", strerror(errno));
+        return -1;
+    }
 
-	close(clientfd);
-	
-	primary_replica_id = replica_id;
-	return 0;
+    status = write(clientfd, buf, MAX_LENGTH);
+    if (status < 0) {
+        printf("Write failed: %s\n", strerror(errno));
+        close(clientfd);
+        return -1;
+    }
+
+    close(clientfd);
+
+    primary_replica_id = replica_id;
+    return 0;
 }
 
 int handle_current_state() {
@@ -249,7 +249,7 @@ int handle_current_state() {
     active_count = 0;
     inactive_count = 0;
     startup_req = 0;
-	int status = 0;
+    int status = 0;
 
     for (replica_iter = 0; replica_iter < data.num_replicas; replica_iter++) {
 
@@ -258,14 +258,14 @@ int handle_current_state() {
         }
 
         else if (data.node[replica_iter].state == FAULTED) {
-			if (mode == 0) {
-				if (replica_iter == primary_replica_id) {
-					status = elect_new_primary();
-					if (status < 0) {
-						printf("New primary election failed\n");
-					}
-				}
-			}
+            if (mode == 0) {
+                if (replica_iter == primary_replica_id) {
+                    status = elect_new_primary();
+                    if (status < 0) {
+                        printf("New primary election failed\n");
+                    }
+                }
+            }
 
             if (restart_server(replica_iter) != 0) {
                 printf("Startup req could not be sent\n");

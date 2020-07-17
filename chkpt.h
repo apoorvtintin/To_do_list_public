@@ -1,7 +1,7 @@
 /*
  * @file chkpt.h
  * @author Mohammed Sameer <sameer.2897@gmail.com>
- * @brief this file has the interface fucntion defnitions for 
+ * @brief this file has the interface fucntion defnitions for
  * checkpointing functionality.
  */
 #ifndef _CHKPT_H_

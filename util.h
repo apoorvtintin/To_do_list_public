@@ -5,7 +5,6 @@
  * for the distributed app.
  */
 
-
 #ifndef __UTIL__H
 #define __UTIL__H
 
@@ -34,7 +33,7 @@ int parse_response_from_server(struct message_response *response,
 char *get_task_status_str(enum t_status stat);
 char *get_msg_type_str(msg_type_t msg_type);
 
-unsigned long get_file_size(char *filename); 
+unsigned long get_file_size(char *filename);
 void init_bsvr_ctx(bsvr_ctx *obj);
 
 #endif

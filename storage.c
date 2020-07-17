@@ -51,19 +51,19 @@ int storage_init() { return hash_table_init(); }
 void storage_deinit() { hash_table_deinit(); }
 
 void export_db(char *file) {
-	export_db_internal(file);
-	return;
+    export_db_internal(file);
+    return;
 }
 
 void print_state() {
-	print_state_internal();
-	return;
+    print_state_internal();
+    return;
 }
 
 int import_db(char *file) {
-	printf("Import DB\n");
-	import_db_internal(file);
-	return 0;
+    printf("Import DB\n");
+    import_db_internal(file);
+    return 0;
 }
 
 int handle_storage(client_ctx_t *client_ctx) {
@@ -96,13 +96,12 @@ int handle_storage(client_ctx_t *client_ctx) {
     case MSG_HEARTBEAT:
         ret = 0;
         break;
-    case MSG_CHK_PT:
-        {
-            ret = import_db(client_ctx->req.filename);
-            ret = 0;
-            remove(client_ctx->req.filename);
-            print_state();
-        }
+    case MSG_CHK_PT: {
+        ret = import_db(client_ctx->req.filename);
+        ret = 0;
+        remove(client_ctx->req.filename);
+        print_state();
+    }
     default:
         ret = -1;
     }
