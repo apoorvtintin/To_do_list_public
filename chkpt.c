@@ -12,9 +12,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdbool.h>
 
 #include "util.h"
 #include "storage.h"
+#include "dbg_assert.h"
 
 // Temp remove this
 extern int msg_count;
@@ -26,6 +28,11 @@ extern uint64_t chk_point_num;
 static volatile int signal_exit_checkpt_thread = 0;
 static volatile int is_chkpt_thrd_running = 0;
 static bsvr_ctx bckup_svr[2];
+
+void set_bckup_servers(bsvr_ctx svrs[2])
+{
+    memcpy(bckup_svr, svrs, 2 * sizeof(bsvr_ctx));
+}
 
 void open_ports_secondary()
 {
@@ -112,12 +119,15 @@ void * send_checkpoint(void *argvp)
             is_chkpt_thrd_running = 0;
             return (void *)0;
         }
+        sleep(10); // TODO: checge this, run every 10 seconds
+#if 0
         if(msg_count < 2)
         {
             sleep(1);
             continue;
         }
         msg_count = 0;
+#endif
         open_ports_secondary();
 
         // Add code to get the checkpoint
@@ -141,7 +151,7 @@ void start_ckhpt_thread()
 {
     if(is_chkpt_thrd_running == 1)
     {
-        fprintf(stderr, "The chkpt thread is already running!!!\n");
+        dbg_printf("The chkpt thread is already running!!!\n");
         return;
     }
     pthread_t id;
@@ -153,5 +163,14 @@ void stop_chk_pt_thread()
 {
     signal_exit_checkpt_thread = 1;
     while(signal_exit_checkpt_thread == 1);
+    return;
+}
+
+void kill_chkpt_thrd_if_running()
+{
+    if(is_chkpt_thrd_running == 1)
+    {
+        stop_chk_pt_thread();
+    }
     return;
 }

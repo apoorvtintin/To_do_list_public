@@ -30,5 +30,6 @@ typedef struct _client_ctx {
     client_request_t req;
     bool is_backlog;
 } client_ctx_t;
+#define CLIENT_CTX_INITIALISER {-1, 0, {1}, CLIENT_REQUEST_INITIALISER, 0}
 
 #endif

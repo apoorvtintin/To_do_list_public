@@ -260,7 +260,7 @@ int make_server_primary() {
 	sprintf(buf, "Client ID: %d\r\n"
 			"Request No: %d\r\n"
 			"Message Type: %d\r\n\r\n",
-			0, 0, MSG_MAKE_PRIMARY);
+			0, 0, MSG_REP_MGR);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);

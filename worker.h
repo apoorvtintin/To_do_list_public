@@ -10,8 +10,7 @@
 typedef void *(*hdl_nrl_t)(void *);
 typedef void *(*hdl_ctrl_t)(void *);
 
-int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2, 
-        int passive);
+int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2);
 void set_worker_prune();
 
 #endif

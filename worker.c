@@ -17,7 +17,6 @@
 // Global Static Data
 static server_log_t *gs_server_log = NULL;
 static volatile int is_prune = 0;
-static int is_passive;
 static hdl_nrl_t hdl_nrl;
 static hdl_ctrl_t hdl_ctrl;
 
@@ -80,6 +79,10 @@ void *run(void *argp) {
         }
         size_t n_count = (prio == NORMAL) ? get_count(svr, NORMAL) : 0,
                c_count = (prio == CONTROL) ? get_count(svr, CONTROL) : 0;
+        if((prio == NORMAL) && (get_mode() == PASSIVE_REP) && (get_state() == PASSIVE_RECOVER) && (n_count == 0))
+        {
+            set_state(PASSIVE_PRIMARY);
+        }
         if ((n_count == 0) && (c_count == 0)) {
             // sleep for 1 sec;
             sleep(1);
@@ -117,12 +120,10 @@ void *run(void *argp) {
 }
 
 
-int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2, 
-        int p_is_passive) {
+int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2) {
     if (svr == NULL) {
         return -1;
     }
-    is_passive = p_is_passive;
     gs_server_log = svr;
     hdl_nrl = f1;
     hdl_ctrl = f2;

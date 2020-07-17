@@ -11,5 +11,6 @@
 
 #define dbg_requires(expr) assert(expr)
 #define dbg_ensures(expr) assert(expr)
+#define dbg_printf(...) printf(__VA_ARGS__)
 
 #endif

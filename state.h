@@ -37,12 +37,12 @@ typedef struct _server_state
     server_states_t state;
 } run_state_t;
 
-extern volatile run_state_t server_state;
 
 void set_mode(rep_mode_t rep_mode);
 void set_state(server_states_t s_state);
 rep_mode_t get_mode();
 server_states_t get_state();
-
+char* rep_mode_str(rep_mode_t rep_mode);
+char* server_states_str(server_states_t server_state);
 
 #endif

@@ -28,9 +28,9 @@
 #include "log.h"
 #include "worker.h"
 #include "state.h"
+#include "chkpt.h"
 
 // Global variables
-int is_primary = 0;
 server_log_t svr_log;
 int server_id;
 int msg_count = 0;
@@ -175,6 +175,62 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         }
         
     }
+    else if(strcmp(key, "REP MODE") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.rep_mode) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
+    }
+    else if(strcmp(key, "Server State") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.server_state) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
+    }
+    else if(strcmp(key, "Replica 1 ID") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[0].server_id) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
+    }
+    else if (strcmp(key, "Replica 1 IP") == 0) 
+    {
+        strncpy(client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip, value, sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip));
+    } 
+    else if(strcmp(key, "Replica 1 Port") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[0].info.port) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
+    }
+    else if(strcmp(key, "Replica 2 ID") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[1].server_id) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
+    }
+    else if (strcmp(key, "Replica 2 IP") == 0) 
+    {
+        strncpy(client_ctx->req.rep_mgr_msg.bckup_svr[1].info.server_ip, value, sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[1].info.server_ip));
+    } 
+    else if(strcmp(key, "Replica 2 Port") == 0)
+    {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.bckup_svr[1].info.port) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
+    }
 
     return 0;
 }
@@ -276,7 +332,9 @@ void *handle_connection(void *arg) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
-    if(!is_primary && (client_ctx->req.msg_type != MSG_HEARTBEAT))
+    if((get_mode() == PASSIVE_REP && get_state() == PASSIVE_BACKUP) 
+            && (client_ctx->req.msg_type != MSG_HEARTBEAT) 
+            && (client_ctx->req.msg_type != MSG_REP_MGR))
     {
         close(client_ctx->fd);
     }
@@ -293,6 +351,48 @@ _EXIT:
     return (void *)-1;
 }
 
+void handle_rep_msg(client_ctx_t *client_ctx)
+{
+    rep_mgr_msg_t *rep_mgr_msg = &client_ctx->req.rep_mgr_msg;
+    set_mode(rep_mgr_msg->rep_mode);
+    kill_chkpt_thrd_if_running();
+    set_state(rep_mgr_msg->server_state);
+
+}
+
+void *execute_msg_ctrl(void *arg)
+{
+    client_ctx_t *client_ctx = arg;
+    print_user_req(client_ctx, "Req");
+
+    switch(client_ctx->req.msg_type)
+    {
+        case MSG_REP_MGR:
+            handle_rep_msg(client_ctx);
+            break;
+        case MSG_HEARTBEAT:
+            break;
+        default:
+            fprintf(stderr, "Unknown/Unhandled MSG \n");
+    }
+    print_user_req(client_ctx, "Res");
+
+    write_client_responce(client_ctx, "OK", "Success");
+
+    if (client_ctx->fd >= 0) {
+        close(client_ctx->fd);
+        client_ctx->fd = -1;
+    }
+    if(client_ctx->req.payload.size > 0)
+    {
+        free(client_ctx->req.payload.data);
+    }
+    if (client_ctx) {
+        free(client_ctx);
+        client_ctx = NULL;
+    }
+    return (void *)0;
+}
 void *execute_msg(void *arg) {
     client_ctx_t *client_ctx = arg;
 
@@ -343,9 +443,13 @@ void init_server_ctx(server_ctx_t *ctx) {
 }
 
 void init_client_ctx(client_ctx_t *ctx) {
+    client_ctx_t c = CLIENT_CTX_INITIALISER;
+    memcpy(ctx, &c, sizeof(client_ctx_t));
+#if 0
     ctx->fd = -1;
     memset(&ctx->addr, 0, sizeof(ctx->addr));
     memset(&ctx->req, 0, sizeof(ctx->req));
+#endif
     return;
 }
 
@@ -366,7 +470,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Entered IP Address invalid!\n");
         exit(EXIT_FAILURE);
     }
-
     server_addr.sin_port = htons(atoi(argv[2]));
     listen_fd = socket(AF_INET, SOCK_STREAM, 0); // create a TCP socket.
     if (listen_fd < 0) {
@@ -395,7 +498,7 @@ int main(int argc, char *argv[]) {
 
     init_log_queue(&svr_log, 50, 50);
 
-    if (start_worker_threads(&svr_log, execute_msg, execute_msg, !is_primary) 
+    if (start_worker_threads(&svr_log, execute_msg, execute_msg_ctrl) 
             != 0) {
         fprintf(stderr, "Failed to start the worker thread\n");
         exit(-1);

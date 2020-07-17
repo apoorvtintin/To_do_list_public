@@ -8,6 +8,8 @@
 #define _CHKPT_H_
 #include <stdio.h>
 
+void start_ckhpt_thread();
 
+void kill_chkpt_thrd_if_running();
 
 #endif

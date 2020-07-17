@@ -5,28 +5,18 @@
  * for the distributed app.
  */
 
-#include "c_s_iface.h"
 
 #ifndef __UTIL__H
 #define __UTIL__H
+
+#include "c_s_iface.h"
+
 typedef struct buf_fd {
     int fd;
     char buf[8192];
     char *buf_ptr;
     size_t bytes_pend;
 } sock_buf_read;
-
-struct server_info {
-    char server_ip[1024];
-    int port;
-};
-
-typedef struct _bsvr_ctx
-{
-    int fd;
-    struct server_info info;
-    unsigned int server_id;
-} bsvr_ctx;
 
 // Socket Read and write funnctions which account for
 // short counts.
