@@ -281,7 +281,6 @@ void *handle_connection(void *arg) {
         if (parse_kv(client_ctx, key, value) == -1) {
             goto _EXIT;
         }
-		printf("%s\n", msg_buf);
 		memset(msg_buf, 0, MAXMSGSIZE);
         ++input_fields_counter;
     }
@@ -343,7 +342,8 @@ _EXIT:
 
 void handle_rep_msg(client_ctx_t *client_ctx) {
     rep_mgr_msg_t *rep_mgr_msg = &client_ctx->req.rep_mgr_msg;
-    set_mode(rep_mgr_msg->rep_mode);
+    if(get_mode() == UNKNOWN_REP)
+        set_mode(rep_mgr_msg->rep_mode);
     kill_chkpt_thrd_if_running();
     set_state(rep_mgr_msg->server_state);
 }

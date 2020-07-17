@@ -74,10 +74,12 @@ int write_check_point(bsvr_ctx *ctx, char *chk_file_name) {
                             server_id, chk_point_num, MSG_CHK_PT,
                             get_file_size(chk_file_name));
     fprintf(stderr, "sending checkpint to replica %d\n", ctx->server_id);
-    fprintf(stderr, "\n-------------------------------------------------\n");
+    fprintf(stderr, "-------------------------------------------------\n");
+    fprintf(stderr, "Replica IP: %s\n", ctx->info.server_ip);
+    fprintf(stderr, "Replica Port: %d\n", ctx->info.port);
     write(2, resp_buf, resp_len);
     print_state();
-    fprintf(stderr, "\n-------------------------------------------------\n");
+    fprintf(stderr, "-------------------------------------------------\n");
     if (write(ctx->fd, resp_buf, resp_len) < 0) {
         fprintf(stderr, "failed writing checkpoint\n");
         goto _END;

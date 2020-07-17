@@ -25,14 +25,16 @@ void set_mode(rep_mode_t rep_mode) {
 }
 
 void set_state(server_states_t s_state) {
+    dbg_printf("\nTrying to set state to %s; cur mode = %s, cur state = %s\n", server_states_str(s_state),
+            rep_mode_str(server_state.rep_mode), server_states_str(server_state.state));
     dbg_requires(
         (server_state.rep_mode != UNKNOWN_REP)); // Make sure rep mode was set
     if (server_state.rep_mode == ACTIVE_REP) {
-        if (s_state != ACTIVE_RUNNING || s_state != ACTIVE_RECOVER) {
+        if (s_state != ACTIVE_RUNNING && s_state != ACTIVE_RECOVER) {
             dbg_ensures(false);
         }
     } else if (server_state.rep_mode == PASSIVE_REP) {
-        if (s_state != PASSIVE_PRIMARY || s_state != PASSIVE_BACKUP ||
+        if (s_state != PASSIVE_PRIMARY && s_state != PASSIVE_BACKUP &&
             s_state != PASSIVE_RECOVER) {
             dbg_ensures(false);
         }
