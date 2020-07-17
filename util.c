@@ -230,6 +230,8 @@ char *get_msg_type_str(msg_type_t msg_type) {
         return "MSG_HEARTBEAT";
     case MSG_CHK_PT:
         return "MSG_CHK_PT";
+	case MSG_REP_MGR:
+		return "MSG_MAKE_PRIMARY";
     default:
         return "YOU FORGOT";
     };

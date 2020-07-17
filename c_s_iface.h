@@ -37,7 +37,7 @@ typedef enum _msg_type {
     MSG_REMOVE,
     MSG_HEARTBEAT,
     MSG_CHK_PT,
-    MSG_REP_MGR
+    MSG_REP_MGR,
 } msg_type_t;
 
 struct message_add {

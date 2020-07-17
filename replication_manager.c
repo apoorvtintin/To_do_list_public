@@ -19,6 +19,7 @@
 #include "server.h"
 #include "replication_util.h"
 #include "confuse.h"
+#include "state.h"
 
 // Global Variables
 long verbose = 0;
@@ -26,7 +27,7 @@ rep_manager_data data;
 pthread_mutex_t *lock;
 
 int mode = 0;
-int primary_replica_id = 0;
+int primary_replica_id = -1;
 
 struct membership_data {
     int num_servers;
@@ -52,6 +53,16 @@ static void init_client_ctx(client_ctx_t *ctx) {
     memset(&ctx->addr, 0, sizeof(ctx->addr));
     memset(&ctx->req, 0, sizeof(ctx->req));
     return;
+}
+
+void init_server_state() {
+	int i = 0;
+
+	for (i = 0; i < MAX_REPLICAS; i++) {
+		data.node[i].state = FAULTED;
+	}
+
+	return;
 }
 
 int main(int argc, char *argv[]) {
@@ -99,6 +110,8 @@ int main(int argc, char *argv[]) {
     client_ctx_t conn_client_ctx;
 
     init_gfd_hbt();
+
+	init_server_state();
 
     memset(&client_addr, 0, sizeof(struct sockaddr));
     while (1) {
@@ -195,14 +208,207 @@ void print_current_state_info(replication_manager_message fault_detector_ctx) {
     fflush(stdout);
 }
 
+void fill_message_for_primary_election(char *buf, int replica_id) {
+	int i = 0;
+	int replica_id_1 = -1;
+	int replica_id_2 = -1;
+
+	rep_mode_t mode_rep;
+	
+	if (mode == 0) {
+		mode_rep = PASSIVE_REP;
+	} else if (mode == 1) {
+		mode_rep = ACTIVE_REP;
+	}
+
+	for (i = 0; i < MAX_REPLICAS; i++) {
+		if (i == replica_id)
+			continue;
+
+		if (replica_id_1 == -1) {
+			replica_id_1 = i;
+			continue;
+		}
+
+		if (replica_id_2 == -1) {
+			replica_id_2 = i;
+			continue;
+		}
+	}
+
+	sprintf(buf, "Replica ID: %d\r\n"
+			"Factory Req: %d\r\n"
+			"REP MODE: %d\r\n"
+			"Server State: %d\r\n"
+			"Replica 1 ID: %d\r\n"
+			"Replica 1 IP: %s\r\n"
+			"Replica 1 Port: %s\r\n"
+			"Replica 2 ID: %d\r\n"
+			"Replica 2 IP: %s\r\n"
+			"Replica 2 Port: %s\r\n\r\n",
+			replica_id, CHANGE_STATE,
+			mode_rep, PASSIVE_PRIMARY,
+			replica_id_1, data.node[replica_id_1].factory_ip,
+			data.node[replica_id_1].factory_port, replica_id_2,
+			data.node[replica_id_2].factory_ip,
+			data.node[replica_id_2].factory_port);
+
+	return;
+}
+
+int elect_new_primary(int replica_id) {
+	int clientfd = 0;
+	int status = 0;
+	char buf[MAX_LENGTH];
+
+	memset(buf, 0, MAX_LENGTH);
+
+	fill_message_for_primary_election(buf, replica_id);
+	
+	printf("New primary %d\n Buf %s\n", replica_id, buf);
+
+	clientfd = connect_to_server(&data.node[replica_id].factory);
+	if (clientfd < 0) {
+		printf("Connect failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(clientfd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(clientfd);
+		return -1;
+	}
+
+	close(clientfd);
+	
+	primary_replica_id = replica_id;
+	return 0;
+}
+
+int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
+						server_states_t server_state) {
+	char buf[MAX_LENGTH];
+	int clientfd = 0;
+	int status = 0;
+
+	memset(buf, 0, MAX_LENGTH);
+	
+	sprintf(buf, "Replica ID: %d\r\n"
+			"Factory Req: %d\r\n"
+			"REP MODE: %d\r\n"
+			"Server State: %d\r\n\r\n",
+			replica_id, CHANGE_STATE,
+			mode_rep, server_state);
+
+	printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
+	
+	clientfd = connect_to_server(&data.node[replica_id].factory);
+	if (clientfd < 0) {
+		printf("Connect failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(clientfd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(clientfd);
+		return -1;
+	}
+
+	close(clientfd);
+	
+	return 0;
+}
+
 int handle_state(replication_manager_message fault_detector_ctx) {
+	int status = 0;
 
     pthread_mutex_lock(lock);
     // change internal state
     int replica_id = fault_detector_ctx.replica_id;
-    data.node[replica_id].state = fault_detector_ctx.state;
     data.node[replica_id].last_heartbeat = 1;
 
+	printf("Recieved message on RM Replica ID %d State %d\n", replica_id, fault_detector_ctx.state);
+
+	if (fault_detector_ctx.state == RUNNING) {
+		if (data.node[replica_id].state == FAULTED) {
+			// Start up stage
+
+			if (mode == 0) {
+				// Passive mode
+				if (replica_id != primary_replica_id) {
+					status = send_change_status_to_server(replica_id, PASSIVE_REP, PASSIVE_BACKUP);
+					if (status < 0) {
+						printf("Sending state to backup failed\n");
+						return -1;
+					}
+				} else {
+					status = elect_new_primary(primary_replica_id);
+					if (status < 0) {
+						printf("Primary election failed\n");
+						return -1;
+					}
+				}
+			} else if (mode == 1) {
+				// Active mode
+
+				status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
+				if (status < 0) {
+					printf("Sending state to backup failed\n");
+					return -1;
+				}
+			}
+		}
+
+		data.node[replica_id].state = fault_detector_ctx.state;
+	
+	} else if (fault_detector_ctx.state == FAULTED) {
+		if (mode == 0) {
+			// Passive mode
+
+			if (primary_replica_id == -1) {
+				if (restart_server(replica_id) != 0) {
+					printf("Startup req could not be sent\n");
+				} else {
+					printf("Sent startup messaage to server %d\n", replica_id);
+				}
+				
+				primary_replica_id = replica_id;
+
+			} else if (replica_id == primary_replica_id) {
+				primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
+				status = elect_new_primary(primary_replica_id);
+				if (status < 0) {
+					printf("Primary election failed\n");
+					return -1;
+				}
+				
+				if (restart_server(replica_id) != 0) {
+					printf("Startup req could not be sent\n");
+				} else {
+					printf("Sent startup messaage to server %d\n", replica_id);
+				}
+			} else {
+				if (restart_server(replica_id) != 0) {
+					printf("Startup req could not be sent\n");
+				} else {
+					printf("Sent startup messaage to server %d\n", replica_id);
+				}
+			}
+
+		} else if (mode == 1) {
+			// Active mode
+			if (restart_server(replica_id) != 0) {
+				printf("Startup req could not be sent\n");
+			} else {
+				printf("Sent startup messaage to server %d\n", replica_id);
+			}
+		}
+		
+		data.node[replica_id].state = FAULTED;
+	}
+ 
     // check if unstable state
     // take action based on that
     print_current_state_info(fault_detector_ctx);
@@ -213,43 +419,11 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     return 0;
 }
 
-int elect_new_primary() {
-    int replica_id = (primary_replica_id + 1) % MAX_REPLICAS;
-    int clientfd = 0;
-    int status = 0;
-    char buf[MAX_LENGTH];
-
-    memset(buf, 0, MAX_LENGTH);
-
-    sprintf(buf, "Replica ID: %d\r\n"
-                 "Factory Req: %d\r\n\r\n",
-            replica_id, MAKE_PRIMARY);
-
-    clientfd = connect_to_server(&data.node[replica_id].factory);
-    if (clientfd < 0) {
-        printf("Connect failed: %s\n", strerror(errno));
-        return -1;
-    }
-
-    status = write(clientfd, buf, MAX_LENGTH);
-    if (status < 0) {
-        printf("Write failed: %s\n", strerror(errno));
-        close(clientfd);
-        return -1;
-    }
-
-    close(clientfd);
-
-    primary_replica_id = replica_id;
-    return 0;
-}
-
 int handle_current_state() {
     int replica_iter, active_count, inactive_count, startup_req;
     active_count = 0;
     inactive_count = 0;
     startup_req = 0;
-    int status = 0;
 
     for (replica_iter = 0; replica_iter < data.num_replicas; replica_iter++) {
 
@@ -257,23 +431,7 @@ int handle_current_state() {
             active_count++;
         }
 
-        else if (data.node[replica_iter].state == FAULTED) {
-            if (mode == 0) {
-                if (replica_iter == primary_replica_id) {
-                    status = elect_new_primary();
-                    if (status < 0) {
-                        printf("New primary election failed\n");
-                    }
-                }
-            }
-
-            if (restart_server(replica_iter) != 0) {
-                printf("Startup req could not be sent\n");
-            } else {
-                printf("Sent startup messaage to server %d\n", replica_iter);
-                data.node[replica_iter].state = SENT_STARTUP_REQ;
-                startup_req++;
-            }
+        else if (data.node[replica_iter].state == FAULTED) { 
             inactive_count++;
         }
 
@@ -323,6 +481,7 @@ static int read_config_file(char *path) {
     int parse_ret;
 
     cfg_opt_t opts[] = {
+        CFG_SIMPLE_STR("replication_mode", &data.mode_str),
         CFG_SIMPLE_STR("configuration_manager_ip", &data.server_ip),
         CFG_SIMPLE_STR("configuration_manager_port", &data.port),
         CFG_SIMPLE_INT("configuration_manager_verbose", &verbose),
@@ -353,6 +512,15 @@ static int read_config_file(char *path) {
     data.node[1].factory.port = atoi(data.node[1].factory_port);
     strncpy(data.node[2].factory.server_ip, data.node[2].factory_ip, 20);
     data.node[2].factory.port = atoi(data.node[2].factory_port);
+
+	if (!strncmp(data.mode_str, "passive", strlen("passive"))) {
+		printf("\nReplication mode: Passive\n\n");
+		mode = 0;
+	} else if(!strncmp(data.mode_str, "active", strlen("active"))) {
+		printf("\nReplication mode: Active\n\n");
+		mode = 1;
+	}
+
     return 0;
 }
 

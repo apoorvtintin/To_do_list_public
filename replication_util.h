@@ -15,11 +15,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "state.h"
+
 // Definitions
 #define MAX_REPLICAS 3
 
 // Structures
-enum replica_state { RUNNING = 0, FAULTED = 1, SENT_STARTUP_REQ = 2 };
+enum replica_state {
+	RUNNING = 0,
+	FAULTED = 1,
+	SENT_STARTUP_REQ = 2,
+};
 
 typedef struct replica_node_t {
     int replica_id;
@@ -32,6 +38,7 @@ typedef struct replica_node_t {
 
 typedef struct rep_manager_data_t {
     long num_replicas;
+	char *mode_str;
     char *server_ip;
     char *port;
     replica_node node[MAX_REPLICAS];
@@ -62,11 +69,14 @@ typedef struct factory_data_t {
 
 enum factory_req {
     STARTUP = 0,
-    MAKE_PRIMARY = 1,
+	CHANGE_STATE = 1,
     NO_ACTION = 2,
 };
 
 typedef struct factory_message_t {
     int replica_id;
     enum factory_req req;
+	rep_mode_t mode_rep;
+	server_states_t server_state;
+	struct server_info server_arr[MAX_REPLICAS];
 } factory_message;
