@@ -34,7 +34,8 @@ typedef enum _msg_type {
     MSG_GET_ALL,
     MSG_REMOVE,
     MSG_HEARTBEAT,
-    MSG_CHK_PT
+    MSG_CHK_PT,
+	MSG_MAKE_PRIMARY,
 } msg_type_t;
 
 struct message_add {
