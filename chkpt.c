@@ -98,13 +98,19 @@ _END:
 }
 
 void *send_checkpoint(void *argvp) {
+    int sleep_count = 0;
     while (1) {
-        if (signal_exit_checkpt_thread == 1) {
-            signal_exit_checkpt_thread = 0;
-            is_chkpt_thrd_running = 0;
-            return (void *)0;
+
+        while(sleep_count < 10)
+        {
+            if (signal_exit_checkpt_thread == 1) {
+                signal_exit_checkpt_thread = 0;
+                is_chkpt_thrd_running = 0;
+                return (void *)0;
+            }
+            sleep(1); // TODO: checge this, run every 10 seconds
         }
-        sleep(10); // TODO: checge this, run every 10 seconds
+        sleep_count = 0;
 #if 0
         if(msg_count < 2)
         {
