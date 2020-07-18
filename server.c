@@ -223,7 +223,14 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
             fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
             return -1;
         }
+    } else if (strcmp(key, "Checkpoint freq") == 0) {
+        if (str_to_int(value, (int *)&client_ctx->req.rep_mgr_msg.checkpoint_freq) != 0) {
+            write_client_responce(client_ctx, "FAIL", "Malformed Data Length.");
+            fprintf(stderr, "Data Length Conversion failed!!! %d\n", __LINE__);
+            return -1;
+        }
     }
+
 
     return 0;
 }
@@ -345,6 +352,8 @@ void handle_rep_msg(client_ctx_t *client_ctx) {
     if(get_mode() == UNKNOWN_REP)
         set_mode(rep_mgr_msg->rep_mode);
     kill_chkpt_thrd_if_running();
+	set_bckup_servers(rep_mgr_msg->bckup_svr);
+	set_checkpoint_freq(rep_mgr_msg->checkpoint_freq);
     set_state(rep_mgr_msg->server_state);
 }
 

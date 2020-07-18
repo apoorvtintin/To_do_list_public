@@ -27,33 +27,38 @@ extern uint64_t chk_point_num;
 // Global Static valiables.
 static volatile int signal_exit_checkpt_thread = 0;
 static volatile int is_chkpt_thrd_running = 0;
+static volatile int checkpoint_freq_g = 10;
 static bsvr_ctx bckup_svr[2];
 
-void set_bckup_servers(bsvr_ctx svrs[2]) {
+void set_bckup_servers(bsvr_ctx *svrs) {
     memcpy(bckup_svr, svrs, 2 * sizeof(bsvr_ctx));
 }
 
+void set_checkpoint_freq(int checkpoint_freq) {
+	checkpoint_freq_g = checkpoint_freq;
+	return;	
+}
+
 void open_ports_secondary() {
-    init_bsvr_ctx(&bckup_svr[0]);
-    init_bsvr_ctx(&bckup_svr[1]);
+    // init_bsvr_ctx(&bckup_svr[0]);
+    // init_bsvr_ctx(&bckup_svr[1]);
     // Hard coded for now;
     // take this info dynamically from somewhere else later
-    memcpy(bckup_svr[0].info.server_ip, "127.0.0.1", strlen("127.0.0.1") + 1);
-    bckup_svr[0].info.port = 23457;
-    bckup_svr[0].server_id = 1;
-    if ((bckup_svr[0].fd = connect_to_server(&bckup_svr[0].info)) < 0) {
+    // memcpy(bckup_svr[0].info.server_ip, "127.0.0.1", strlen("127.0.0.1") + 1);
+    // bckup_svr[0].info.port = 23457;
+    // bckup_svr[0].server_id = 1;
+    
+	if ((bckup_svr[0].fd = connect_to_server(&bckup_svr[0].info)) < 0) {
         fprintf(stderr, "failed open channel to backup server %d !!!\n",
                 bckup_svr[0].server_id);
-        exit(0);
     }
 
-    memcpy(bckup_svr[1].info.server_ip, "127.0.0.1", strlen("127.0.0.1") + 1);
-    bckup_svr[1].info.port = 23458;
-    bckup_svr[1].server_id = 2;
+    // memcpy(bckup_svr[1].info.server_ip, "127.0.0.1", strlen("127.0.0.1") + 1);
+    // bckup_svr[1].info.port = 23458;
+    // bckup_svr[1].server_id = 2;
     if ((bckup_svr[1].fd = connect_to_server(&bckup_svr[1].info)) < 0) {
         fprintf(stderr, "failed open channel to backup server %d!!\n",
                 bckup_svr[1].server_id);
-        exit(0);
     }
 }
 
@@ -101,13 +106,14 @@ void *send_checkpoint(void *argvp) {
     int sleep_count = 0;
     while (1) {
 
-        while(sleep_count < 10)
+        while(sleep_count < checkpoint_freq_g)
         {
             if (signal_exit_checkpt_thread == 1) {
                 signal_exit_checkpt_thread = 0;
                 is_chkpt_thrd_running = 0;
                 return (void *)0;
             }
+			sleep_count++;
             sleep(1); // TODO: checge this, run every 10 seconds
         }
         sleep_count = 0;

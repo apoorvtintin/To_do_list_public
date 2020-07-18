@@ -96,11 +96,12 @@ typedef struct _bsvr_ctx {
 typedef struct _rep_mgr_msg {
     rep_mode_t rep_mode;
     server_states_t server_state;
+	int checkpoint_freq;
     bsvr_ctx bckup_svr[2];
 } rep_mgr_msg_t;
 #define REP_MGR_MSG_INITIALISER                                                \
     {                                                                          \
-        0, 0, { BSVR_CTX_INITIALISER }                                         \
+        0, 0, 10, { BSVR_CTX_INITIALISER }                                         \
     }
 
 typedef struct _client_request {

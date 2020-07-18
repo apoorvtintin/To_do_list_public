@@ -265,7 +265,7 @@ int elect_new_primary(int replica_id) {
 
 	fill_message_for_primary_election(buf, replica_id);
 	
-	printf("New primary %d\n Buf %s\n", replica_id, buf);
+	// printf("New primary %d\n Buf %s\n", replica_id, buf);
 
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -301,7 +301,7 @@ int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
 			replica_id, CHANGE_STATE,
 			mode_rep, server_state);
 
-	printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
+	// printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {

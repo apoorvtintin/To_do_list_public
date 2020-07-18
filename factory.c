@@ -244,7 +244,7 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
         if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
-		printf("%s\n", msg_buf);
+		// printf("%s\n", msg_buf);
 		memset(msg_buf, 0, MAXMSGSIZE);
         ++input_fields_counter;
     }
@@ -287,7 +287,7 @@ int send_change_state_message(factory_message message) {
 			
 	}
 
-	printf("\n\nSending message to server BUF %s\n\n", buf);
+	// printf("\n\nSending message to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
