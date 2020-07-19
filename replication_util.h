@@ -41,6 +41,7 @@ typedef struct replica_node_t {
 
 typedef struct rep_manager_data_t {
     long num_replicas;
+	long checkpoint_freq;
 	char *mode_str;
     char *server_ip;
     char *port;
@@ -78,8 +79,11 @@ enum factory_req {
 
 typedef struct factory_message_t {
     int replica_id;
+	int bkp_replica_id_1;
+	int bkp_replica_id_2;
     enum factory_req req;
 	rep_mode_t mode_rep;
+	int checkpoint_freq;
 	server_states_t server_state;
 	struct server_info server_arr[MAX_REPLICAS];
 } factory_message;

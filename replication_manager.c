@@ -240,6 +240,7 @@ void fill_message_for_primary_election(char *buf, int replica_id) {
 			"Factory Req: %d\r\n"
 			"REP MODE: %d\r\n"
 			"Server State: %d\r\n"
+			"Checkpoint freq: %ld\r\n"
 			"Replica 1 ID: %d\r\n"
 			"Replica 1 IP: %s\r\n"
 			"Replica 1 Port: %d\r\n"
@@ -247,7 +248,7 @@ void fill_message_for_primary_election(char *buf, int replica_id) {
 			"Replica 2 IP: %s\r\n"
 			"Replica 2 Port: %d\r\n\r\n",
 			replica_id, CHANGE_STATE,
-			mode_rep, PASSIVE_PRIMARY,
+			mode_rep, PASSIVE_PRIMARY, data.checkpoint_freq,
 			replica_id_1, data.node[replica_id_1].server.server_ip,
 			data.node[replica_id_1].server.port, replica_id_2,
 			data.node[replica_id_2].server.server_ip,
@@ -265,7 +266,7 @@ int elect_new_primary(int replica_id) {
 
 	fill_message_for_primary_election(buf, replica_id);
 	
-	// printf("New primary %d\n Buf %s\n", replica_id, buf);
+	printf("New primary %d\n Buf %s\n", replica_id, buf);
 
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -301,7 +302,7 @@ int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
 			replica_id, CHANGE_STATE,
 			mode_rep, server_state);
 
-	// printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
+	printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -490,6 +491,7 @@ static int read_config_file(char *path) {
         CFG_SIMPLE_STR("configuration_manager_ip", &data.server_ip),
         CFG_SIMPLE_STR("configuration_manager_port", &data.port),
         CFG_SIMPLE_INT("configuration_manager_verbose", &verbose),
+        CFG_SIMPLE_INT("checkpoint_frequency", &data.checkpoint_freq),
         CFG_SIMPLE_INT("configuration_manager_num_replicas",
                        &(data.num_replicas)),
         CFG_SIMPLE_STR("factory_0_manager_ip", &data.node[0].factory_ip),

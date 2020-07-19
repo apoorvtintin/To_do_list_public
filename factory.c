@@ -244,11 +244,47 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
         if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
-		// printf("%s\n", msg_buf);
+		printf("%s\n", msg_buf);
 		memset(msg_buf, 0, MAXMSGSIZE);
         ++input_fields_counter;
     }
     return handle_rep_man_command(message);
+}
+
+void fill_change_state_buf(char *buf, factory_message *message) {
+
+	if (message->server_state == PASSIVE_PRIMARY) {
+		sprintf(buf, "Client ID: %d\r\n"
+					 "Request No: %d\r\n"
+					 "Message Type: %d\r\n"
+					 "REP MODE: %d\r\n"
+					 "Server State: %d\r\n"
+					 "Checkpoint freq: %d\r\n"
+					 "Replica 1 ID: %d\r\n"
+					 "Replica 1 IP: %s\r\n"
+					 "Replica 1 Port: %d\r\n"
+					 "Replica 2 ID: %d\r\n"
+					 "Replica 2 IP: %s\r\n"
+					 "Replica 2 Port: %d\r\n\r\n",
+					 0, 0, MSG_REP_MGR, message->mode_rep,
+					 message->server_state, message->checkpoint_freq,
+					 message->bkp_replica_id_1,
+					 message->server_arr[0].server_ip,
+					 message->server_arr[0].port, message->bkp_replica_id_2,
+					 message->server_arr[1].server_ip,
+					 message->server_arr[1].port);
+	} else {
+		sprintf(buf, "Client ID: %d\r\n"
+					 "Request No: %d\r\n"
+					 "Message Type: %d\r\n"
+					 "REP MODE: %d\r\n"
+					 "Server State: %d\r\n\r\n",
+					 0, 0, MSG_REP_MGR, message->mode_rep,
+					 message->server_state);
+			
+	}
+
+	return;
 }
 
 int send_change_state_message(factory_message message) {
@@ -260,34 +296,9 @@ int send_change_state_message(factory_message message) {
 	memset(&server, 0, sizeof(struct server_info));
 	memset(buf, 0, MAX_LENGTH);
 
-	if (message.server_state == PASSIVE_PRIMARY) {
-		sprintf(buf, "Client ID: %d\r\n"
-					 "Request No: %d\r\n"
-					 "Message Type: %d\r\n"
-					 "REP MODE: %d\r\n"
-					 "Server State: %d\r\n"
-					 "Replica 1 ID: %d\r\n"
-					 "Replica 1 IP: %s\r\n"
-					 "Replica 1 Port: %d\r\n"
-					 "Replica 2 ID: %d\r\n"
-					 "Replica 2 IP: %s\r\n"
-					 "Replica 2 Port: %d\r\n\r\n",
-					 0, 0, MSG_REP_MGR, message.mode_rep,
-					 message.server_state, 1, message.server_arr[0].server_ip,
-					 message.server_arr[0].port, 2, message.server_arr[1].server_ip,
-					 message.server_arr[1].port);
-	} else {
-		sprintf(buf, "Client ID: %d\r\n"
-					 "Request No: %d\r\n"
-					 "Message Type: %d\r\n"
-					 "REP MODE: %d\r\n"
-					 "Server State: %d\r\n\r\n",
-					 0, 0, MSG_REP_MGR, message.mode_rep,
-					 message.server_state);
-			
-	}
+	fill_change_state_buf(buf, &message);
 
-	// printf("\n\nSending message to server BUF %s\n\n", buf);
+	printf("\n\nSending message to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
@@ -423,8 +434,6 @@ int spawn_fault_detector(char *path) {
 
 static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
                                 char *value) {
-	int replica_id_1 = -1;
-	int replica_id_2 = -1;
 
     if (strcmp(key, "Replica ID") == 0) {
         if (str_to_int(value, &rep_manager_ctx->replica_id) != 0) {
@@ -453,7 +462,7 @@ static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
             return -1;
 		}
     } else if (strcmp(key, "Replica 1 ID") == 0) {
-		if (str_to_int(value, (int *)&replica_id_1) != 0) {
+		if (str_to_int(value, (int *)&rep_manager_ctx->bkp_replica_id_1) != 0) {
             fprintf(stderr, "Mode Conversion failed!!!\n");
             return -1;
 		}
@@ -465,7 +474,7 @@ static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
             return -1;
 		}
 	} else if (strcmp(key, "Replica 2 ID") == 0) {
-		if (str_to_int(value, (int *)&replica_id_2) != 0) {
+		if (str_to_int(value, (int *)&rep_manager_ctx->bkp_replica_id_2) != 0) {
 			fprintf(stderr, "Mode Conversion failed!!!\n");
 			return -1;
 		}
@@ -475,8 +484,13 @@ static int parse_rep_manager_kv(factory_message *rep_manager_ctx, char *key,
 		if (str_to_int(value, (int *)&rep_manager_ctx->server_arr[1].port) != 0) {
 			fprintf(stderr, "Port 2 failed!!!\n");
 			return -1;
-
+		}
+	} else if (strcmp(key, "Checkpoint freq") == 0) {
+		if (str_to_int(value, (int *)&rep_manager_ctx->checkpoint_freq) != 0) {
+			fprintf(stderr, "Checkpoint read failed!!!\n");
+			return -1;
 		}
 	}
+
     return 0;
 }
