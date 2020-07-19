@@ -322,6 +322,37 @@ int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
 	return 0;
 }
 
+int instruct_primary_to_send_chkpt(int replica_id) {
+	char buf[MAX_LENGTH];
+	int clientfd = 0;
+	int status = 0;
+
+	memset(buf, 0, MAX_LENGTH);
+	
+	sprintf(buf, "Replica ID: %d\r\n"
+			"Factory Req: %d\r\n\r\n",
+			replica_id, SEND_CHKPT);
+
+	printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
+	
+	clientfd = connect_to_server(&data.node[replica_id].factory);
+	if (clientfd < 0) {
+		printf("Connect failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(clientfd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(clientfd);
+		return -1;
+	}
+
+	close(clientfd);
+	
+	return 0;
+}
+
 int handle_state(replication_manager_message fault_detector_ctx) {
 	int status = 0;
 
@@ -334,17 +365,24 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 
 	if (fault_detector_ctx.state == RUNNING) {
 		if (data.node[replica_id].state == FAULTED) {
-			// Start up stage
+			// Start up stage or recovery stage
 
 			if (mode == 0) {
 				// Passive mode
+
 				if (replica_id != primary_replica_id) {
+					// After the backup replica sends the first heartbeat,
+					// Change it's status to BACKUP.
+
 					status = send_change_status_to_server(replica_id, PASSIVE_REP, PASSIVE_BACKUP);
 					if (status < 0) {
 						printf("Sending state to backup failed\n");
 						return -1;
 					}
 				} else {
+					// After the primary replica comes up,
+					// Change it's status to PRIMARY
+
 					status = elect_new_primary(primary_replica_id);
 					if (status < 0) {
 						printf("Primary election failed\n");
@@ -369,6 +407,8 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 			// Passive mode
 
 			if (primary_replica_id == -1) {
+				// No primary replica. Elect new one
+
 				if (restart_server(replica_id) != 0) {
 					printf("Startup req could not be sent\n");
 				} else {
@@ -378,6 +418,16 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 				primary_replica_id = replica_id;
 
 			} else if (replica_id == primary_replica_id) {
+				// Primary replica faulted. Restart it.
+				// Elect new replica and ask it to send
+				// checkpoint
+
+				if (restart_server(replica_id) != 0) {
+					printf("Startup req could not be sent\n");
+				} else {
+					printf("Sent startup messaage to server %d\n", replica_id);
+				}
+				
 				primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
 				status = elect_new_primary(primary_replica_id);
 				if (status < 0) {
@@ -385,21 +435,30 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					return -1;
 				}
 				
+				status = instruct_primary_to_send_chkpt(primary_replica_id);
+				if (status < 0) {
+					printf("Instructing primary to send checkpoint failed\n");
+					return -1;
+				}
+			} else {
+				// Backup replica faulted. Restart it.
+
 				if (restart_server(replica_id) != 0) {
 					printf("Startup req could not be sent\n");
 				} else {
 					printf("Sent startup messaage to server %d\n", replica_id);
 				}
-			} else {
-				if (restart_server(replica_id) != 0) {
-					printf("Startup req could not be sent\n");
-				} else {
-					printf("Sent startup messaage to server %d\n", replica_id);
+				
+				status = instruct_primary_to_send_chkpt(primary_replica_id);
+				if (status < 0) {
+					printf("Instructing primary to send checkpoint failed\n");
+					return -1;
 				}
 			}
 
 		} else if (mode == 1) {
 			// Active mode
+
 			if (restart_server(replica_id) != 0) {
 				printf("Startup req could not be sent\n");
 			} else {

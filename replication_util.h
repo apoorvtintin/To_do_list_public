@@ -74,7 +74,8 @@ typedef struct factory_data_t {
 enum factory_req {
     STARTUP = 0,
 	CHANGE_STATE = 1,
-    NO_ACTION = 2,
+	SEND_CHKPT = 2,
+    NO_ACTION = 3,
 };
 
 typedef struct factory_message_t {
