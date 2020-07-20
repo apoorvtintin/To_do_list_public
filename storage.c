@@ -61,7 +61,6 @@ void print_state() {
 }
 
 int import_db(char *file) {
-    printf("Import DB\n");
     import_db_internal(file);
     return 0;
 }
@@ -102,6 +101,7 @@ int handle_storage(client_ctx_t *client_ctx) {
         remove(client_ctx->req.filename);
         print_state();
     }
+        break;
     default:
         ret = -1;
     }

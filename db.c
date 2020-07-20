@@ -177,7 +177,6 @@ void export_db_internal(char *file) {
 
     fptr = fopen(filename, "w");
 
-    printf("\nWriting to a file: %s\n", filename);
 
     for (index = 0; index < hash_table_len; index++) {
         temp = htable->data[index];
@@ -229,7 +228,6 @@ int import_db_internal(char *file) {
         printf("File not opened: %s", strerr(errno));
         return;
     }
-    printf("File opened %s\n", file);
 
     while (fgets(line, 1024, file_ptr)) {
         if (!strncmp(line, "DATA_END", strlen("DATA_END"))) {

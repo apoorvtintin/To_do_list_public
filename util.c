@@ -232,6 +232,8 @@ char *get_msg_type_str(msg_type_t msg_type) {
         return "MSG_CHK_PT";
 	case MSG_REP_MGR:
 		return "MSG_REP_MGR";
+    case MSG_SEND_CHKPT:
+        return "MSG_SEND_CHKPT";
     default:
         return "YOU FORGOT";
     };

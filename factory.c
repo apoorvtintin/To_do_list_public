@@ -332,7 +332,7 @@ int send_checkpoint_to_bkps(factory_message message) {
 	
 	sprintf(buf, "Client ID: %d\r\n"
 			     "Request No: %d\r\n"
-			     "Message Type: %d\r\n",
+			     "Message Type: %d\r\n\r\n",
 				 0, 0, MSG_SEND_CHKPT); 
 		
 	printf("\n\nSend checkpoint to server BUF %s\n\n", buf);

@@ -28,7 +28,8 @@ enum t_status {
     TASK_NOT_DONE = 0,
     TASK_DONE = 1,
 };
-
+// if oyu update the enum, please update the enum to str func in
+// util.c
 typedef enum _msg_type {
     INVALID,
     MSG_ADD,

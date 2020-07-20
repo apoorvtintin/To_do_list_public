@@ -364,7 +364,6 @@ void *execute_msg_ctrl(void *arg) {
 
     switch (client_ctx->req.msg_type) {
     case MSG_REP_MGR:
-		printf("Received message from REP MGR\n\n");
         handle_rep_msg(client_ctx);
         break;
     case MSG_HEARTBEAT:
