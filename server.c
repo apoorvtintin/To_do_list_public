@@ -242,7 +242,8 @@ int enqueue_client_req(server_log_t *svr, client_ctx_t *client_ctx) {
     node->val = client_ctx;
     log_msg_type m_type =
         ((client_ctx->req.msg_type == MSG_HEARTBEAT) || 
-			(client_ctx->req.msg_type == MSG_REP_MGR)) ? CONTROL : NORMAL;
+			(client_ctx->req.msg_type == MSG_REP_MGR) ||
+            (client_ctx->req.msg_type == MSG_SEND_CHKPT)) ? CONTROL : NORMAL;
     if ((client_ctx->req.msg_type == MSG_CHK_PT) && (client_ctx->is_backlog)) {
         set_worker_prune();
     }
@@ -367,6 +368,9 @@ void *execute_msg_ctrl(void *arg) {
         handle_rep_msg(client_ctx);
         break;
     case MSG_HEARTBEAT:
+        break;
+    case MSG_SEND_CHKPT:
+        send_checkpoint_ondemand();
         break;
     default:
         fprintf(stderr, "Unknown/Unhandled MSG \n");

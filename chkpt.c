@@ -102,6 +102,25 @@ _END:
     return 0;
 }
 
+void send_checkpoint_ondemand()
+{
+    open_ports_secondary();
+
+    // Add code to get the checkpoint
+    pthread_mutex_lock(&storage_lock);
+    char checkpoint_file_name[MAX_LENGTH];
+    export_db(checkpoint_file_name);
+    pthread_mutex_unlock(&storage_lock);
+    for (unsigned int i = 0; i < sizeof(bckup_svr) / sizeof(bsvr_ctx);
+            i++) {
+        if (bckup_svr[i].fd >= 0) {
+            write_check_point(&bckup_svr[i], checkpoint_file_name);
+            close(bckup_svr[i].fd);
+        }
+    }
+    chk_point_num++;
+}
+
 void *send_checkpoint(void *argvp) {
     int sleep_count = 0;
     while (1) {

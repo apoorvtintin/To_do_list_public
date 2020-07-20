@@ -18,4 +18,7 @@ void set_bckup_servers(bsvr_ctx svrs[2]);
 
 void set_checkpoint_freq(int checkpoint_freq);
 
+void send_checkpoint_ondemand();
+
+
 #endif
