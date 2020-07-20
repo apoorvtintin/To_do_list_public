@@ -67,7 +67,7 @@ void *run(void *argp) {
         size_t n_count = (prio == NORMAL) ? get_count(svr, NORMAL) : 0,
                c_count = (prio == CONTROL) ? get_count(svr, CONTROL) : 0;
         if ((prio == NORMAL) && (get_mode() == PASSIVE_REP) &&
-            (get_state() == PASSIVE_RECOVER) && (n_count == 0)) {
+            (get_state() == PASSIVE_PREPRIMARY) && (n_count == 0)) {
             set_state(PASSIVE_PRIMARY);
         }
         if ((n_count == 0) && (c_count == 0)) {

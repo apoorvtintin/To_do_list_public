@@ -395,7 +395,7 @@ void *execute_msg(void *arg) {
     client_ctx_t *client_ctx = arg;
 
     pthread_mutex_lock(&storage_lock);
-    if (get_mode() == PASSIVE_REP && get_state() == PASSIVE_RECOVER) {
+    if (get_mode() == PASSIVE_REP && get_state() == PASSIVE_PREPRIMARY) {
         if (client_ctx->is_backlog == 0) {
             set_state(PASSIVE_PRIMARY);
         }

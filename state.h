@@ -21,7 +21,7 @@ typedef enum _server_states {
     // Warm Passive states
     PASSIVE_PRIMARY,
     PASSIVE_BACKUP,
-    PASSIVE_RECOVER
+    PASSIVE_PREPRIMARY
 
 } server_states_t;
 

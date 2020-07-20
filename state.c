@@ -35,13 +35,13 @@ void set_state(server_states_t s_state) {
         }
     } else if (server_state.rep_mode == PASSIVE_REP) {
         if (s_state != PASSIVE_PRIMARY && s_state != PASSIVE_BACKUP &&
-            s_state != PASSIVE_RECOVER) {
+            s_state != PASSIVE_PREPRIMARY) {
             dbg_ensures(false);
         }
     }
     // server_states_t prev_state = server_state.state;
     if (server_state.rep_mode == PASSIVE_REP) {
-        if (s_state == PASSIVE_PRIMARY /*|| s_state == PASSIVE_RECOVER*/) {
+        if (s_state == PASSIVE_PRIMARY /*|| s_state == PASSIVE_PREPRIMARY*/) {
             start_ckhpt_thread();
         } else if (s_state == PASSIVE_BACKUP) {
             kill_chkpt_thrd_if_running();
@@ -82,8 +82,8 @@ char *server_states_str(server_states_t server_state) {
         return "PASSIVE_PRIMARY";
     case PASSIVE_BACKUP:
         return "PASSIVE_BACKUP";
-    case PASSIVE_RECOVER:
-        return "PASSIVE_RECOVER";
+    case PASSIVE_PREPRIMARY:
+        return "PASSIVE_PREPRIMARY";
     }
     return "UPDATE_STR_FUNC";
 }
