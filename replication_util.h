@@ -75,7 +75,9 @@ enum factory_req {
     STARTUP = 0,
 	CHANGE_STATE = 1,
 	SEND_CHKPT = 2,
-    NO_ACTION = 3,
+    QUIESCE_BEGIN = 3,
+    QUIESCE_STOP = 4,
+    NO_ACTION = 5
 };
 
 typedef struct factory_message_t {

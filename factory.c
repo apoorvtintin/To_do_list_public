@@ -358,6 +358,80 @@ int send_checkpoint_to_bkps(factory_message message) {
 	return 0;
 }
 
+int send_start_quiesce(factory_message message) {
+	struct server_info server;
+	int client_fd = 0;
+	int status = 0;
+	char buf[MAX_LENGTH];
+	
+	memset(&server, 0, sizeof(struct server_info));
+	memset(buf, 0, MAX_LENGTH);
+	
+	sprintf(buf, "Client ID: %d\r\n"
+			     "Request No: %d\r\n"
+			     "Message Type: %d\r\n\r\n",
+				 0, 0, MSG_QUIESCE_START); 
+		
+	printf("\n\nSend checkpoint to server BUF %s\n\n", buf);
+
+	server.port = atoi(f_data.spawned_server_port);
+	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
+
+	client_fd = connect_to_server(&server);
+	if (client_fd < 0) {
+		printf("Connecting to server failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(client_fd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(client_fd);
+		return -1;
+	}
+
+	close(client_fd);
+
+	return 0;
+}
+
+int send_stop_quiesce(factory_message message) {
+	struct server_info server;
+	int client_fd = 0;
+	int status = 0;
+	char buf[MAX_LENGTH];
+	
+	memset(&server, 0, sizeof(struct server_info));
+	memset(buf, 0, MAX_LENGTH);
+	
+	sprintf(buf, "Client ID: %d\r\n"
+			     "Request No: %d\r\n"
+			     "Message Type: %d\r\n\r\n",
+				 0, 0, MSG_QUIESCE_STOP); 
+		
+	printf("\n\nSend checkpoint to server BUF %s\n\n", buf);
+
+	server.port = atoi(f_data.spawned_server_port);
+	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
+
+	client_fd = connect_to_server(&server);
+	if (client_fd < 0) {
+		printf("Connecting to server failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(client_fd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(client_fd);
+		return -1;
+	}
+
+	close(client_fd);
+
+	return 0;
+}
+
 int handle_rep_man_command(factory_message message) {
     int status = 0;
 
@@ -376,6 +450,18 @@ int handle_rep_man_command(factory_message message) {
 			status = send_checkpoint_to_bkps(message);
 			if (status < 0) {
 				printf("Sending checkpoints message failed %d\n", 
+						message.replica_id);
+			}
+		} else if (message.req == QUIESCE_BEGIN) {
+			status = send_start_quiesce(message);
+			if (status < 0) {
+				printf("start_quiesce message failed %d\n", 
+						message.replica_id);
+			}
+		} else if (message.req == QUIESCE_STOP) {
+			status = send_stop_quiesce(message);
+			if (status < 0) {
+				printf("stop_quiesce message failed %d\n", 
 						message.replica_id);
 			}
 		}

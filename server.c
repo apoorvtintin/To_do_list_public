@@ -326,6 +326,17 @@ void *handle_connection(void *arg) {
     }
     // TODO: put a check to see if all the required fields are present.
     //
+
+    //CHECK IF QUIESCE REQUEST MESSAGE
+    if((client_ctx->req.msg_type == MSG_QUIESCE_STOP) || 
+        (client_ctx->req.msg_type == MSG_QUIESCE_START))
+    {
+        if((handle_quiesce_command(client_ctx->req.msg_type)) != 0) {
+            fprintf(stderr, "Enqueue failed, thats bad!!!\n");
+            goto _EXIT;
+        }
+    }
+
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
@@ -526,6 +537,18 @@ int main(int argc, char *argv[]) {
                 free(conn_client_ctx);
             }
         }
+    }
+    return 0;
+}
+
+int handle_quiesce_command(msg_type_t type) {
+    if(type == MSG_QUIESCE_START) {
+        put_in_quiesence();
+    } else if (type == MSG_QUIESCE_STOP) {
+        remove_from_quiesence();
+    } else {
+        fprintf(stderr, " QUIESCE HANDLER GOT UNKNOWN MSG TYPE ");
+        return -1;
     }
     return 0;
 }

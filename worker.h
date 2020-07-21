@@ -12,5 +12,7 @@ typedef void *(*hdl_ctrl_t)(void *);
 
 int start_worker_threads(server_log_t *svr, hdl_nrl_t f1, hdl_ctrl_t f2);
 void set_worker_prune();
+void put_in_quiesence();
+void remove_from_quiesence();
 
 #endif

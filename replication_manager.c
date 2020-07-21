@@ -407,6 +407,27 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					printf("Sending state to backup failed\n");
 					return -1;
 				}
+
+                //quiesce them all servers
+                status = quiesce_all();
+				if (status < 0) {
+					printf("send all quiesce request failed\n");
+					return -1;
+				}
+
+                //send and apply checkpoint
+				status = instruct_primary_to_send_chkpt(primary_replica_id);
+				if (status < 0) {
+					printf("Instructing primary to send checkpoint failed\n");
+					return -1;
+				}
+
+                //stop quisce
+                status = stop_quiesce_all();
+				if (status < 0) {
+					printf("send stop all quiesce request failed\n");
+					return -1;
+				}
 			}
 		}
 
@@ -465,12 +486,22 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 				printf("Startup req could not be sent\n");
 			} else {
 				printf("Sent startup messaage to server %d\n", replica_id);
+            }
+
+			if (primary_replica_id == -1) {
+				// No primary replica. Elect new one
+				primary_replica_id = replica_id;
+
+			} else if (replica_id == primary_replica_id) {
+				// Primary replica faulted. Restart it.
+				// Elect new replica and ask it to send
+				// checkpoint
+				primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
 			}
-		}
-		
+        } 
 		data.node[replica_id].state = FAULTED;
 	}
- 
+
     // check if unstable state
     // take action based on that
     print_current_state_info(fault_detector_ctx);
@@ -660,4 +691,86 @@ static void *gfd_hbt() {
         sleep(data.hbt_timeout);
     }
     return NULL; // should not exit
+}
+
+static int quiesce_message(int replica_id) {
+    char buf[MAX_LENGTH];
+	int clientfd = 0;
+	int status = 0;
+
+	memset(buf, 0, MAX_LENGTH);
+	
+	sprintf(buf, "Replica ID: %d\r\n"
+			"Factory Req: %d\r\n\r\n",
+			replica_id, QUIESCE_BEGIN);
+
+	printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
+	
+	clientfd = connect_to_server(&data.node[replica_id].factory);
+	if (clientfd < 0) {
+		printf("Connect failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(clientfd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(clientfd);
+		return -1;
+	}
+
+	close(clientfd);
+	
+	return 0;
+}
+
+static int quiesce_stop_message(int replica_id) {
+    char buf[MAX_LENGTH];
+	int clientfd = 0;
+	int status = 0;
+
+	memset(buf, 0, MAX_LENGTH);
+	
+	sprintf(buf, "Replica ID: %d\r\n"
+			"Factory Req: %d\r\n\r\n",
+			replica_id, QUIESCE_STOP);
+
+	printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
+	
+	clientfd = connect_to_server(&data.node[replica_id].factory);
+	if (clientfd < 0) {
+		printf("Connect failed: %s\n", strerror(errno));
+		return -1;
+	}
+
+	status = write(clientfd, buf, MAX_LENGTH);
+	if (status < 0) {
+		printf("Write failed: %s\n", strerror(errno));
+		close(clientfd);
+		return -1;
+	}
+
+	close(clientfd);
+	
+	return 0;
+}
+
+static int quiesce_all() {
+    int ret = 0;
+    for(int i = 0; i < MAX_REPLICAS; i++) {
+        if(data.node[i].state == RUNNING) {
+            ret += quiesce_message(i);
+        }
+    }
+    return ret;
+}
+
+static int stop_quiesce_all() {
+    int ret = 0;
+    for(int i = 0; i < MAX_REPLICAS; i++) {
+        if(data.node[i].state == RUNNING) {
+            ret += quiesce_stop_message(i);
+        }
+    }
+    return ret;
 }
