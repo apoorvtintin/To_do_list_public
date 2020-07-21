@@ -253,7 +253,7 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
 
 void fill_change_state_buf(char *buf, factory_message *message) {
 
-	if (message->server_state == PASSIVE_PRIMARY) {
+	if (message->server_state == PASSIVE_PREPRIMARY) {
 		sprintf(buf, "Client ID: %d\r\n"
 					 "Request No: %d\r\n"
 					 "Message Type: %d\r\n"

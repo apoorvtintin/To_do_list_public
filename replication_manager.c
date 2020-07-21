@@ -248,7 +248,7 @@ void fill_message_for_primary_election(char *buf, int replica_id) {
 			"Replica 2 IP: %s\r\n"
 			"Replica 2 Port: %d\r\n\r\n",
 			replica_id, CHANGE_STATE,
-			mode_rep, PASSIVE_PRIMARY, data.checkpoint_freq,
+			mode_rep, PASSIVE_PREPRIMARY, data.checkpoint_freq,
 			replica_id_1, data.node[replica_id_1].server.server_ip,
 			data.node[replica_id_1].server.port, replica_id_2,
 			data.node[replica_id_2].server.server_ip,
