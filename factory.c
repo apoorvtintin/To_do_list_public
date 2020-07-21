@@ -244,7 +244,7 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
         if (parse_rep_manager_kv(&message, key, value) == -1) {
             return -1;
         }
-		printf("%s\n", msg_buf);
+		// printf("%s\n", msg_buf);
 		memset(msg_buf, 0, MAXMSGSIZE);
         ++input_fields_counter;
     }
@@ -298,7 +298,7 @@ int send_change_state_message(factory_message message) {
 
 	fill_change_state_buf(buf, &message);
 
-	printf("\n\nSending message to server BUF %s\n\n", buf);
+	// printf("\n\nSending message to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
@@ -335,7 +335,7 @@ int send_checkpoint_to_bkps(factory_message message) {
 			     "Message Type: %d\r\n\r\n",
 				 0, 0, MSG_SEND_CHKPT); 
 		
-	printf("\n\nSend checkpoint to server BUF %s\n\n", buf);
+	// printf("\n\nSend checkpoint to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);

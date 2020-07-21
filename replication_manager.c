@@ -30,8 +30,9 @@ int mode = 0;
 int primary_replica_id = -1;
 
 struct membership_data {
-    int num_servers;
     int server_status[MAX_REPLICAS];
+    int num_servers;
+	int needs_checkpoint[MAX_REPLICAS];
 };
 
 struct membership_data membership;
@@ -266,7 +267,7 @@ int elect_new_primary(int replica_id) {
 
 	fill_message_for_primary_election(buf, replica_id);
 	
-	printf("New primary %d\n Buf %s\n", replica_id, buf);
+	// printf("New primary %d\n Buf %s\n", replica_id, buf);
 
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -302,7 +303,7 @@ int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
 			replica_id, CHANGE_STATE,
 			mode_rep, server_state);
 
-	printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
+	// printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -333,7 +334,7 @@ int instruct_primary_to_send_chkpt(int replica_id) {
 			"Factory Req: %d\r\n\r\n",
 			replica_id, SEND_CHKPT);
 
-	printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
+	// printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -361,7 +362,8 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     int replica_id = fault_detector_ctx.replica_id;
     data.node[replica_id].last_heartbeat = 1;
 
-	printf("Recieved message on RM Replica ID %d State %d\n", replica_id, fault_detector_ctx.state);
+	// printf("Recieved message on RM Replica ID %d State %d\n",
+	//				replica_id, fault_detector_ctx.state);
 
 	if (fault_detector_ctx.state == RUNNING) {
 		if (data.node[replica_id].state == FAULTED) {
@@ -386,6 +388,14 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					status = elect_new_primary(primary_replica_id);
 					if (status < 0) {
 						printf("Primary election failed\n");
+						return -1;
+					}
+				}
+
+				if (membership.needs_checkpoint[replica_id] == 1) {
+					status = instruct_primary_to_send_chkpt(primary_replica_id);
+					if (status < 0) {
+						printf("Instructing primary to send checkpoint failed\n");
 						return -1;
 					}
 				}
@@ -434,12 +444,8 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					printf("Primary election failed\n");
 					return -1;
 				}
-				
-				status = instruct_primary_to_send_chkpt(primary_replica_id);
-				if (status < 0) {
-					printf("Instructing primary to send checkpoint failed\n");
-					return -1;
-				}
+			
+				membership.needs_checkpoint[replica_id] = 1;	
 			} else {
 				// Backup replica faulted. Restart it.
 
@@ -449,11 +455,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					printf("Sent startup messaage to server %d\n", replica_id);
 				}
 				
-				status = instruct_primary_to_send_chkpt(primary_replica_id);
-				if (status < 0) {
-					printf("Instructing primary to send checkpoint failed\n");
-					return -1;
-				}
+				membership.needs_checkpoint[replica_id] = 1;	
 			}
 
 		} else if (mode == 1) {
@@ -521,7 +523,7 @@ int restart_server(int replica_id) {
             replica_id, STARTUP, data.node[replica_id].server.server_ip,
 			data.node[replica_id].server.port);
 
-	printf("Starting server %d Buf %s", replica_id, buf);
+	// printf("Starting server %d Buf %s", replica_id, buf);
 
     clientfd = connect_to_server(&data.node[replica_id].factory);
     if (clientfd < 0) {
