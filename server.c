@@ -35,11 +35,13 @@ server_log_t svr_log;
 int server_id;
 int msg_count = 0;
 uint64_t chk_point_num;
-
+int config_done =0 ;
 pthread_mutex_t storage_lock;
 
-// Local help functions
 
+
+// Local help functions
+int handle_quiesce_command(msg_type_t type);
 void print_user_req(client_ctx_t *client_ctx, char *dir) {
     client_request_t *msg_ptr = &client_ctx->req;
     static int once = 0;
@@ -195,6 +197,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
             return -1;
         }
     } else if (strcmp(key, "Replica 1 IP") == 0) {
+        config_done = 1;
         strncpy(
             client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip, value,
             sizeof(client_ctx->req.rep_mgr_msg.bckup_svr[0].info.server_ip));
@@ -334,9 +337,17 @@ void *handle_connection(void *arg) {
         if((handle_quiesce_command(client_ctx->req.msg_type)) != 0) {
             fprintf(stderr, "Enqueue failed, thats bad!!!\n");
             goto _EXIT;
+        } else {
+            return (void *)0;
         }
     }
-
+    if(config_done == 1)
+        printf("--------------------------ckpt config_done \n");
+        else
+        {
+            printf("XXXXxxxxxxckpt config_ not done \n");
+        }
+        
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;

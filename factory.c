@@ -273,7 +273,27 @@ void fill_change_state_buf(char *buf, factory_message *message) {
 					 message->server_arr[0].port, message->bkp_replica_id_2,
 					 message->server_arr[1].server_ip,
 					 message->server_arr[1].port);
-	} else {
+	} else if (message->server_state == ACTIVE_RUNNING) {
+        		sprintf(buf, "Client ID: %d\r\n"
+					 "Request No: %d\r\n"
+					 "Message Type: %d\r\n"
+					 "REP MODE: %d\r\n"
+					 "Server State: %d\r\n"
+					 "Checkpoint freq: %d\r\n"
+					 "Replica 1 ID: %d\r\n"
+					 "Replica 1 IP: %s\r\n"
+					 "Replica 1 Port: %d\r\n"
+					 "Replica 2 ID: %d\r\n"
+					 "Replica 2 IP: %s\r\n"
+					 "Replica 2 Port: %d\r\n\r\n",
+					 0, 0, MSG_REP_MGR, message->mode_rep,
+					 message->server_state, message->checkpoint_freq,
+					 message->bkp_replica_id_1,
+					 message->server_arr[0].server_ip,
+					 message->server_arr[0].port, message->bkp_replica_id_2,
+					 message->server_arr[1].server_ip,
+					 message->server_arr[1].port);
+    } else { 
 		sprintf(buf, "Client ID: %d\r\n"
 					 "Request No: %d\r\n"
 					 "Message Type: %d\r\n"
@@ -281,6 +301,7 @@ void fill_change_state_buf(char *buf, factory_message *message) {
 					 "Server State: %d\r\n\r\n",
 					 0, 0, MSG_REP_MGR, message->mode_rep,
 					 message->server_state);
+
 			
 	}
 
@@ -478,8 +499,9 @@ int spawn_server(char *path) {
 	char *newargv[] = {path, f_data.spawned_server_ip,
 							f_data.spawned_server_port, buf, NULL};
 	char filename[1024];
-    int ofd;
-    int olderr = errno;
+
+    //int ofd;
+    //int olderr = errno;
 
     memset(filename, 0, 1024);
 
@@ -487,10 +509,10 @@ int spawn_server(char *path) {
     pid_t pid = fork();
     if (pid == 0) {
         // open file for IO redirection
-
+/*
         sprintf(filename, "logs/server_replica_%ld_out", f_data.replica_id);
 
-        ofd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,
+        ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (ofd < 0) {
             printf("could not open outfile for server\n");
@@ -500,7 +522,7 @@ int spawn_server(char *path) {
             dup2(ofd, STDOUT_FILENO);
             dup2(ofd, STDERR_FILENO);
         }
-
+*/
         if (execve(path, newargv, environ) < 0) {
             // proccess execve error
             fprintf(stderr, "server path incorrect or binary does not exist\n");

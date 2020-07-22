@@ -38,6 +38,10 @@ struct membership_data {
 struct membership_data membership;
 
 // FORWARD DECLARATIONS
+static int stop_quiesce_all();
+static int quiesce_all();
+static int quiesce_stop_message(int replica_id);
+static int quiesce_message(int replica_id);
 static void *gfd_hbt();
 static void init_gfd_hbt();
 static int handle_fault_detector_message(client_ctx_t *conn_client_ctx);
@@ -213,13 +217,16 @@ void fill_message_for_primary_election(char *buf, int replica_id) {
 	int i = 0;
 	int replica_id_1 = -1;
 	int replica_id_2 = -1;
+    server_states_t state;
 
 	rep_mode_t mode_rep;
 	
 	if (mode == 0) {
 		mode_rep = PASSIVE_REP;
+        state = PASSIVE_PREPRIMARY;
 	} else if (mode == 1) {
 		mode_rep = ACTIVE_REP;
+        state = ACTIVE_RUNNING;
 	}
 
 	for (i = 0; i < MAX_REPLICAS; i++) {
@@ -249,7 +256,7 @@ void fill_message_for_primary_election(char *buf, int replica_id) {
 			"Replica 2 IP: %s\r\n"
 			"Replica 2 Port: %d\r\n\r\n",
 			replica_id, CHANGE_STATE,
-			mode_rep, PASSIVE_PREPRIMARY, data.checkpoint_freq,
+			mode_rep, state, data.checkpoint_freq,
 			replica_id_1, data.node[replica_id_1].server.server_ip,
 			data.node[replica_id_1].server.port, replica_id_2,
 			data.node[replica_id_2].server.server_ip,
@@ -355,6 +362,7 @@ int instruct_primary_to_send_chkpt(int replica_id) {
 }
 
 int handle_state(replication_manager_message fault_detector_ctx) {
+    int ret = 0;
 	int status = 0;
 
     pthread_mutex_lock(lock);
@@ -379,7 +387,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					status = send_change_status_to_server(replica_id, PASSIVE_REP, PASSIVE_BACKUP);
 					if (status < 0) {
 						printf("Sending state to backup failed\n");
-						return -1;
+						ret = -1;
 					}
 				} else {
 					// After the primary replica comes up,
@@ -388,7 +396,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 					status = elect_new_primary(primary_replica_id);
 					if (status < 0) {
 						printf("Primary election failed\n");
-						return -1;
+						ret = -1;
 					}
 				}
 
@@ -402,31 +410,45 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 			} else if (mode == 1) {
 				// Active mode
 
-				status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
+				status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RECOVER);
 				if (status < 0) {
 					printf("Sending state to backup failed\n");
-					return -1;
+					ret = -1;
 				}
+
+                status = elect_new_primary(primary_replica_id);
+                if (status < 0) {
+                    printf("Primary election failed\n");
+                    ret = -1;
+                }
 
                 //quiesce them all servers
                 status = quiesce_all();
 				if (status < 0) {
 					printf("send all quiesce request failed\n");
-					return -1;
+					ret = -1;
 				}
+                printf("sent quiesce all message\n");
 
                 //send and apply checkpoint
 				status = instruct_primary_to_send_chkpt(primary_replica_id);
 				if (status < 0) {
 					printf("Instructing primary to send checkpoint failed\n");
-					return -1;
+					ret = -1;
 				}
+                printf("sent checkpoint message\n");
 
                 //stop quisce
                 status = stop_quiesce_all();
 				if (status < 0) {
 					printf("send stop all quiesce request failed\n");
-					return -1;
+					ret = -1;
+				}
+
+                status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
+				if (status < 0) {
+					printf("Sending state to backup failed\n");
+					ret = -1;
 				}
 			}
 		}
@@ -463,7 +485,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 				status = elect_new_primary(primary_replica_id);
 				if (status < 0) {
 					printf("Primary election failed\n");
-					return -1;
+					ret = -1;
 				}
 			
 				membership.needs_checkpoint[replica_id] = 1;	
@@ -492,11 +514,17 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 				// No primary replica. Elect new one
 				primary_replica_id = replica_id;
 
+
 			} else if (replica_id == primary_replica_id) {
 				// Primary replica faulted. Restart it.
 				// Elect new replica and ask it to send
 				// checkpoint
 				primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
+                status = elect_new_primary(primary_replica_id);
+                if (status < 0) {
+                    printf("Primary election failed\n");
+                    ret = -1;
+                }
 			}
         } 
 		data.node[replica_id].state = FAULTED;
@@ -509,7 +537,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     handle_current_state();
     pthread_mutex_unlock(lock);
 
-    return 0;
+    return ret;
 }
 
 int handle_current_state() {

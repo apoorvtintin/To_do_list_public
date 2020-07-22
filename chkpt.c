@@ -104,6 +104,7 @@ _END:
 
 void send_checkpoint_ondemand()
 {
+        printf("Sending Checkpoint on demand\n");
     open_ports_secondary();
 
     // Add code to get the checkpoint
@@ -111,6 +112,7 @@ void send_checkpoint_ondemand()
     char checkpoint_file_name[MAX_LENGTH];
     export_db(checkpoint_file_name);
     pthread_mutex_unlock(&storage_lock);
+    printf("Sending Checkpoint on demand\n");
     for (unsigned int i = 0; i < sizeof(bckup_svr) / sizeof(bsvr_ctx);
             i++) {
         if (bckup_svr[i].fd >= 0) {
@@ -144,6 +146,7 @@ void *send_checkpoint(void *argvp) {
         }
         msg_count = 0;
 #endif
+printf("Sending Checkpoint ffrequency\n");
         open_ports_secondary();
 
         // Add code to get the checkpoint
@@ -151,6 +154,7 @@ void *send_checkpoint(void *argvp) {
         char checkpoint_file_name[MAX_LENGTH];
         export_db(checkpoint_file_name);
         pthread_mutex_unlock(&storage_lock);
+        printf("Sending Checkpoint frequency\n");
         for (unsigned int i = 0; i < sizeof(bckup_svr) / sizeof(bsvr_ctx);
              i++) {
             if (bckup_svr[i].fd >= 0) {
