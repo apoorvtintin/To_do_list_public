@@ -267,6 +267,7 @@ void *handle_connection(void *arg) {
 
     while (1) {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
+        write(1,msg_buf, msg_len);
         if (msg_len == 0) {
             // The client closed the connection we should to.
             fprintf(stderr, "Client close connection!!\n");
@@ -338,6 +339,14 @@ void *handle_connection(void *arg) {
             fprintf(stderr, "Enqueue failed, thats bad!!!\n");
             goto _EXIT;
         } else {
+            if (client_ctx->fd >= 0) {
+                close(client_ctx->fd);
+                client_ctx->fd = -1;
+            }
+            if (client_ctx) {
+                free(client_ctx);
+                client_ctx = NULL;
+            }
             return (void *)0;
         }
     }
@@ -375,6 +384,10 @@ void handle_rep_msg(client_ctx_t *client_ctx) {
     if(get_mode() == UNKNOWN_REP)
         set_mode(rep_mgr_msg->rep_mode);
     kill_chkpt_thrd_if_running();
+    if(rep_mgr_msg->bckup_svr[0].server_id == -1) {
+        fprintf(stderr,"malformed server ID\n");
+        exit(0);
+    }
 	set_bckup_servers(rep_mgr_msg->bckup_svr);
 	set_checkpoint_freq(rep_mgr_msg->checkpoint_freq);
     set_state(rep_mgr_msg->server_state);

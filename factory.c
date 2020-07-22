@@ -500,8 +500,8 @@ int spawn_server(char *path) {
 							f_data.spawned_server_port, buf, NULL};
 	char filename[1024];
 
-    //int ofd;
-    //int olderr = errno;
+    int ofd;
+    int olderr = errno;
 
     memset(filename, 0, 1024);
 
@@ -509,7 +509,7 @@ int spawn_server(char *path) {
     pid_t pid = fork();
     if (pid == 0) {
         // open file for IO redirection
-/*
+
         sprintf(filename, "logs/server_replica_%ld_out", f_data.replica_id);
 
         ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
@@ -522,7 +522,7 @@ int spawn_server(char *path) {
             dup2(ofd, STDOUT_FILENO);
             dup2(ofd, STDERR_FILENO);
         }
-*/
+
         if (execve(path, newargv, environ) < 0) {
             // proccess execve error
             fprintf(stderr, "server path incorrect or binary does not exist\n");
