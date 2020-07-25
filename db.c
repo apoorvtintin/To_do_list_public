@@ -14,6 +14,7 @@
 hash_table *htable;
 
 int file_counter = 0;
+extern server_id;
 
 /* PRIVATE FUNCTIONS */
 static uint32_t hash_func(uint64_t val) { return val % hash_table_len; }
@@ -173,9 +174,13 @@ void export_db_internal(char *file) {
     char filename[1024];
     FILE *fptr;
 
-    sprintf(filename, "tmp/db_export_%d", file_counter);
+    sprintf(filename, "tmp/db_export_%d_%d", getpid(), file_counter);
 
     fptr = fopen(filename, "w");
+    if(fptr == NULL) {
+        printf("export db fopen fail");
+        return;
+    }
 
 
     for (index = 0; index < hash_table_len; index++) {

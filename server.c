@@ -54,12 +54,12 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
             "|", "DIR", "", "ClntID", "", "Seq No", "", "MSG Type", "", "Hash",
             "", "TASK", "", "Date", "", "Task Status", "", "Mod Flags", "|");
         ch = ch - 2;
-        printf("%s", buffer);
+        fprintf(stderr,"%s", buffer);
         memset(buffer, 0, sizeof(buffer));
         memset(buffer, '=', ch);
         buffer[0] = '+';
         buffer[ch] = '+';
-        printf("%s\n", buffer);
+        fprintf(stderr,"%s\n", buffer);
         once = 1;
         fflush(stdout);
     }
@@ -73,7 +73,7 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
                       msg_ptr->hash_key, "", msg_ptr->task, "", msg_ptr->date,
                       "", get_task_status_str(msg_ptr->task_status), "",
                       msg_ptr->mod_flags, "|");
-    printf("%s", buffer);
+    fprintf(stderr,"%s", buffer);
     memset(buffer, 0, sizeof(buffer));
     ch = ch - 2;
     if (!strcmp(dir, "Res"))
@@ -82,7 +82,7 @@ void print_user_req(client_ctx_t *client_ctx, char *dir) {
         memset(buffer, '-', ch);
     buffer[0] = '+';
     buffer[ch] = '+';
-    printf("%s\n", buffer);
+    fprintf(stderr,"%s\n", buffer);
     fflush(stdout);
 }
 
@@ -91,7 +91,7 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
     int resp_len;
     if (client_ctx->req.msg_type == MSG_ADD) {
         if (client_ctx->req.hash_key == 0) {
-            printf("ERROR: HASHKEY NULL\n");
+            fprintf(stderr,"ERROR: HASHKEY NULL\n");
         }
         resp_len =
             snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
@@ -150,7 +150,7 @@ int parse_kv(client_ctx_t *client_ctx, char *key, char *value) {
         strncpy(client_ctx->req.date, value, sizeof(client_ctx->req.date));
     } else if (strcmp(key, "Key") == 0) {
         client_ctx->req.hash_key = strtoul(value, NULL, 10);
-        printf("Key: %lu\n", client_ctx->req.hash_key);
+        fprintf(stderr,"Key: %lu\n", client_ctx->req.hash_key);
     } else if (strcmp(key, "New Task") == 0) {
         strncpy(client_ctx->req.task, value, sizeof(client_ctx->req.task));
         client_ctx->req.task_len = strlen(client_ctx->req.task);
@@ -350,18 +350,14 @@ void *handle_connection(void *arg) {
             return (void *)0;
         }
     }
-    if(config_done == 1)
-        printf("--------------------------ckpt config_done \n");
-        else
-        {
-            printf("XXXXxxxxxxckpt config_ not done \n");
-        }
-        
+
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
-    if ((get_mode() == PASSIVE_REP && get_state() == PASSIVE_BACKUP) &&
+    //TODO what about UNKNOWN state?
+    if (((get_mode() == PASSIVE_REP && get_state() == PASSIVE_BACKUP) ||  
+        (get_mode() == ACTIVE_REP && get_state() == ACTIVE_RECOVER)) &&
         (client_ctx->req.msg_type != MSG_HEARTBEAT) &&
         (client_ctx->req.msg_type != MSG_REP_MGR)) {
         close(client_ctx->fd);
@@ -384,10 +380,6 @@ void handle_rep_msg(client_ctx_t *client_ctx) {
     if(get_mode() == UNKNOWN_REP)
         set_mode(rep_mgr_msg->rep_mode);
     kill_chkpt_thrd_if_running();
-    if(rep_mgr_msg->bckup_svr[0].server_id == -1) {
-        fprintf(stderr,"malformed server ID\n");
-        exit(0);
-    }
 	set_bckup_servers(rep_mgr_msg->bckup_svr);
 	set_checkpoint_freq(rep_mgr_msg->checkpoint_freq);
     set_state(rep_mgr_msg->server_state);
@@ -438,7 +430,7 @@ void *execute_msg(void *arg) {
     print_user_req(client_ctx, "Req");
 
     if (handle_storage(client_ctx) != 0) {
-        printf("ERROR: handle storage failed\n");
+        fprintf(stderr,"ERROR: handle storage failed\n");
         write_client_responce(client_ctx, "FAIL", "Check inputs");
     } else {
         // printf("handle storage success\n");
@@ -485,6 +477,7 @@ void init_client_ctx(client_ctx_t *ctx) {
 
 int main(int argc, char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
+
     int listen_fd = -1, optval = 1, accept_ret_val = -1;
     struct sockaddr_in server_addr;
 

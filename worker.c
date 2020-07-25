@@ -17,13 +17,18 @@
 // Global Static Data
 static server_log_t *gs_server_log = NULL;
 static volatile int is_prune = 0;
-static volatile int in_quiesence = 0;
+static volatile server_states_t prev_state;
 static hdl_nrl_t hdl_nrl;
 static hdl_ctrl_t hdl_ctrl;
 
-void put_in_quiesence() { in_quiesence = 1; }
+void put_in_quiesence() { 
+        prev_state = get_state();
+        set_state(QUIESCE);
+    }
 
-void remove_from_quiesence() { in_quiesence = 0; }
+void remove_from_quiesence() { 
+    set_state(prev_state);
+}
 
 void set_worker_prune() { is_prune = 1; }
 
@@ -91,7 +96,7 @@ void *run(void *argp) {
                 }
                 free(node);
             }
-            if (n_count != 0 && in_quiesence == 0) {
+            if (n_count != 0 && get_state() != QUIESCE) {
                 // handle normal message.
                 log_node_t *node = dequeue(svr, NORMAL);
                 if ((node != NULL) && (node->val != NULL)) {

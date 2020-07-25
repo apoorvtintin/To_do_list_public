@@ -234,6 +234,10 @@ char *get_msg_type_str(msg_type_t msg_type) {
 		return "MSG_REP_MGR";
     case MSG_SEND_CHKPT:
         return "MSG_SEND_CHKPT";
+    case MSG_QUIESCE_START:
+        return "MSG_QUIESCE_START";
+    case MSG_QUIESCE_STOP:
+        return "MSG_QUIESCE_STOP";
     default:
         return "YOU FORGOT";
     };

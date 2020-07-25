@@ -57,6 +57,7 @@ static void init_client_ctx(client_ctx_t *ctx) {
 void sigchld_handler(int sig) {
     int olderr = errno;
     int status;
+    write(STDERR_FILENO, "sigchld_handler called\n", 24);
     while ((waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0)
         ;
     errno = olderr;
@@ -224,6 +225,7 @@ int handle_replication_manager_message(client_ctx_t conn_client_ctx) {
     while (1) {
 
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
+        write(STDERR_FILENO, msg_buf, msg_len);
         if (msg_len == 0) {
             // The client closed the connection we should to.
             return -1;
@@ -319,7 +321,7 @@ int send_change_state_message(factory_message message) {
 
 	fill_change_state_buf(buf, &message);
 
-	// printf("\n\nSending message to server BUF %s\n\n", buf);
+	printf("\n\nSending state change message to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
@@ -393,7 +395,7 @@ int send_start_quiesce(factory_message message) {
 			     "Message Type: %d\r\n\r\n",
 				 0, 0, MSG_QUIESCE_START); 
 		
-	printf("\n\nSend checkpoint to server BUF %s\n\n", buf);
+	printf("\n\nSend quiesce start to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
@@ -430,7 +432,7 @@ int send_stop_quiesce(factory_message message) {
 			     "Message Type: %d\r\n\r\n",
 				 0, 0, MSG_QUIESCE_STOP); 
 		
-	printf("\n\nSend checkpoint to server BUF %s\n\n", buf);
+	printf("\n\nSend quiesce stop to server BUF %s\n\n", buf);
 
 	server.port = atoi(f_data.spawned_server_port);
 	memcpy(server.server_ip, f_data.spawned_server_ip, 1024);
@@ -512,8 +514,10 @@ int spawn_server(char *path) {
 
         sprintf(filename, "logs/server_replica_%ld_out", f_data.replica_id);
 
-        ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
-                   S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        //remove(filename);
+
+        ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC),
+                   S_IRWXU | S_IRWXG | S_IRWXO);
         if (ofd < 0) {
             printf("could not open outfile for server\n");
             errno = olderr;
@@ -560,7 +564,7 @@ int spawn_fault_detector(char *path) {
     pid_t pid = fork();
     if (pid == 0) {
         // open file for IO redirection
-        ofd = open(filename, O_WRONLY | O_CREAT | (O_TRUNC & outfile_append),
+        ofd = open(filename, O_WRONLY | O_CREAT | O_TRUNC ,
                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (ofd < 0) {
             printf("could not open outfile for lfd\n");

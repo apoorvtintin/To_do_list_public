@@ -295,22 +295,28 @@ int elect_new_primary(int replica_id) {
 	return 0;
 }
 
+
+
 int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
 						server_states_t server_state) {
+
 	char buf[MAX_LENGTH];
 	int clientfd = 0;
 	int status = 0;
 
 	memset(buf, 0, MAX_LENGTH);
 	
-	sprintf(buf, "Replica ID: %d\r\n"
-			"Factory Req: %d\r\n"
-			"REP MODE: %d\r\n"
-			"Server State: %d\r\n\r\n",
-			replica_id, CHANGE_STATE,
-			mode_rep, server_state);
-
-	// printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
+    if(mode_rep == ACTIVE_REP && server_state == ACTIVE_RUNNING) {
+        fill_message_for_primary_election(buf, replica_id);
+    } else {
+        sprintf(buf, "Replica ID: %d\r\n"
+                "Factory Req: %d\r\n"
+                "REP MODE: %d\r\n"
+                "Server State: %d\r\n\r\n",
+                replica_id, CHANGE_STATE,
+                mode_rep, server_state);
+    }
+	printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -365,6 +371,10 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     int ret = 0;
 	int status = 0;
 
+    if(mode == 1) {
+        printf("primary active replica is %d\n", primary_replica_id);
+    }
+
     pthread_mutex_lock(lock);
     // change internal state
     int replica_id = fault_detector_ctx.replica_id;
@@ -410,124 +420,127 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 			} else if (mode == 1) {
 				// Active mode
 
-				status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RECOVER);
-				if (status < 0) {
-					printf("Sending state to backup failed\n");
-					ret = -1;
-				}
+                if (primary_replica_id == -1) {
+                    // first Active server up make sure it in running state
+                    primary_replica_id = replica_id;
+                    status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
+                    if (status < 0) {
+                        printf("Sending state to backup failed\n");
+                        ret = -1;
+                    }
+                } else {
+                    //because we need to use state asap
+                    data.node[replica_id].state = fault_detector_ctx.state;
 
-                status = elect_new_primary(primary_replica_id);
-                if (status < 0) {
-                    printf("Primary election failed\n");
-                    ret = -1;
+                    status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RECOVER);
+                    if (status < 0) {
+                        printf("Sending state to backup failed\n");
+                        ret = -1;
+                    }
+
+                    //give servver time to apply settings
+                    sleep(1);
+
+                    //quiesce them all servers
+                    status = quiesce_all();
+                    printf("sent quiesce all message\n");
+
+                    //send and apply checkpoint
+                    status = instruct_primary_to_send_chkpt(primary_replica_id);
+                    if (status < 0) {
+                        printf("Instructing primary to send checkpoint failed\n");
+                        ret = -1;
+                    }
+                    printf("sent checkpoint message\n");
+                    
+                    //give primary time to send checkpoint
+                    sleep(2);
+
+                    //stop quiesce
+                    status = stop_quiesce_all();
+                    printf("sent stop quiesce all message\n");
+
+                    status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
+                    if (status < 0) {
+                        printf("Sending state to backup failed\n");
+                        ret = -1;
+                    }
                 }
-
-                //quiesce them all servers
-                status = quiesce_all();
-				if (status < 0) {
-					printf("send all quiesce request failed\n");
-					ret = -1;
-				}
-                printf("sent quiesce all message\n");
-
-                //send and apply checkpoint
-				status = instruct_primary_to_send_chkpt(primary_replica_id);
-				if (status < 0) {
-					printf("Instructing primary to send checkpoint failed\n");
-					ret = -1;
-				}
-                printf("sent checkpoint message\n");
-
-                //stop quisce
-                status = stop_quiesce_all();
-				if (status < 0) {
-					printf("send stop all quiesce request failed\n");
-					ret = -1;
-				}
-
-                status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
-				if (status < 0) {
-					printf("Sending state to backup failed\n");
-					ret = -1;
-				}
-			}
+            }
 		}
 
 		data.node[replica_id].state = fault_detector_ctx.state;
 	
 	} else if (fault_detector_ctx.state == FAULTED) {
-		if (mode == 0) {
-			// Passive mode
+        if(data.node[replica_id].state != SENT_STARTUP_REQ) {
+            if (mode == 0) {
+                // Passive mode
 
-			if (primary_replica_id == -1) {
-				// No primary replica. Elect new one
+                if (primary_replica_id == -1) {
+                    // No primary replica. Elect new one
 
-				if (restart_server(replica_id) != 0) {
-					printf("Startup req could not be sent\n");
-				} else {
-					printf("Sent startup messaage to server %d\n", replica_id);
-				}
-				
-				primary_replica_id = replica_id;
+                    if (restart_server(replica_id) != 0) {
+                        printf("Startup req could not be sent\n");
+                    } else {
+                        printf("Sent startup messaage to server %d\n", replica_id);
+                    }
+                    
+                    primary_replica_id = replica_id;
 
-			} else if (replica_id == primary_replica_id) {
-				// Primary replica faulted. Restart it.
-				// Elect new replica and ask it to send
-				// checkpoint
+                } else if (replica_id == primary_replica_id) {
+                    // Primary replica faulted. Restart it.
+                    // Elect new replica and ask it to send
+                    // checkpoint
 
-				if (restart_server(replica_id) != 0) {
-					printf("Startup req could not be sent\n");
-				} else {
-					printf("Sent startup messaage to server %d\n", replica_id);
-				}
-				
-				primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
-				status = elect_new_primary(primary_replica_id);
-				if (status < 0) {
-					printf("Primary election failed\n");
-					ret = -1;
-				}
-			
-				membership.needs_checkpoint[replica_id] = 1;	
-			} else {
-				// Backup replica faulted. Restart it.
+                    if (restart_server(replica_id) != 0) {
+                        printf("Startup req could not be sent\n");
+                    } else {
+                        printf("Sent startup messaage to server %d\n", replica_id);
+                    }
+                    
+                    primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
+                    /*status = elect_new_primary(primary_replica_id);
+                    if (status < 0) {
+                        printf("Primary election failed\n");
+                        ret = -1;
+                    }*/
+                
+                    membership.needs_checkpoint[replica_id] = 1;	
+                } else {
+                    // Backup replica faulted. Restart it.
 
-				if (restart_server(replica_id) != 0) {
-					printf("Startup req could not be sent\n");
-				} else {
-					printf("Sent startup messaage to server %d\n", replica_id);
-				}
-				
-				membership.needs_checkpoint[replica_id] = 1;	
-			}
-
-		} else if (mode == 1) {
-			// Active mode
-
-			if (restart_server(replica_id) != 0) {
-				printf("Startup req could not be sent\n");
-			} else {
-				printf("Sent startup messaage to server %d\n", replica_id);
-            }
-
-			if (primary_replica_id == -1) {
-				// No primary replica. Elect new one
-				primary_replica_id = replica_id;
-
-
-			} else if (replica_id == primary_replica_id) {
-				// Primary replica faulted. Restart it.
-				// Elect new replica and ask it to send
-				// checkpoint
-				primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
-                status = elect_new_primary(primary_replica_id);
-                if (status < 0) {
-                    printf("Primary election failed\n");
-                    ret = -1;
+                    if (restart_server(replica_id) != 0) {
+                        printf("Startup req could not be sent\n");
+                    } else {
+                        printf("Sent startup messaage to server %d\n", replica_id);
+                    }
+                    
+                    membership.needs_checkpoint[replica_id] = 1;	
                 }
-			}
-        } 
-		data.node[replica_id].state = FAULTED;
+
+            } else if (mode == 1) {
+                // Active mode
+
+                if (restart_server(replica_id) != 0) {
+                    printf("Startup req could not be sent\n");
+                } else {
+                    printf("Sent startup messaage to server %d\n", replica_id);
+                }
+
+                if (replica_id == primary_replica_id) {
+                    // Primary replica faulted. Restart it.
+                    // Elect new replica and ask it to send
+                    // checkpoint
+                    primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
+                    status = elect_new_primary(primary_replica_id);
+                    if (status < 0) {
+                        printf("Primary election failed\n");
+                        ret = -1;
+                    }
+                }
+            } 
+            data.node[replica_id].state = FAULTED;
+        }
 	}
 
     // check if unstable state
@@ -565,7 +578,7 @@ int handle_current_state() {
             printf("Unhandled state :/\n");
         }
     }
-
+    
     return 0;
 }
 
@@ -598,6 +611,8 @@ int restart_server(int replica_id) {
     }
 
     close(clientfd);
+
+    data.node[replica_id].state = SENT_STARTUP_REQ;
 
     return 0;
 }
@@ -732,7 +747,7 @@ static int quiesce_message(int replica_id) {
 			"Factory Req: %d\r\n\r\n",
 			replica_id, QUIESCE_BEGIN);
 
-	printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
+	printf("sent quiesce start message to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -763,7 +778,7 @@ static int quiesce_stop_message(int replica_id) {
 			"Factory Req: %d\r\n\r\n",
 			replica_id, QUIESCE_STOP);
 
-	printf("Instruct primary to send chkpt %d\n  Buf %s\n", replica_id, buf);
+	printf("sent quiesce stop message to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -786,9 +801,8 @@ static int quiesce_stop_message(int replica_id) {
 static int quiesce_all() {
     int ret = 0;
     for(int i = 0; i < MAX_REPLICAS; i++) {
-        if(data.node[i].state == RUNNING) {
+        if(data.node[i].state == RUNNING)
             ret += quiesce_message(i);
-        }
     }
     return ret;
 }
@@ -796,9 +810,8 @@ static int quiesce_all() {
 static int stop_quiesce_all() {
     int ret = 0;
     for(int i = 0; i < MAX_REPLICAS; i++) {
-        if(data.node[i].state == RUNNING) {
+        if(data.node[i].state == RUNNING)
             ret += quiesce_stop_message(i);
-        }
     }
     return ret;
 }

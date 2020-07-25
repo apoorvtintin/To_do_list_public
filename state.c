@@ -30,7 +30,7 @@ void set_state(server_states_t s_state) {
     dbg_requires(
         (server_state.rep_mode != UNKNOWN_REP)); // Make sure rep mode was set
     if (server_state.rep_mode == ACTIVE_REP) {
-        if (s_state != ACTIVE_RUNNING && s_state != ACTIVE_RECOVER) {
+        if (s_state != ACTIVE_RUNNING && s_state != ACTIVE_RECOVER && s_state != QUIESCE) {
             dbg_ensures(false);
         }
     } else if (server_state.rep_mode == PASSIVE_REP) {
@@ -73,7 +73,7 @@ char *server_states_str(server_states_t server_state) {
     case UNKNOWN_STATE:
         return "UNKNOWN_STATE";
     case QUIESCE:
-        return "ACTIVE_RUNNING";
+        return "QUIESCE";
     case ACTIVE_RUNNING:
         return "ACTIVE_RUNNING";
     case ACTIVE_RECOVER:
