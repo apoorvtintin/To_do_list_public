@@ -44,4 +44,6 @@ log_node_t *dequeue(server_log_t *svr, log_msg_type m_type);
 
 int enqueue(server_log_t *svr, log_node_t *node, log_msg_type m_type);
 
+size_t get_count(server_log_t *svr, log_msg_type m_type);
+
 #endif

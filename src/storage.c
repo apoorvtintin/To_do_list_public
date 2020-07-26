@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "c_s_iface.h"
 #include "db.h"
@@ -47,12 +50,30 @@ int storage_init() { return hash_table_init(); }
 
 void storage_deinit() { hash_table_deinit(); }
 
+void export_db(char *file) {
+    export_db_internal(file);
+    return;
+}
+
+void print_state() {
+    print_state_internal();
+    return;
+}
+
+int import_db(char *file) {
+    import_db_internal(file);
+    return 0;
+}
+
 int handle_storage(client_ctx_t *client_ctx) {
     client_request_t *req = &client_ctx->req;
     msg_type_t msg_type = req->msg_type;
     int ret = 0;
     uint8_t *buffer;
     uint64_t old_key;
+
+    printf("HANDLE STORAGE MESSAGE TYPE %d\n", msg_type);
+
     switch (msg_type) {
     case MSG_ADD:
         req->hash_key =
@@ -75,6 +96,13 @@ int handle_storage(client_ctx_t *client_ctx) {
     case INVALID:
     case MSG_HEARTBEAT:
         ret = 0;
+        break;
+    case MSG_CHK_PT: {
+        ret = import_db(client_ctx->req.filename);
+        ret = 0;
+        remove(client_ctx->req.filename);
+        print_state();
+    }
         break;
     default:
         ret = -1;

@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #include "c_s_iface.h"
 #include "util.h"
@@ -156,7 +157,11 @@ int send_and_get_response(char *buf, struct message_response *response) {
             continue;
         }
 
-        get_response_from_server(clientfd, response);
+        status = get_response_from_server(clientfd, response);
+        if (status < 0) {
+            close(clientfd);
+            continue;
+        }
 
         close(clientfd);
 
@@ -399,7 +404,7 @@ void parse_and_prepare_server_array(char *file) {
             i++;
             memset(line, 0, 1024);
             memset(temp, 0, 1024);
-            server_arr.count = i + 1;
+            server_arr.count = i;
             continue;
         }
 

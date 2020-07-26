@@ -10,7 +10,7 @@
 #define SHA_40_len 4
 #define hash_table_len 13
 // prime close to 1024
-#define MAX_DATA_LEN 512
+#define MAX_DATA_LEN 1024
 
 /* DATABASE STRUCTURES */
 
@@ -44,5 +44,11 @@ int hash_table_get_dat_size();
 int hash_table_init();
 
 void hash_table_deinit();
+
+void export_db_internal(char *file);
+
+int import_db_internal(char *file);
+
+void print_state_internal();
 
 /* EOF */

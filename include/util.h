@@ -5,21 +5,17 @@
  * for the distributed app.
  */
 
-#include "c_s_iface.h"
-
 #ifndef __UTIL__H
 #define __UTIL__H
+
+#include "c_s_iface.h"
+
 typedef struct buf_fd {
     int fd;
     char buf[8192];
     char *buf_ptr;
     size_t bytes_pend;
 } sock_buf_read;
-
-struct server_info {
-    char server_ip[1024];
-    int port;
-};
 
 // Socket Read and write funnctions which account for
 // short counts.
@@ -31,10 +27,13 @@ int str_to_int(char *str, int *res);
 void init_buf_fd(sock_buf_read *ptr, int fd);
 
 int connect_to_server(struct server_info *server);
-void get_response_from_server(int clientfd, struct message_response *response);
+int get_response_from_server(int clientfd, struct message_response *response);
 int parse_response_from_server(struct message_response *response,
                                int client_id);
 char *get_task_status_str(enum t_status stat);
 char *get_msg_type_str(msg_type_t msg_type);
+
+unsigned long get_file_size(char *filename);
+void init_bsvr_ctx(bsvr_ctx *obj);
 
 #endif

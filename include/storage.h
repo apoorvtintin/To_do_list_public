@@ -14,3 +14,9 @@ int storage_init();
 void storage_deinit();
 
 int handle_storage(client_ctx_t *client_ctx);
+
+void export_db(char *file);
+
+int import_db(char *file);
+
+void print_state();

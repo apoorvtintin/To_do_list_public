@@ -133,6 +133,8 @@ int enqueue(server_log_t *svr, log_node_t *node, log_msg_type m_type) {
         }
         node->next = svr->nrl_head;
         node->prev = svr->nrl_tail;
+        svr->nrl_tail->next = node;
+        svr->nrl_head->prev = node;
         svr->nrl_tail = node;
         svr->nrl_count++;
     } else if (m_type == CONTROL) {
@@ -146,6 +148,8 @@ int enqueue(server_log_t *svr, log_node_t *node, log_msg_type m_type) {
         }
         node->next = svr->ctrl_head;
         node->prev = svr->ctrl_tail;
+        svr->ctrl_tail->next = node;
+        svr->ctrl_head->prev = node;
         svr->ctrl_tail = node;
         svr->ctrl_count++;
     }
