@@ -6,3 +6,4 @@ local_f_detector
 factory
 replication_manager
 tmp/*
+cscope.out
