@@ -72,7 +72,7 @@ int handle_storage(client_ctx_t *client_ctx) {
     uint8_t *buffer;
     uint64_t old_key;
 
-    printf("HANDLE STORAGE MESSAGE TYPE %d\n", msg_type);
+    // printf("HANDLE STORAGE MESSAGE TYPE %d\n", msg_type);
 
     switch (msg_type) {
     case MSG_ADD:

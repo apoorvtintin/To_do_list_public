@@ -104,7 +104,7 @@ _END:
 
 void send_checkpoint_ondemand()
 {
-        printf("Sending Checkpoint on demand\n");
+    //printf("Sending Checkpoint on demand\n");
     open_ports_secondary();
 
     // Add code to get the checkpoint
@@ -146,7 +146,7 @@ void *send_checkpoint(void *argvp) {
         }
         msg_count = 0;
 #endif
-printf("Sending Checkpoint ffrequency\n");
+		//printf("Sending Checkpoint frequency\n");
         open_ports_secondary();
 
         // Add code to get the checkpoint

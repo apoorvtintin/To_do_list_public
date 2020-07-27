@@ -267,7 +267,7 @@ void *handle_connection(void *arg) {
 
     while (1) {
         msg_len = sock_readline(&client_fd, msg_buf, MAXMSGSIZE);
-        write(1,msg_buf, msg_len);
+        //write(1,msg_buf, msg_len);
         if (msg_len == 0) {
             // The client closed the connection we should to.
             fprintf(stderr, "Client close connection!!\n");

@@ -371,10 +371,6 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     int ret = 0;
 	int status = 0;
 
-    if(mode == 1) {
-        printf("primary active replica is %d\n", primary_replica_id);
-    }
-
     pthread_mutex_lock(lock);
     // change internal state
     int replica_id = fault_detector_ctx.replica_id;
@@ -443,7 +439,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 
                     //quiesce them all servers
                     status = quiesce_all();
-                    printf("sent quiesce all message\n");
+                    //printf("sent quiesce all message\n");
 
                     //send and apply checkpoint
                     status = instruct_primary_to_send_chkpt(primary_replica_id);
@@ -451,14 +447,14 @@ int handle_state(replication_manager_message fault_detector_ctx) {
                         printf("Instructing primary to send checkpoint failed\n");
                         ret = -1;
                     }
-                    printf("sent checkpoint message\n");
+                    //printf("sent checkpoint message\n");
                     
                     //give primary time to send checkpoint
                     sleep(2);
 
                     //stop quiesce
                     status = stop_quiesce_all();
-                    printf("sent stop quiesce all message\n");
+                    //printf("sent stop quiesce all message\n");
 
                     status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
                     if (status < 0) {
