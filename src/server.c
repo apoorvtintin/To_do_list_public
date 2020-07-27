@@ -351,13 +351,21 @@ void *handle_connection(void *arg) {
         }
     }
 
+#if 0
+	if ((get_state() == PASSIVE_PRIMARY) &&
+		(client_ctx->req.msg_type != MSG_HEARTBEAT) && 
+		(client_ctx->req.msg_type != MSG_REP_MGR)) {
+		
+		exit(0);
+	}
+#endif
+
     if (enqueue_client_req(&svr_log, client_ctx) != 0) {
         fprintf(stderr, "Enqueue failed, thats bad!!!\n");
         goto _EXIT;
     }
     //TODO what about UNKNOWN state?
-    if (((get_mode() == PASSIVE_REP && get_state() == PASSIVE_BACKUP) ||  
-        (get_mode() == ACTIVE_REP && get_state() == ACTIVE_RECOVER)) &&
+    if (((get_mode() == ACTIVE_REP && get_state() == ACTIVE_RECOVER)) &&
         (client_ctx->req.msg_type != MSG_HEARTBEAT) &&
         (client_ctx->req.msg_type != MSG_REP_MGR)) {
         close(client_ctx->fd);

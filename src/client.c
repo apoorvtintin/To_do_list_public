@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <poll.h>
 
 #include "c_s_iface.h"
 #include "util.h"
@@ -141,6 +142,11 @@ int send_and_get_response(char *buf, struct message_response *response) {
     int status = 0;
     int success = 0;
     int i = 0;
+	struct pollfd pfds[server_arr.count];
+	int num_open_fds = 0;
+	int nfds = 0;
+
+	memset(pfds, 0, server_arr.count * sizeof(struct pollfd));
 
     for (i = 0; i < server_arr.count; i++) {
 
@@ -157,36 +163,67 @@ int send_and_get_response(char *buf, struct message_response *response) {
             continue;
         }
 
-        status = get_response_from_server(clientfd, response);
-        if (status < 0) {
-            close(clientfd);
-            continue;
-        }
+		pfds[i].fd = clientfd;
+		pfds[i].events = POLLIN;
+		nfds++;
+	}
 
-        close(clientfd);
+	num_open_fds = nfds;
 
-        if (response->req_no == response_no_g) {
-            printf("\nServer %d response, but reponse already recieved for "
-                   "request no %d\n",
-                   i + 1, response_no_g);
-            continue;
-        }
+	while (num_open_fds > 0) {
+		status = poll(pfds, nfds, -1);
+		if (status == -1) {
+			printf("Poll failed\n");
+		}
 
-        response_no_g++;
+		for (int j = 0; j < nfds; j++) {
+			if (pfds[j].revents != 0) {
+				if (pfds[j].revents & POLLIN) {
+					status = get_response_from_server(pfds[j].fd, response);
+					if (status < 0) {
+						close(pfds[j].fd);
+						continue;
+					}
 
-        status = parse_response_from_server(response, client_id);
-        if (status < 0) {
-            continue;
-        }
+					close(pfds[j].fd);
+					pfds[j].fd = -1;
+					num_open_fds--;
 
-        success = 1;
-    }
+					if (response->req_no == response_no_g) {
+						printf("\nReponse already recieved for "
+								"request no %d\n", response_no_g);
+						continue;
+					}
 
-    if (success == 1) {
-        return 0;
-    } else {
-        return -1;
-    }
+					response_no_g++;
+
+					status = parse_response_from_server(response, client_id);
+					if (status < 0) {
+						continue;
+					}
+
+					success = 1;
+				}
+			}
+		}
+
+		if (success == 1) {
+			for (int j = 0; j < nfds; j++) {
+				if (pfds[j].fd == -1)
+					continue;
+
+				close(pfds[j].fd);
+				pfds[j].fd = -1;
+				num_open_fds--;
+			}
+		}
+	}
+	
+	if (success == 1) {
+		return 0;
+	} else {
+		return -1;
+	}
 }
 
 void print_task_details(char *task, char *date, enum t_status status,

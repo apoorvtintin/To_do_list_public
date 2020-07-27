@@ -499,11 +499,11 @@ int handle_state(replication_manager_message fault_detector_ctx) {
                     }
                     
                     primary_replica_id = (replica_id + 1) % MAX_REPLICAS;
-                    /*status = elect_new_primary(primary_replica_id);
+                    status = elect_new_primary(primary_replica_id);
                     if (status < 0) {
                         printf("Primary election failed\n");
                         ret = -1;
-                    }*/
+                    }
                 
                     membership.needs_checkpoint[replica_id] = 1;	
                 } else {
