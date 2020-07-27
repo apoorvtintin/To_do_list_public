@@ -28,8 +28,8 @@
 #include "replication_util.h"
 
 // Definitions
-#define SERVER_PATH "server"
-#define FAULT_DETECTOR_PATH "local_f_detector"
+#define SERVER_PATH "bin/server"
+#define FAULT_DETECTOR_PATH "bin/local_f_detector"
 
 // Global Variables
 long verbose = 0;
