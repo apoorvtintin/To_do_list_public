@@ -72,6 +72,7 @@ struct message_response {
     int client_id;
     char status[TASK_LENGTH];
     int req_no;
+	server_states_t state;
 };
 
 #define MAXMSGSIZE sizeof(struct message_modify)

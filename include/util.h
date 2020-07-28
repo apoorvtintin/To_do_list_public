@@ -35,5 +35,6 @@ char *get_msg_type_str(msg_type_t msg_type);
 
 unsigned long get_file_size(char *filename);
 void init_bsvr_ctx(bsvr_ctx *obj);
+char *get_server_state_str(server_states_t msg_type);
 
 #endif

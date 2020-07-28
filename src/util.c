@@ -177,9 +177,15 @@ int get_response_from_server(int clientfd, struct message_response *response) {
             // printf("Task Key: %llu\n", response->hash_key);
         }
 
+		if (!strncmp(resp_buf, "State", strlen("State"))) {
+			sscanf(resp_buf, "State: %s", temp);
+			response->state = atoi(temp);
+		}
+
         // printf("%s Read: %d\n", resp_buf, readn);
         // fflush(stdout);
         // sleep(1);
+		memset(temp, 0, TASK_LENGTH);
         memset(resp_buf, 0, MAX_LENGTH);
         readn = 0;
     }
@@ -243,6 +249,29 @@ char *get_msg_type_str(msg_type_t msg_type) {
     };
     return "NA_NA";
 }
+
+char *get_server_state_str(server_states_t msg_type) {
+    switch (msg_type) {
+    case UNKNOWN_STATE:
+        return "UNKNOWN_STATE";
+    case QUIESCE:
+        return "QUIESCE";
+    case ACTIVE_RUNNING:
+        return "ACTIVE_RUNNING";
+    case ACTIVE_RECOVER:
+        return "ACTIVE_RECOVER";
+    case PASSIVE_PRIMARY:
+        return "PASSIVE_PRIMARY";
+    case PASSIVE_BACKUP:
+        return "PASSIVE_BACKUP";
+    case PASSIVE_PREPRIMARY:
+        return "PASSIVE_PREPRIMARY";
+    default:
+        return "YOU FORGOT";
+    };
+    return "NA_NA";
+}
+
 void init_bsvr_ctx(bsvr_ctx *obj) {
     obj->fd = -1;
     memset(&obj->info, 0, sizeof(obj->info));

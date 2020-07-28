@@ -193,6 +193,9 @@ void print_current_state_info(replication_manager_message fault_detector_ctx) {
         (fault_detector_ctx.state == RUNNING)) {
         membership.server_status[id] = 1;
         membership.num_servers++;
+		if (membership.num_servers > MAX_REPLICAS) {
+			membership.num_servers = MAX_REPLICAS;
+		}
         printf("Server %d is up!\n", id);
     } else if ((membership.server_status[id] == 1) &&
                (fault_detector_ctx.state == FAULTED)) {
@@ -206,7 +209,8 @@ void print_current_state_info(replication_manager_message fault_detector_ctx) {
         if (membership.server_status[i] == 0) {
             continue;
         } else {
-            printf("Server %d: ACTIVE\n", i);
+            printf("Server %d: ACTIVE ----- %s\n", i, 
+				get_server_state_str(data.node[i].server_state));
         }
     }
     printf("\n***************************\n\n");
@@ -316,7 +320,7 @@ int send_change_status_to_server(int replica_id, rep_mode_t mode_rep,
                 replica_id, CHANGE_STATE,
                 mode_rep, server_state);
     }
-	printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
+	// printf("Sending status change to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -375,6 +379,7 @@ int handle_state(replication_manager_message fault_detector_ctx) {
     // change internal state
     int replica_id = fault_detector_ctx.replica_id;
     data.node[replica_id].last_heartbeat = 1;
+	data.node[replica_id].server_state = fault_detector_ctx.server_state;
 
 	// printf("Recieved message on RM Replica ID %d State %d\n",
 	//				replica_id, fault_detector_ctx.state);
@@ -690,6 +695,11 @@ parse_fault_detector_kv(replication_manager_message *fault_detector_ctx,
             printf("Msg type Conversion failed!!!\n");
             return -1;
         }
+    } else if (strcmp(key, "Server state") == 0) {
+        if (str_to_int(value, (int *)&fault_detector_ctx->server_state) != 0) {
+            printf("Server state Conversion failed!!!\n");
+            return -1;
+        }
     }
     return 0;
 }
@@ -743,7 +753,7 @@ static int quiesce_message(int replica_id) {
 			"Factory Req: %d\r\n\r\n",
 			replica_id, QUIESCE_BEGIN);
 
-	printf("sent quiesce start message to %d\n  Buf %s\n", replica_id, buf);
+	// printf("sent quiesce start message to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {
@@ -774,7 +784,7 @@ static int quiesce_stop_message(int replica_id) {
 			"Factory Req: %d\r\n\r\n",
 			replica_id, QUIESCE_STOP);
 
-	printf("sent quiesce stop message to %d\n  Buf %s\n", replica_id, buf);
+	// printf("sent quiesce stop message to %d\n  Buf %s\n", replica_id, buf);
 	
 	clientfd = connect_to_server(&data.node[replica_id].factory);
 	if (clientfd < 0) {

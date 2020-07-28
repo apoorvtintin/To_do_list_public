@@ -102,6 +102,15 @@ void write_client_responce(client_ctx_t *client_ctx, char *status, char *msg) {
                                                  "\r\n",
                      status, client_ctx->client_id, client_ctx->req.req_no, msg,
                      client_ctx->req.hash_key);
+    } else if (client_ctx->req.msg_type == MSG_HEARTBEAT) {
+        resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
+                                                        "Client ID: %d\r\n"
+                                                        "Request No: %lu\r\n"
+                                                        "Msg: %s\r\n"
+														"State: %d"
+                                                        "\r\n",
+                            status, client_ctx->client_id,
+                            client_ctx->req.req_no, msg, get_state());
     } else {
         resp_len = snprintf(resp_buf, sizeof(resp_buf), "Status: %s\r\n"
                                                         "Client ID: %d\r\n"

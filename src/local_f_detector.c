@@ -21,6 +21,7 @@
 #include "c_s_iface.h"
 #include "util.h"
 #include "replication_util.h"
+#include "state.h"
 
 struct server_info server;
 int interval_g = 0;
@@ -33,7 +34,7 @@ char local_ip[MAX_LENGTH];
 
 replication_manager rep_manager;
 
-int inform_rep_manager(enum replica_state state);
+int inform_rep_manager(enum replica_state state, server_states_t server_state);
 int send_rep_manager(char *buf, replication_manager_message message);
 
 void create_heartbeat_message_to_server(char *buf) {
@@ -63,6 +64,8 @@ void print_heartbeat_response_to_console(struct message_response *response) {
     printf("|  Request No       | \t    %d       \n", response->req_no);
     printf("|  Client ID        | \t    %d      \n", response->client_id);
     printf("|  Status           | \t    %s      \n", response->status);
+    printf("|  Server state     | \t    %s      \n", 
+					get_server_state_str(response->state));
     printf("---------------------------------------\n");
 
     printf("\nHeatbeats received: %d/%d\n", heartbeat_received_g,
@@ -77,6 +80,7 @@ void *heartbeat_signal(void *vargp) {
     int first_time = 1;
     char buf[MAX_LENGTH];
     struct message_response response;
+	server_states_t server_state = UNKNOWN_STATE;
 
     memset(buf, 0, MAX_LENGTH);
     memset(&response, 0, sizeof(struct message_response));
@@ -93,7 +97,8 @@ void *heartbeat_signal(void *vargp) {
             printf("Trying again in %d sec... \n\n\n", interval_g);
             fflush(stdout);
             connection = 1;
-            inform_rep_manager(FAULTED);
+			server_state = UNKNOWN_STATE;
+            inform_rep_manager(FAULTED, server_state);
             continue;
         }
 
@@ -101,7 +106,7 @@ void *heartbeat_signal(void *vargp) {
             first_time = 0;
             printf("\nServer %d is running\n\n", rep_manager.replica_id);
             fflush(stdout);
-            inform_rep_manager(RUNNING);
+            inform_rep_manager(RUNNING, server_state);
         }
 
         if (connection == 1) {
@@ -109,7 +114,7 @@ void *heartbeat_signal(void *vargp) {
             printf("\nConnection to server %d restored\n\n",
                    rep_manager.replica_id);
             fflush(stdout);
-            inform_rep_manager(RUNNING);
+            inform_rep_manager(RUNNING, server_state);
             // send message to replication manager
         }
 
@@ -123,6 +128,7 @@ void *heartbeat_signal(void *vargp) {
         }
 
         get_response_from_server(clientfd, &response);
+		server_state = response.state;
 
         status = parse_response_from_server(&response, client_id);
         if (status < 0) {
@@ -133,10 +139,11 @@ void *heartbeat_signal(void *vargp) {
             printf(" what>??? %s \n", __func__);
             fflush(stdout);
             connection = 1;
-            inform_rep_manager(FAULTED);
+			server_state = UNKNOWN_STATE;
+            inform_rep_manager(FAULTED, server_state);
             // send message to replication manager
         } else {
-            inform_rep_manager(RUNNING);
+            inform_rep_manager(RUNNING, server_state);
             printf("INFORMED RUNNING\n");
         }
 
@@ -226,7 +233,8 @@ int main(int argc, char *argv[]) {
     }
 }
 
-int inform_rep_manager(enum replica_state state) {
+int inform_rep_manager(enum replica_state state, 
+				server_states_t server_state) {
     replication_manager_message message;
     char buf[MAX_LENGTH];
 
@@ -235,8 +243,9 @@ int inform_rep_manager(enum replica_state state) {
     message.state = state;
 
     sprintf(buf, "Replica ID: %d\r\n"
-                 "Message Type: %d\r\n\r\n",
-            message.replica_id, message.state);
+                 "Message Type: %d\r\n"
+				 "Server state: %d\r\n\r\n",
+            message.replica_id, message.state, server_state);
 
     fflush(stdout);
     return send_rep_manager(buf, message);
