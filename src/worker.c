@@ -17,17 +17,18 @@
 // Global Static Data
 static server_log_t *gs_server_log = NULL;
 static volatile int is_prune = 0;
-static volatile server_states_t prev_state;
+volatile server_states_t prev_state;
 static hdl_nrl_t hdl_nrl;
 static hdl_ctrl_t hdl_ctrl;
 
 void put_in_quiesence() { 
-        prev_state = get_state();
-        set_state(QUIESCE);
-    }
+	prev_state = get_state();
+	set_state(QUIESCE);
+}
 
 void remove_from_quiesence() { 
     set_state(prev_state);
+	prev_state = get_state();
 }
 
 void set_worker_prune() { is_prune = 1; }

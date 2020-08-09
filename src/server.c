@@ -37,7 +37,7 @@ int msg_count = 0;
 uint64_t chk_point_num;
 int config_done =0 ;
 pthread_mutex_t storage_lock;
-
+extern volatile server_states_t prev_state;
 
 
 // Local help functions
@@ -413,7 +413,8 @@ void *execute_msg_ctrl(void *arg) {
     case MSG_HEARTBEAT:
         break;
     case MSG_SEND_CHKPT:
-        send_checkpoint_ondemand();
+		if(prev_state != ACTIVE_RECOVER)
+        	send_checkpoint_ondemand();
         break;
     default:
         fprintf(stderr, "Unknown/Unhandled MSG \n");
