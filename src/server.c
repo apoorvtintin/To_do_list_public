@@ -37,7 +37,7 @@ int msg_count = 0;
 uint64_t chk_point_num;
 int config_done =0 ;
 pthread_mutex_t storage_lock;
-
+extern volatile server_states_t prev_state;
 
 
 // Local help functions
@@ -394,7 +394,7 @@ _EXIT:
 
 void handle_rep_msg(client_ctx_t *client_ctx) {
     rep_mgr_msg_t *rep_mgr_msg = &client_ctx->req.rep_mgr_msg;
-    if(get_mode() == UNKNOWN_REP)
+    //if(get_mode() == UNKNOWN_REP)
         set_mode(rep_mgr_msg->rep_mode);
     kill_chkpt_thrd_if_running();
 	set_bckup_servers(rep_mgr_msg->bckup_svr);
@@ -413,7 +413,13 @@ void *execute_msg_ctrl(void *arg) {
     case MSG_HEARTBEAT:
         break;
     case MSG_SEND_CHKPT:
-        send_checkpoint_ondemand();
+		if(get_mode() == PASSIVE_REP) {
+			send_checkpoint_ondemand();
+		} else if (get_mode() == ACTIVE_REP) {
+			if(prev_state == ACTIVE_RUNNING) {
+				send_checkpoint_ondemand();
+			}
+		}
         break;
     default:
         fprintf(stderr, "Unknown/Unhandled MSG \n");

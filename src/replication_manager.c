@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "c_s_iface.h"
 #include "util.h"
@@ -25,8 +26,11 @@
 long verbose = 0;
 rep_manager_data data;
 pthread_mutex_t *lock;
+pthread_mutex_t *lock, *lock_mode;
+int queisce = 0;
 
-int mode = 0;
+sig_atomic_t mode = 0;
+sig_atomic_t change_needed[3] = {0,0,0};
 int primary_replica_id = -1;
 
 struct membership_data {
@@ -38,6 +42,9 @@ struct membership_data {
 struct membership_data membership;
 
 // FORWARD DECLARATIONS
+static void init_server_mode_change();
+static bool status_change_left(int replica_id);
+static void setup_mode_change();
 static int stop_quiesce_all();
 static int quiesce_all();
 static int quiesce_stop_message(int replica_id);
@@ -117,6 +124,8 @@ int main(int argc, char *argv[]) {
     init_gfd_hbt();
 
 	init_server_state();
+
+	init_server_mode_change();
 
     memset(&client_addr, 0, sizeof(struct sockaddr));
     while (1) {
@@ -422,8 +431,16 @@ int handle_state(replication_manager_message fault_detector_ctx) {
 				// Active mode
 
                 if (primary_replica_id == -1) {
+
+					primary_replica_id = replica_id;
+
+					status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RECOVER);
+                    if (status < 0) {
+                        printf("Sending state to backup failed\n");
+                        ret = -1;
+                    }
+
                     // first Active server up make sure it in running state
-                    primary_replica_id = replica_id;
                     status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
                     if (status < 0) {
                         printf("Sending state to backup failed\n");
@@ -468,6 +485,70 @@ int handle_state(replication_manager_message fault_detector_ctx) {
                     }
                 }
             }
+		}  else {
+			
+			setup_mode_change();
+			if(status_change_left(replica_id)) {
+				if(mode == 0) { //passive
+					if(primary_replica_id == -1) {
+						status = send_change_status_to_server(replica_id, PASSIVE_REP, PASSIVE_PRIMARY);
+						if (status < 0) {
+							printf("Sending state to backup failed\n");
+							ret = -1;
+						}
+
+						primary_replica_id = replica_id;
+
+						status = elect_new_primary(primary_replica_id);
+						if (status < 0) {
+							printf("Primary election failed\n");
+							ret = -1;
+						}
+						change_needed[replica_id] = 0;
+
+					} else if(replica_id == primary_replica_id) {
+						status = send_change_status_to_server(replica_id, PASSIVE_REP, PASSIVE_PRIMARY);
+						if (status < 0) {
+							printf("Sending state to backup failed\n");
+							ret = -1;
+						}
+
+						status = elect_new_primary(primary_replica_id);
+						if (status < 0) {
+							printf("Primary election failed\n");
+							ret = -1;
+						}
+
+						change_needed[replica_id] = 0;
+					} else {
+						status = send_change_status_to_server(replica_id, PASSIVE_REP, PASSIVE_BACKUP);
+						if (status < 0) {
+							printf("Sending state to backup failed\n");
+							ret = -1;
+						}
+						change_needed[replica_id] = 0;
+					}
+				} else if(mode == 1){ //active
+					if(primary_replica_id == -1) {
+						printf("WARNING: passive did not have primary before\n");
+
+					}
+					/*if(replica_id == primary_replica_id){
+						status = instruct_primary_to_send_chkpt(primary_replica_id);
+						if (status < 0) {
+							printf("Instructing primary to send checkpoint failed\n");
+							ret = -1;
+						}
+					}*/
+
+					status = send_change_status_to_server(replica_id, ACTIVE_REP, ACTIVE_RUNNING);
+					if (status < 0) {
+						printf("Sending state to backup failed\n");
+						ret = -1;
+					}
+					change_needed[replica_id] = 0;
+				}
+			}
 		}
 
 		data.node[replica_id].state = fault_detector_ctx.state;
@@ -820,4 +901,69 @@ static int stop_quiesce_all() {
             ret += quiesce_stop_message(i);
     }
     return ret;
+}
+
+void* mode_change_menu() {
+	char c;
+	while(1) {
+		scanf("%c", &c);
+		if(c == 'a') {
+			if(mode != 1) {
+				pthread_mutex_lock(lock_mode);
+				for(int i = 0; i < MAX_REPLICAS; i++) {
+					change_needed[i] = 1;
+				}
+				mode = 1;
+				write(STDERR_FILENO, "mode changed from PASSIVE to ACTIVE\n", strlen("mode changed from passive to ACTIVE\n"));
+				pthread_mutex_unlock(lock_mode);
+			}
+		} else if( c == 'p') {
+			if(mode != 0) {
+				pthread_mutex_lock(lock_mode);
+				for(int i = 0; i < MAX_REPLICAS; i++) {
+					change_needed[i] = 1;
+				}
+				mode = 0;
+				write(STDERR_FILENO, "mode changed from ACTIVE to PASSIVE\n", strlen("mode changed from passive to ACTIVE\n"));
+				pthread_mutex_unlock(lock_mode);
+			}
+		}
+	}
+}
+
+void init_server_mode_change() {
+    pthread_t tid;
+
+    lock_mode = malloc(sizeof(pthread_mutex_t));
+    if (pthread_mutex_init(lock_mode, NULL) != 0) {
+        exit(-1);
+    }
+    pthread_create(&tid, NULL, mode_change_menu, NULL);
+    return;
+}
+
+void setup_mode_change() {
+	if(change_needed[1] || change_needed[0] || change_needed[2]) {
+		if(queisce != 1) {
+			quiesce_all();
+			queisce = 1;
+		}
+	} else {
+		if(queisce != 0) {
+			stop_quiesce_all();
+			queisce = 0;
+			/*if(mode == 1) {
+				int status = instruct_primary_to_send_chkpt(primary_replica_id);
+				if (status < 0) {
+					printf("Instructing primary to send checkpoint failed\n");
+				}
+			}*/
+		}
+	}
+}
+
+bool status_change_left(int replica_id) {
+	if(change_needed[replica_id] == 1)
+		return true;
+	return false;
 }

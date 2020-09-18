@@ -12,22 +12,24 @@
 #include "chkpt.h"
 #include "dbg_assert.h"
 
+extern volatile server_states_t prev_state;
+
 // Global variables
 static volatile run_state_t server_state = {UNKNOWN_REP, UNKNOWN_STATE};
 
 void set_mode(rep_mode_t rep_mode) {
     // If state was not unknown, then assert,
     // we dont want to switch b/w active repl and warm passive
-    dbg_requires(server_state.rep_mode == UNKNOWN_REP);
-    dbg_ensures(((rep_mode > UNKNOWN_REP) && (rep_mode <= PASSIVE_REP)));
+    //dbg_requires(server_state.rep_mode == UNKNOWN_REP);
+    //dbg_ensures(((rep_mode > UNKNOWN_REP) && (rep_mode <= PASSIVE_REP)));
     server_state.rep_mode = rep_mode;
-    dbg_printf("State set to %s\n", rep_mode_str(server_state.rep_mode));
+    dbg_printf("mode set to %s\n", rep_mode_str(server_state.rep_mode));
 }
 
 void set_state(server_states_t s_state) {
     dbg_printf("\nTrying to set state to %s; cur mode = %s, cur state = %s\n", server_states_str(s_state),
             rep_mode_str(server_state.rep_mode), server_states_str(server_state.state));
-    dbg_requires(
+    /*dbg_requires(
         (server_state.rep_mode != UNKNOWN_REP)); // Make sure rep mode was set
     if (server_state.rep_mode == ACTIVE_REP) {
         if (s_state != ACTIVE_RUNNING && s_state != ACTIVE_RECOVER && s_state != QUIESCE) {
@@ -38,15 +40,26 @@ void set_state(server_states_t s_state) {
             s_state != PASSIVE_PREPRIMARY) {
             dbg_ensures(false);
         }
-    }
+    }*/
     // server_states_t prev_state = server_state.state;
+	if(server_state.rep_mode == ACTIVE_REP && server_state.state == UNKNOWN_STATE) {
+		if(s_state == ACTIVE_RUNNING) {
+			dbg_printf("\ndirect state change not allowed set state to %s; cur mode = %s, cur state = %s\n", server_states_str(s_state),
+            rep_mode_str(server_state.rep_mode), server_states_str(server_state.state));
+		}
+	}
+	if(server_state.state == QUIESCE)
+		prev_state = s_state;
     if (server_state.rep_mode == PASSIVE_REP) {
         if (s_state == PASSIVE_PRIMARY /*|| s_state == PASSIVE_PREPRIMARY*/) {
+			dbg_printf("checkpoint thread started\n\n");
             start_ckhpt_thread();
         } else if (s_state == PASSIVE_BACKUP) {
             kill_chkpt_thrd_if_running();
         }
-    }
+    } else if(server_state.rep_mode == ACTIVE_REP) {
+		kill_chkpt_thrd_if_running();
+	}
     server_state.state = s_state;
     dbg_printf("Server State set to %s\n",
                server_states_str(server_state.state));
