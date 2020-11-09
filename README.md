@@ -1,5 +1,9 @@
+
+
 # to_do_list
-A distributed to do list
+A distributed to do list which can be used to keep a replicated to do list on a Fault tolerant distributed system. This System stores and keeps the To-Do-List on upto 3 replicated servers. This project was made for course 18-749 Building Reliable Distributed Systems in Summer 2020.
+
+This involved the design and implementation of an industry-grade fault-tolerant distributed asynchronous system, with heartbeats, distributed consensus, total ordering, checkpointing, and logging to provide strong consistency for a distributed replicated application. This project involved supporting different replication styles (active, or hot-swap replication, as well as  passive, or primary-backup replication), along with mechanisms to ensure no downtime even as crash faults are injected.
 
 ---
 
